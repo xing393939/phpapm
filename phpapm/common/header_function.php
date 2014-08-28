@@ -190,9 +190,9 @@ function _php_runtime()
         }
         if ($get_included_files_count > 9) {
             if (ADD_PROJECT !== null)
-                _status($get_included_files_count, VHOST . "(BUG错误)", "包含文件", ADD_PROJECT, $diff_time_str, GET_INCLUDED_FILES, var_export($get_included_files_2, true) . "\n");
+                _status($get_included_files_count, VHOST . "(PHPAPM)", "包含文件", ADD_PROJECT, $diff_time_str, GET_INCLUDED_FILES, var_export($get_included_files_2, true) . "\n");
             else
-                _status($get_included_files_count, VHOST . "(BUG错误)", "包含文件", $diff_time_str, GET_INCLUDED_FILES, var_export($get_included_files_2, true));
+                _status($get_included_files_count, VHOST . "(PHPAPM)", "包含文件", $diff_time_str, GET_INCLUDED_FILES, var_export($get_included_files_2, true));
         }
 
         $is_html = (bool)strpos(array_pop($get_included_files_2), '.html');

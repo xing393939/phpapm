@@ -77,24 +77,24 @@ class report_monitor_group extends project_config
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.资源', GROUP_NAME='数据库',as_name=null  where  V1 like '%(SQL统计)%'
-               or  v1 like '%(统计消耗)%'  or v1 like '%(MySQL统计)'   ";
+        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='数据库',as_name=null  where  V1 like '%(SQL统计)%'
+                or v1 like '%(MySQL统计)'   ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='1.项目', GROUP_NAME='基本统计',as_name=null  where    V1 like '%(BUG错误)%'    or v1 like '%(断点耗时)' or  v1 like '%(WEB日志分析)%' or v1 = '1.汇总'";
+        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='1.项目', GROUP_NAME='基本统计',as_name=null  where    V1 like '%(BUG错误)%'    or v1 like '%(断点耗时)' or  v1 like '%(WEB日志分析)%'";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.资源', GROUP_NAME='Memcache',as_name=null  where   v1 like '%(Memcache)%'  or v1 like '%(Memcache)%' or v1 like '%(Memcache状态)%' or v1 like '%(Memcahe连接)%' or v1 like '%(Couchbase)%'  ";
+        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='Memcache',as_name=null  where   v1 like '%(Memcache)%'  or v1 like '%(Memcache)%' or v1 like '%(Memcache状态)%' or v1 like '%(Memcahe连接)%' or v1 like '%(Couchbase)%'  ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.资源', GROUP_NAME='API接口',as_name=null  where v1 like '%(网址抓取)%'  or v1 like '%(FTP)%'  ";
+        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='API接口',as_name=null  where v1 like '%(网址抓取)%'  or v1 like '%(FTP)%'  ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.资源', GROUP_NAME='邮件',as_name=null  where v1 like '%(邮件系统)%' ";
+        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='邮件',as_name=null  where v1 like '%(邮件系统)%' ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
@@ -102,15 +102,15 @@ class report_monitor_group extends project_config
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1}  t set  GROUP_NAME_1='数据指标', GROUP_NAME_2='3.资源', GROUP_NAME='Redis',as_name=null  where V1 like '%(Redis)%' or V1 like '%(Redis连接)%' ";
+        $sql = "update  {$this->report_monitor_v1}  t set  GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='Redis',as_name=null  where V1 like '%(Redis)%' or V1 like '%(Redis连接)%' ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1}  t set  GROUP_NAME_1='数据指标', GROUP_NAME_2='3.资源', GROUP_NAME='Redis',as_name=null  where V1 like '%(Redis效率BUG)%' or V1 like '%(Redis连接效率)%' ";
+        $sql = "update  {$this->report_monitor_v1}  t set  GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='Redis',as_name=null  where V1 like '%(Redis效率BUG)%' or V1 like '%(Redis连接效率)%' ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='4.作废', GROUP_NAME='作废',as_name=null  where   v1 like '%(Memcahe连接错误)%' or v1 like '%(Memcache)NEW%' or v1 like '%(Memcache使用错误)%' or v1 like '%(Memcahe错误)%'  or v1 like '%(Memcahe连接)%' or v1 like '%(Memcache移动)' or v1 like '%(Memcahe连接效率)%' or v1 like '%(Memcahe整体耗时)%' or v1 like '%(安全BUG)%' or v1 like '%(Memcahe效率BUG)%' or v1 like '%(程序效率BUG)%' or v1 like '%(数据库被连接)%' or v1 like '%(接口效率)%' or  v1 like '%SQL效率BUG)%' or v1 like '%(数据库连接%'  or  v1 like '%(SQL统计)[项目]%' or v1 like '%(数据库表大小)%'   or v1 like '%(数据库表空间)%' or v1 like '%(队列服务)%' or  v1 like '%(登录日志%' or v1 like '%(包含文件)[项目]%' or v1 like '%(Mysql使用错误)%'  or v1 like '%(包含文件)%' or v1 like '%(问题SQL)%' or v1 like '%(统计消耗)%' or v1 like '%(服务器)%' or v1 like '%(接口测试)%' or v1 like '%文件系统读写%' or v1 like '%(功能执行)%' or v1 like '%(服务器进程)%'  or v1 like '%(代码%'  or v1 like '%(FTP效率BUG)%'   or v1 like '%(服务器进程)%' or v1 like '%(队列信息)' or v1 like '%(账户日志)%' or v1 like '%(函数分布)%' or v1 like '%(文件系统%' ";
+        $sql = "update  {$this->report_monitor_v1} t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.作废', GROUP_NAME='作废',as_name=null  where   v1 like '%(Memcahe连接错误)%' or v1 like '%(Memcache)NEW%' or v1 like '%(Memcache使用错误)%' or v1 like '%(Memcahe错误)%'  or v1 like '%(Memcahe连接)%' or v1 like '%(Memcache移动)' or v1 like '%(Memcahe连接效率)%' or v1 like '%(Memcahe整体耗时)%' or v1 like '%(安全BUG)%' or v1 like '%(Memcahe效率BUG)%' or v1 like '%(程序效率BUG)%' or v1 like '%(数据库被连接)%' or v1 like '%(接口效率)%' or  v1 like '%SQL效率BUG)%' or v1 like '%(数据库连接%'  or  v1 like '%(SQL统计)[项目]%' or v1 like '%(数据库表大小)%'   or v1 like '%(数据库表空间)%' or v1 like '%(队列服务)%' or  v1 like '%(登录日志%' or v1 like '%(包含文件)[项目]%' or v1 like '%(Mysql使用错误)%'  or v1 like '%(包含文件)%' or v1 like '%(问题SQL)%' or v1 like '%(服务器)%' or v1 like '%(接口测试)%' or v1 like '%文件系统读写%' or v1 like '%(功能执行)%' or v1 like '%(服务器进程)%'  or v1 like '%(代码%'  or v1 like '%(FTP效率BUG)%'   or v1 like '%(服务器进程)%' or v1 like '%(队列信息)' or v1 like '%(账户日志)%' or v1 like '%(函数分布)%' or v1 like '%(文件系统%' or v1 = '1.汇总' or v1 like '%(PHPAPM)%'";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
 

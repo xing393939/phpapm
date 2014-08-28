@@ -152,7 +152,7 @@ class monitor extends project_config
                                             'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                         ), true) . "|" . var_export($oci_error, true), VIP);
                                 else
-                                    _status(1, VHOST . "(BUG错误)", "统计消耗", $type, 'monitor(update)', VIP);
+                                    _status(1, VHOST . "(PHPAPM)", "统计消耗", $type, 'monitor(update)', VIP);
                                 $_row_count = ocirowcount($stmt);
                                 if (!$_row_count) {
                                     $xxi++;
@@ -198,7 +198,7 @@ class monitor extends project_config
                                                 'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                             ), true) . "|" . var_export($oci_error, true), VIP);
                                     else
-                                        _status(1, VHOST . "(BUG错误)", "统计消耗", $type, 'monitor', VIP);
+                                        _status(1, VHOST . "(PHPAPM)", "统计消耗", $type, 'monitor', VIP);
                                 }
                             }
                         }

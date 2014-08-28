@@ -85,7 +85,7 @@ class monitor_config extends project_config
                     _ocibindbyname($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                     $oci_error = _ociexecute($stmt);
                     print_r($oci_error);
-                    _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'monitor_hour(update)', VIP);
+                    _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', VIP);
                     $ocirowcount = ocirowcount($stmt);
                     if ($ocirowcount < 1) {
                         $sql = "insert into {$this->report_monitor_hour} (cal_date,v1,v2,v3,fun_count,diff_time, total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
@@ -110,7 +110,7 @@ class monitor_config extends project_config
                             $get_included_files = basename(array_shift(get_included_files()));
                             _status(1, VHOST . "(BUG错误)", 'SQL错误', $get_included_files . '/' . $_GET['act'], var_export($oci_error, true) . "|" . var_export($_row, true));
                         } else {
-                            _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'hour', VIP);
+                            _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', VIP);
                         }
                     }
 
@@ -137,7 +137,7 @@ class monitor_config extends project_config
                             _ocibindbyname($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                             $oci_error = _ociexecute($stmt);
                             print_r($oci_error);
-                            _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'monitor_hour(update)', VIP);
+                            _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', VIP);
                             $ocirowcount = ocirowcount($stmt);
                             if ($ocirowcount < 1) {
                                 $sql = "insert into {$this->report_monitor_hour} (cal_date,v1,v2,v3,fun_count,diff_time,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
@@ -162,7 +162,7 @@ class monitor_config extends project_config
                                     $get_included_files = basename(array_shift(get_included_files()));
                                     _status(1, VHOST . "(BUG错误)", 'SQL错误', $get_included_files . '/' . $_GET['act'], var_export($oci_error, true) . "|" . var_export($_row, true));
                                 } else {
-                                    _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'hour', VIP);
+                                    _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', VIP);
                                 }
                             }
                         }
@@ -202,7 +202,7 @@ class monitor_config extends project_config
                 _ocibindbyname($stmt, ':v1', $_row['V1']);
                 $oci_error = _ociexecute($stmt);
                 print_r($oci_error);
-                _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'v1_config', VIP);
+                _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'v1_config', VIP);
             }
 
             $_row_config = $this->all_config[$_row['V1'] . $_row['V2']];
@@ -268,7 +268,7 @@ class monitor_config extends project_config
             _ocibindbyname($stmt2, ':fun_count', $_row['FUN_COUNT']);
             $oci_error = _ociexecute($stmt2);
             print_r($oci_error);
-            _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'monitor_date(update)', VIP);
+            _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', VIP);
             $_row_count = ocirowcount($stmt2);
             if (!$_row_count) {
                 $sql = "insert into {$this->report_monitor_date} (cal_date,v1,v2,fun_count) values
@@ -280,7 +280,7 @@ class monitor_config extends project_config
                 _ocibindbyname($stmt, ':fun_count', $_row['FUN_COUNT']);
                 $oci_error = _ociexecute($stmt);
                 print_r($oci_error);
-                _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'date', VIP);
+                _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', VIP);
             }
             $compare_group = array_filter(explode('|', '|' . $_row_config['COMPARE_GROUP']));
             if (count($compare_group) > 0) {
@@ -294,7 +294,7 @@ class monitor_config extends project_config
                     _ocibindbyname($stmt2, ':fun_count', $_row['FUN_COUNT']);
                     $oci_error = _ociexecute($stmt2);
                     print_r($oci_error);
-                    _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'monitor_date(update)', VIP);
+                    _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', VIP);
                     $_row_count = ocirowcount($stmt2);
                     if (!$_row_count) {
                         $sql = "insert into {$this->report_monitor_date} (cal_date,v1,v2,fun_count) values
@@ -306,7 +306,7 @@ class monitor_config extends project_config
                         _ocibindbyname($stmt, ':fun_count', $_row['FUN_COUNT']);
                         $oci_error = _ociexecute($stmt);
                         print_r($oci_error);
-                        _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'date', VIP);
+                        _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', VIP);
                     }
                 }
             }
@@ -342,7 +342,7 @@ class monitor_config extends project_config
                     _ocibindbyname($stmt, ':orderby', max(1, $_row2['C'] + 1));
                 $oci_error = _ociexecute($stmt);
                 print_r($oci_error);
-                _status(1, VHOST . "(BUG错误)", "统计消耗", $_row['V1'], 'config', VIP);
+                _status(1, VHOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'config', VIP);
             }
         }
 
