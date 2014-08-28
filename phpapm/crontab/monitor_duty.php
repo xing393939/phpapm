@@ -324,7 +324,7 @@ class monitor_duty extends project_config
         $_row_cock = array();
         ocifetchinto($stmt, $_row_cock, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
         $manyi = $manyi - $_row_cock['COCK'] * 50;
-        _status($manyi, VHOST . "(项目满意分)", "扣分:安全事故", "安全事故", "入侵个数：{$_row_cock['COCK']}", VIP, 0, 'replace');
+        _status($manyi, VHOST . "(项目满意分)", "扣:安全", "安全事故", "入侵个数：{$_row_cock['COCK']}", VIP, 0, 'replace');
 
         //扣分:故障事故
         $sql = "select fun_count,v3,to_char(cal_date,'yyyy-mm-dd hh24') cal_date
@@ -359,7 +359,7 @@ class monitor_duty extends project_config
                 $manyi = $manyi - (count($v) - 5) * 100;
             }
         }
-        _status($manyi, VHOST . "(项目满意分)", "扣分:故障事故", "故障事故", NULL, VIP, 0, 'replace');
+        _status($manyi, VHOST . "(项目满意分)", "扣:故障", "故障事故", NULL, VIP, 0, 'replace');
     }
 }
 

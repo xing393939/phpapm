@@ -136,12 +136,8 @@ class report_monitor_group extends project_config
         $stmt = _ociparse($conn_db, $sql);
         _ociexecute($stmt);
 
-        $sql = "update  {$this->report_monitor_config} t set day_count_type=7  where v2='统计用法错误' and v1 like '%(BUG错误)' ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
-
         //v2分组
-        $sql = "update  {$this->report_monitor_config} t set V2_GROUP='A.态度'  where  t.V2 = '扣分:故障事故'  and v1 like '%(项目满意分)%'";
+        $sql = "update  {$this->report_monitor_config} t set V2_GROUP='A.态度'  where  t.V2 = '扣:故障'  and v1 like '%(项目满意分)%'";
         $stmt = _ociparse($conn_db, $sql);
         _ociexecute($stmt);
         $sql = "update  {$this->report_monitor_config} t set V2_GROUP='B.责任考核'  where  (t.V2 = 'SQL回源率' or t.V2 = 'TCP连接数' or t.v2='项目验收') and v1 like '%(项目满意分)%'";
@@ -150,7 +146,7 @@ class report_monitor_group extends project_config
         $sql = "update  {$this->report_monitor_config} t set V2_GROUP='C.编程能力'  where  (t.V2 = 'PHP+SQL错误率' or t.V2 = '扣分:问题sql') and v1 like '%(项目满意分)%'";
         $stmt = _ociparse($conn_db, $sql);
         _ociexecute($stmt);
-        $sql = "update  {$this->report_monitor_config} t set V2_GROUP='D.安全'  where  t.V2 = '扣分:安全事故'  and v1 like '%(项目满意分)%'";
+        $sql = "update  {$this->report_monitor_config} t set V2_GROUP='D.安全'  where  t.V2 = '扣:安全'  and v1 like '%(项目满意分)%'";
         $stmt = _ociparse($conn_db, $sql);
         _ociexecute($stmt);
         $sql = "update  {$this->report_monitor_config} t set V2_GROUP='E.维护成本'  where  t.V2 = '扣分:包含文件' and v1 like '%(项目满意分)%'";
@@ -165,12 +161,6 @@ class report_monitor_group extends project_config
         _ociexecute($stmt);
 
         //别名换算
-        $sql = "update  {$this->report_monitor_config} t set AS_NAME='统计' where v2='统计用法错误'";
-        _ociexecute(_ociparse($conn_db, $sql));
-        $sql = "update  {$this->report_monitor_config} t set AS_NAME='扣:故障' where v2='扣分:故障事故'";
-        _ociexecute(_ociparse($conn_db, $sql));
-        $sql = "update  {$this->report_monitor_config} t set AS_NAME='扣:安全' where v2='扣分:安全事故'";
-        _ociexecute(_ociparse($conn_db, $sql));
         $sql = "update  {$this->report_monitor_config} t set AS_NAME='扣:SQL上限' where v2='扣分:单小时SQL上限'";
         _ociexecute(_ociparse($conn_db, $sql));
         $sql = "update  {$this->report_monitor_config} t set AS_NAME='扣:负载' where v2='扣分:CPU LOAD'";
