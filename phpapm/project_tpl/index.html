@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>[<?php echo VHOST?>]编程文档</title>
+    <link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
+    <link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet"/>
+    <script type="text/javascript" src="project_res/commstyle/js/jquery.js"></script>
+    <script type="text/javascript" src="project_res/commstyle/js/inspect2.js?v=20121111"></script>
+</head>
+<body>
+<div id="wrapper">
+<?php include "_header.html";?>
+<!--container-->
+<div id="container">
+<!--new-i-cols-->
+<div class="i-cols new-i-cols">
+<!--内容开始-->
+<div class="i-col1">
+<!--i-col1-1-->
+<div id="new-i-col1-1" class="i-col1-1">
+<div class="crumb">您当前的位置：说明文档</div>
+
+<!--main-->
+<div id="main" class="mBox" style="clear: both">
+<table id="assess-table" class="cietab assess-table" border="0" cellpadding="0"
+           cellspacing="0" width="100%">
+  <thead>
+    <tr class="tr-th2">
+      <th>&nbsp;</th>
+      </tr>
+    </thead>
+  <tbody>
+    <tr class="tr-td-bd odd">
+      <td class="b-r">
+        <h1>基础分数</h1>
+
+        <p>[SQL回源率] Oraclesql查询量除以PV总量 </p>
+        <ul style="padding-left:30px;">
+          <li>1:200万以上 得分区间 [1以上=0分 小于6/10=100分]</li>
+          <li>2:30万-200万以下 得分区间 [2以上=0分
+            1.2=100分]
+            </li>
+          <li>3:30万以下 得分区间 [50以上=0分 30=100分]</li>
+          </ul>
+        <p>占比为40%<br/>
+          [PHP+SQL错误率] PHP+SQL错误数除以为PV总量 得分区间 [1%以上=0分 小于0.1%=100分] 占比10%<br/>
+          [项目验收] 项目验收状态 得分区间 [有&gt;0个未验收=-10分 全部都验收+10分]<br/>
+          [Memcache回源率] (memcache + Redis) 除以 PV总量 得分区间 [6倍 =0 小于3倍=100分] 占比20%</p>
+
+        <p>[TCP连接数] TCP活跃数 [高于120=0分,70以下满分] 占比30%</p>
+
+        <p>&nbsp;</p>
+
+        <h1 class="hd">扣分规则</h1>
+
+        <p>[扣分:机器重启] 当天,每小时扣200分</p>
+
+        <p>[扣分执行超时] 大于1秒以上的功能(排除定时任务),每1000条扣5分</p>
+  <p>[扣分:问题SQL] 凡是存在全部扫描,每条扣2.5分,封顶10分</p>
+
+        <p>[扣分:负载] CPU&gt;8 或者 LOAD&gt;8 扣10分</p>
+
+        <p>[扣分:WEB5xx] WEB日志出现5xx/499错误 [占0.05% 扣1分,每加一个万分点,扣1分,无上限]</p>
+        <p>[扣分:单小时SQL上限] 当前SQL量/HH24&gt;30W 每加一万SQL量扣5分,无上限</p>
+        <p>[扣分:包含文件] &quot;10s到&infin;个&quot;每个扣除5分,无上限</p>
+        <p>[扣分:故障事故] [24小时内]同一功能连续6小时的&quot;代码架构->PHP错误&quot;,无修复,每加一小时,扣100分,无上限(A.态度)</p>
+        <p>[扣分:安全事故] 一旦出现入侵 &quot;代码架构-&gt;上传木马入侵&quot; ,一次扣50分 ,无上限(B.安全)</p></td>
+      </tr>
+
+    </tbody>
+</table>
+
+</div>
+<!--/main-->
+<!--/内容结束!-->
+</div>
+<!--/i-col1-1-->
+</div>
+<!--/内容结束-->
+
+</div>
+<!--/new-i-cols-->
+</div>
+<!--/container-->
+<?php include "_footer.html";?>
+</div>
+<!--wrapper-->
+</body>
+</html>

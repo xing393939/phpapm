@@ -1,0 +1,157 @@
+/*======author:  zhangxiaoling; email:  zhxl312@163.com; date:	2011-12-13 10:47=========*/
+#rating-header,#rating-header h1,.search span,
+.search .input,
+.search-btn,
+.i-man,
+.rm-item2,
+.i-triangle,
+.rn-item,
+.rn-item .cur,
+.time-range .tr-btn,
+.r-sstab li
+{ background:url(../img/rating.png?20120201) no-repeat;}
+
+/*==rating-header==*/
+#rating-header{ margin-bottom:10px; padding:0 20px; background-position:0 -38px; height:37px; background-repeat:repeat-x; zoom:1; position:fixed; z-index:9999;width: 100%;}
+#rating-header h1{ float:left; width:97px; height:37px; overflow:hidden; margin-right:25px; float:left;background-position: -112px 0;}
+#rating-header h1 a{ background:url(about:blank); height:37px; text-indent:-9999px; overflow:hidden; display:block}
+
+	/*==rating-menu==*/
+	.rating-menu{ margin-right:25px; float:left}
+	.rmli{ float:left; margin-right:10px; }
+	.rmli .xiala{ float:left}
+	.rm-item { padding-left:10px;line-height:35px;height:35px; }
+	.rating-menu .rm-item{ color:#fff; cursor:pointer}
+	.rating-menu .cur{background:#617896}
+	.rating-menu .xiala-layer{ top:35px}
+	/*==/rating-menu==*/
+
+	/*==search==*/
+	.search{ float:left; padding-top:3px;}
+	.search span{ background-position:0 -76px; height:27px; background-repeat:repeat-x; float:left}
+	.search .input{ background-position:-226px -104px; border:0; width:136px; float:left; padding:4px 0 3px 7px; height:20px; line-height:20px;}
+	.search-btn{ background-position:0 -104px; width:30px; height:27px; float:left; text-indent:-9999px; overflow:hidden; border:0; cursor:pointer}
+	/*==/search==*/
+
+/*==rh-right==*/
+.rh-right{ float:right;}
+.message{ float: left; color:#fff; margin-right:16px; padding-top:5px;}
+.message a{ color:#fff;}
+#user-infor{ float:left;}
+	
+	#user-infor .dquser{height:35px; padding-left:35px;line-height:35px; float:left; text-align:right;position: relative; color:#fff; font-weight:700 }
+	.i-man,.i-woman{ width:22px; height:22px; position:absolute; left:5px; top:7px;}
+	.i-man{ background-position:-31px -104px;}
+	.i-woman{ background-position:-54px -104px;}
+	
+	#user-infor .cur{ background:#617896}
+	#user-infor .xiala-layer{ top:35px}
+	/*==xiala==*/
+	.t-bx{ position:relative; display:inline-block; padding-right:20px;}
+	.i-triangle{ background-position:-194px -104px; width:10px; height:5px; font-size:0; line-height:0; display:block; position:absolute; right:5px; top:15px}
+	
+	.xl-bd,.xl-h,.xl-f{ background:url(../img/rm-bg.png) no-repeat}	
+	
+	.xiala{position:relative; display:inline-block;zoom:1;}
+	.xiala-span{display:inline-block; position:relative; cursor:pointer }
+	.xiala-layer{z-index:0; display:none;position:absolute; width:192px; right:-2px; top:30px;}
+	.xl-bd{background-repeat:repeat-y; position:relative; height:auto!important; height:180px;min-height:180px; width:175px; padding:5px 10px 5px 7px;}
+	.xl-h{ background-position:-192px 0; height:1px; width:192px; font-size:0; line-height:0; overflow:hidden; display:block; position:absolute; top:0; left:0; z-index:0}
+	.xl-f{ background-position:-192px -1px; height:5px; width:192px; font-size:0; line-height:0; overflow:hidden; display:block; position:absolute; bottom:0; left:0; z-index:0}
+	.xlbd-bx{ position:relative; z-index:1}
+	
+	.xlbd-bx h2{ border-bottom:1px solid #ddd; zoom:1; overflow:hidden; font-size:12px; font-weight:700; position:relative; padding-bottom:3px;}
+	.xlbd-bx h2 a{ position:absolute; right:0; text-decoration:underline; color:#0066ff; font-weight:400}
+	.xlbd-bx ul{ padding:2px 0;}
+	.xlbd-bx li{ text-align:right;}
+	.xlbd-bx li a:hover{ font-weight:700}
+	.xlbd-bx .uls2{ border-bottom:1px solid #ddd}
+	
+	.time-range{zoom:1; padding-top:5px; color:#17365a}
+	.time-range:after{content:"";display:block;height:0;clear:both;visibility:hidden}
+	.time-range .tr-title{ float:left; font-weight:400}
+	.time-range .tr-input{ border:0; background:none; width:24px; float:left; border-bottom:1px solid #17365a; margin-right:10px;}
+	.time-range .tr-btn{ width:34px; height:17px; cursor:pointer; display:block; float:left; background-position:-76px -104px; border:0; text-indent:-9999px; overflow:hidden}
+	/*==/xiala==*/	
+/*==/rh-right==*/
+/*==/rating-header==*/
+
+#container{ position:relative; z-index:0;padding-top: 37px;}
+/*==assess==*/
+body{overflow-x:auto; overflow-y:auto}
+.tBd{/*display:inline-table;*/overflow:visible }/*外围宽度不能自适应 针对Chrome、FF*/
+/*table{table-layout: auto}*/
+
+.assess-table{ border:1px solid #bacce1; }
+	.assess .tabc td,.assess .tabc th{ border:0;}
+	.assess td,.assess th {padding:3px 7px;}
+	.assess .tabc th{ border-right:1px solid #bacce1; white-space:nowrap;}
+	.assess .tabc .b-r{border-right:1px solid #bacce1;}
+	.assess .tabc .b-r0{ border-right:0}
+	.assess .tr-th2 th {font-weight:400; border-top:1px solid #bacce1; border-bottom:1px solid #bacce1;}
+	.assess .tr-td-hd td{ padding-top:6px; padding-bottom:6px; color:red; border-bottom:1px dashed #c4c4c4}
+	
+	.i-td-div{ position:relative; display:block; _width:90%; }
+	
+	.i-kip,.i-zhi,.i-pingjun,.i-huizong,.i-zhizhen,.i-shou,.i-suo,.i-numb1,.i-numb2,.i-numb3,.i-numb4,.i-ba{ background:url(../img/rating-ico.png) no-repeat; position:absolute; display:block; overflow:hidden}
+	.i-kip{width:26px; height:25px; right:-8px; top:-3px;*top:-5px!important; background-position:-37px 0;}
+	.i-zhi{ width:26px; height:25px;  right:-8px; top:-3px;*top:-5px!important; background-position:-63px 0;}
+	.i-pingjun{width:37px; height:22px; left:-14px; top:0; background-position:0 0;}
+	.i-huizong{width:37px; height:22px; left:-14px; top:0; background-position:0 -22px;}
+	.i-zhizhen{ width:13px; height:14px; left:-7px; bottom:0; background-position:-37px -25px;}
+	.i-shou,.i-suo{ width:9px; height:7px;  display:inline-block; position:absolute; right:0; top:6px;}
+	a.i-shou{ background-position:-51px -25px;}
+	a.i-shou:hover{ background-position:-51px -33px;}
+	
+	a.i-suo{ background-position:-61px -25px;}
+	a.i-suo:hover{ background-position:-61px -33px;}
+	.i-numb1,.i-numb2,.i-numb3,.i-numb4{ width:21px; height:20px; left:-4px; top:-1px;}
+	.i-numb1{ background-position:0 -45px;}
+	.i-numb2{ background-position:-22px -45px;}
+	.i-numb3{ background-position:-44px -45px;}
+	.i-numb4{ background-position:-66px -45px;}
+	
+	.i-ba{ width:50px; height:49px; display:block; background-position:0 -66px; top:-50px; left:-25px; right:0; margin-left:50%; overflow:visible}
+	.i-ba b{ display: inline-block; height:18px; background:#ffff3c; border:1px solid #000; color:#333; line-height:18px; right:15px; top:-10px; position:absolute; font-weight:400;white-space:nowrap; padding:0 3px}
+	
+	.tHd{ overflow:visible; z-index:3; position:relative}
+	.tBd{ z-index:2; position:relative}	
+	
+	.rating-nav,.rating-nav ul{ zoom:1; }
+	.rating-nav:after,.rating-nav-ul:after,.rn-item:after{content:"";display:block;height:0;clear:both;visibility:hidden}
+	.rating-nav-ul{ padding:0 0 15px ; zoom:1;}
+	
+	.rn-item{ background-position:0 -132px; width:182px; height:31px; zoom:1; float:left; padding:0 28px 0 20px;  position:relative; text-align:right}
+	.rn-item .title{ float:left; margin-right:15px; font-size:14px; line-height:30px; color:#fff; font-weight:700}
+	.rn-item .xiala-span{ height:31px; line-height:31px; padding-left:10px; color:#fff}
+	
+	.rn-item .cur{ background-position:0 -163px;}
+	.rn-item .xiala-layer{ top:31px}
+	
+
+.r-sstab{zoom:1; overflow:hidden; padding-bottom:10px; height:90px; }
+	.r-sstab li{ float:left; width:230px; height:80px; margin-right:5px; background-position:0 -284px;}
+	.r-sstab .cur{height:90px; background-position:0 -194px;}
+	.r-sstab .rs-p{ padding:8px 12px; line-height:20px; height:60px; overflow:hidden; width:214px; word-wrap:break-word;}
+
+/*==/assess==*/
+
+/*==footer==*/
+#footer{ zoom:1; overflow:hidden; padding: 0 10px; border-top:1px dashed #8099ba; } 
+	#footer .copyright{ background:url(../img/rb.png) no-repeat right top; height:38px; padding:45px 50px 0 0; float:right; color:#888; line-height:16px;}
+	.footer-menu{ background:url(../img/rb-bg.png) repeat; width:200px; height:76px;padding-top:6px;zoom:1; overflow:hidden; float:left}
+	.footer-menu ul{ float:left; width:49%; text-align:center; }
+	.footer-menu a{ color:#0066ff}
+/*==/footer==*/
+
+/*==自己添加，用于控制弹出层中单元格的内边距==*/
+.prompt .assess td,.prompt .assess th{
+	 padding: 0px;
+	}
+.rating-menu .rmli{position:relative}
+.rating-menu .updata{position:absolute;top:1px;left:-15px;z-index:100}
+.rating-menu .updata,.rating-menu .updata .nbi{background:url(../img/wanjuhe.png) -297px 0 no-repeat}
+.rating-menu .updata{display:inline-block;font:normal 12px/16px arial;color:#fff;overflow:hidden;}
+.rating-menu .updata .nbi{display:inline-block;vertical-align:top;background-position:right 0;margin:0 -2px 0 1px;padding:0 4px 0 3px;}
+#user-infor .dquser{padding-left:2px;}
+/*==footer==*/

@@ -1,0 +1,1146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>[<?php echo VHOST?>]数据指标</title>
+<link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
+<link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
+<script type="text/javascript" src="project_res/commstyle/js/inspect2.js?v=20121122" ></script>
+<script type="text/javascript" src="project_res/commstyle/rili/Basic.js"></script>
+<script type="text/javascript" src="project_res/commstyle/rili/JCalendar-gb.js"></script>
+<script src="project_res/commstyle/Highcharts/js/highcharts.js"></script>
+<script>
+function loadjs(v3,s1,s2,div,act,pointInterval,line2)
+{
+	if(line2 === undefined)
+		line2='null';
+	if(div === undefined)
+		div='container_char';
+	if(act === undefined)
+		act='report_js';
+	if(pointInterval === undefined )
+		pointInterval=1000 *60;
+	$.get("?<?php echo http_build_query(array('act'=>NULL,'v3'=>$v['V2'])+$_REQUEST)?>&v3="+v3+'&line2='+line2+'&div='+div+'&s1='+s1+'&s2='+s2+'&act='+act+'&pointInterval='+pointInterval);
+}
+var xie="<h1 style='margin-top:70px;'>由于经常假死,图例显示不支持<font class='red'>IE系列</font>浏览器<br><br><a href='http://www.skycn.com/soft/48168.html' target='_blank'>点击下载谷歌浏览器</a></h1>";
+</script>
+<link href="project_res/commstyle/rili/rili.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript">
+    function edit_as_name(obj,id)
+    {
+        var txt = $(obj).html();
+        if (txt.indexOf('<input')>-1)
+        {
+            return;
+        }
+        $(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_as_name_do(this,'+id+')" id="as_name_id_'+id+'" name="as_name" value="'+txt+'">');
+        $('#as_name_id_'+id)[0].select();
+    }
+
+    function edit_as_name_do(obj,id)
+    {
+        $.post("?act=report_monitor_as_name&sign=<?php echo SIGN_KEY?>",{as_name : obj.value, id : id});
+        $(obj).parent().bind('click',function(data){edit_as_name($(this)[0],id)});
+        $(obj).parent().html(obj.value);
+    }
+
+    function edit_v2_group(obj,id)
+    {
+        var txt = $(obj).html();
+        if (txt.indexOf('<input')>-1)
+        {
+            return;
+        }
+        $(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_v2_group_do(this,'+"'"+id+"'"+')" id="v2_group_id_'+id+'" name="v2_group" value="'+txt+'">');
+        $('#v2_group_id_'+id)[0].select();
+    }
+    function edit_v2_group_do(obj,ids)
+    {
+        $.post("?act=report_monitor_v2_groups&sign=<?php echo SIGN_KEY?>",{'v2_group' : obj.value, 'id' : ids});
+        $(obj).parent().bind('dblclick',function(data){edit_v2_group($(this)[0],ids)});
+        $(obj).parent().html(obj.value);
+    }
+
+</script>
+
+<style>
+.red {
+	color:#F00;
+}
+* {
+	font-family:微软雅黑 !important
+}
+.tabc td{
+    padding: 4px 2px;
+}
+.tabc th{
+    padding: 4px 2px;
+}
+</style>
+<script>window.onload = function(){	var j = new JCalendar();j.bind('s1','bottom');j.bind('s2','bottom');j.bind('ns1','bottom');j.bind('ns2','bottom');} </script>
+</head>
+<body>
+<div id="wrapper">
+  <?php include "_header.html";?>
+  <!--container-->
+  <div id="container">
+    <!--new-i-cols-->
+    <div class="i-cols new-i-cols">
+      <!--内容开始-->
+      <div class="i-col1">
+        <!--i-col1-1-->
+        <div id="new-i-col1-1" class="i-col1-1">
+          <div class="crumb">您当前的位置：数据指标
+              <span class="fr" style="padding-right:35px;">
+              <label>高亮倍数</label><input style="width:20px" class="inpm" id="red_factor" value="<?php echo $_COOKIE['red_factor']?$_COOKIE['red_factor']:2 ?>">
+              <label>基数</label><input style="width:40px" class="inpm" id="cmp_base" value="<?php echo $_COOKIE['cmp_base']?$_COOKIE['cmp_base']:10000 ?>">
+              <button class='ibtn' onclick="PPS.setCookie('cmp_base',document.getElementById('cmp_base').value,3600*24);PPS.setCookie('red_factor',document.getElementById('red_factor').value,3600*24);window.location.reload(); ">提交</button>&nbsp
+              <?php echo VIP;?>
+              </span></div>
+          <!--main-->
+          <div class="bd">
+            <!--searchBx-->
+            <div class="searchBx">
+              <div class="sLok sd">
+                <form action="" method="get" id="f">
+                  <div class="sd_l"> <span>搜索：</span>
+                    <input name="act" value="<?php echo $_REQUEST['act']?>"  type="hidden"/>
+                    <input name="type" value="<?php echo $_REQUEST['type']?>"  type="hidden" />
+                    <input name="host" value="<?php echo $_REQUEST['host']?>"  type="hidden"/>
+                    <input name="start_date" value="<?php echo $_REQUEST['start_date']?>"  type="hidden"/>
+                    <span>起始日期：</span>
+                    <input type="text" style="width:100px;" class="inpm" value="<?php echo $s1?>" id="s1" name="s1"/>
+                    <span>截至:</span>
+                    <input type="text" style="width:100px;" class="inpm" value="<?php echo $s2?>" id="s2" name="s2"/>
+                    <input type="submit" value="查询" class="ibtn">
+                    <a class="blue" href="?act=report_monitor&type=<?php echo rawurlencode($_REQUEST['type'])?>&host=<?php echo rawurlencode($_REQUEST['host'])?>&start_date=<?php echo date('Y-m-d',strtotime('-1 day'))?>">昨天</a> <a class="blue"  href="?act=report_monitor&type=<?php echo rawurlencode($_REQUEST['type'])?>&host=<?php echo rawurlencode($_REQUEST['host'])?>&start_date=<?php echo date('Y-m-d',strtotime('today'))?>">今天</a>&nbsp;&nbsp;
+                    <div class="rh-right" style="display:inline-table;" >
+                      <label>
+                          <input name="char_month" id="direct_date" type="checkbox" value="1" <?php if($_COOKIE['direct_date']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('direct_date',this.checked);window.location.reload(); " />
+                          <span>直接看当天数据</span>
+                      </label>
+                      &nbsp;&nbsp;
+                      <label>
+                         <input name="v2_month" id="v2_month" type="checkbox" value="1" <?php if($_COOKIE['v2_month']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('v2_month',this.checked);window.location.reload(); " />
+                          <span>显示V2对比数据</span>
+                      </label>
+                      <a class="blue" href="?act=report_monitor_config&v1=<?php echo rawurlencode($_REQUEST['type'])?>" >配置中心</a>&nbsp;</div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!--/searchBx-->
+            <div id="main" class="mBox" style="clear:both">
+              <!--mnav-->
+              <div class="tHd">
+                <div class="m-nav" >
+                  <ul>
+                    <?php foreach($this->v1_config as $k=>$v){?>
+                    <li <?php if($_REQUEST['type']==$k) echo 'class="cur"';?>><a href="?act=report_monitor&type=<?php echo rawurlencode($k)?>" title="<?php echo $k?>"><span><?php echo $v['AS_NAME1']?></span></a></li>
+                    <?php }?>
+                  </ul>
+                </div>
+              </div>
+              <!--/mnav-->
+              <?php   if( (($_GET['start_date'] &&  $_REQUEST['host'] && $_COOKIE['char']=='true')  || (!$_REQUEST['host'] && $_REQUEST['type'] && $this->v1_config[$_REQUEST['type']]['CHAR_TYPE'] && $_COOKIE['char']=='true') )){?>
+              <div id="char_div" class="tBd" style="margin-bottom:20px;">
+                <table class="tabc assess-table" border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tbody>
+                    <tr >
+                      <th style="text-align:left">横线:对比模式 | 精确刻度:
+                        <select name="table_line_type" id="table_line_type" onchange="call_char()">
+                          <option value="report_js_day/1000*24*3600">精确到:天</option>
+                          <option value="report_js_hour/1000*3600" <?php if($this->v_config['HOUR_COUNT_TYPE']==1){?>selected="selected"<?php }?>>精确到:小时</option>
+                        </select>
+                        &nbsp;&nbsp;
+
+                        选择日期:
+                        <input type="text"  class="inpm" value="<?php echo $s1?>" id="ns1" name="s1"/>
+                        -
+                        <input type="text"  class="inpm" value="<?php echo $s2?>" id="ns2" name="s2"/>
+                        &nbsp;区间选项: <a href="javascript:void(0);" class="blue" onclick="$('#ns1').attr('value','<?php echo date('Y-m-d')?>');$('#ns2').attr('value','<?php echo date('Y-m-d')?>');call_char();">今天</a> <a href="javascript:void(0);" class="blue" onclick="$('#ns1').attr('value','<?php echo date('Y-m-d',strtotime('-7 day'))?>');$('#ns2').attr('value','<?php echo date('Y-m-d')?>');call_char();">最近7天</a> <a href="javascript:void();" class="blue" onclick="$('#ns1').attr('value','<?php echo date('Y-m-d',strtotime('-30 day'))?>');$('#ns2').attr('value','<?php echo date('Y-m-d')?>');call_char();">最近30天</a> &nbsp;
+                        当前曲线:
+                        <select name="table_line_v3" id="table_line_v3" onchange="call_char()">
+                          <option value="">选择</option>
+                          <?php  foreach($this->host as $k=>$v){  ?>
+                          <option value="<?php echo rawurlencode($v['V2'])?>" <?php if($v['V2']==$_GET['host']){?>selected="selected"<?php }?> ><?php echo $v['V2']?></option>
+                          <?php }?>
+                          <?php if($i<=20){?>
+                          <option value="all">=全部组合=</option>
+                          <?php }?>
+                          <?php if($i<=20){?>
+                          <option value="-/<?php echo $this->host[0]['V2']?>">=排除第一个组合=</option>
+                          <?php }?>
+                        </select>
+                        &nbsp;&nbsp;
+                        叠加曲线:
+                        <select name="table_line2" id="table_line2" onchange="call_char()">
+                          <option value="">选择</option>
+                          <?php  foreach($this->host as $k=>$v){  ?>
+                          <option value="<?php echo rawurlencode($v['V2'])?>"  ><?php echo $v['V2']?></option>
+                          <?php }?>
+                        </select>
+                        <span  ><a  class="blue" href="javascript:void(0)" onclick="javascript:call_char_henxian2();$('#char_div').hide();$('#char_div2').show();">纵向:分析模式</a></span> </th>
+                    </tr>
+                    <tr >
+                      <td>
+                        <div id="char_table_line2" style="width:98%; height:250px" >&nbsp;</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <script type="text/javascript">
+//默认显示图表的情况
+<?php if($this->v1_config[$_REQUEST['type']]['CHAR_TYPE']==1){?>
+$('#table_line_v3').get(0).selectedIndex=<?php echo count($this->host)+1?>;
+<?php }?>
+<?php if($this->v1_config[$_REQUEST['type']]['CHAR_TYPE']==2){?>
+$('#table_line_v3').get(0).selectedIndex=<?php echo count($this->host)+2?>;
+<?php }?>
+function call_char()
+{
+	<?php if(strpos($_SERVER["HTTP_USER_AGENT"],'MSIE')!==false){?>
+		$('#char_table_line2').html(xie);
+		$('#char_div').hide();
+	<?php }else{?>
+	var table_line_act=$('#table_line_type').val().split('/');
+	loadjs($('#table_line_v3').val(),$('#ns1').val(),$('#ns2').val(),'char_table_line2',table_line_act[0],table_line_act[1],$('#table_line2').val());
+	<?php }?>
+}
+call_char();
+</script>
+              </div>
+              <div id="char_div2" class="tBd" style="margin-bottom:20px; display:none">
+                <table class="tabc assess-table" border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tbody>
+                    <tr >
+                      <th style="text-align:left">横线:分析模式 | 精确刻度:
+                        <select name="table_line_type2" id="table_line_type2" onchange="call_char_henxian2()">
+                          <option value="report_js_hour_v3/1000*3600">精确到:小时</option>
+                          <option value="report_js_day_v3/1000*24*3600">精确到:天</option>
+                        </select>
+                        &nbsp;区间选项: <a href="javascript:void(0);" class="blue" onclick="document.getElementById('ns1').value='<?php echo date('Y-m-d')?>';document.getElementById('ns2').value='<?php echo date('Y-m-d')?>';call_char_henxian2();">今天</a> <a href="javascript:void(0);" class="blue" onclick="document.getElementById('ns1').value='<?php echo date('Y-m-d',strtotime('-7 day'))?>';document.getElementById('ns2').value='<?php echo date('Y-m-d')?>';call_char_henxian2();">最近7天</a> <a href="javascript:void(0);" class="blue" onclick="document.getElementById('ns1').value='<?php echo date('Y-m-d',strtotime('-30 day'))?>';document.getElementById('ns2').value='<?php echo date('Y-m-d')?>';call_char_henxian2();">最近30天</a> &nbsp;
+
+                        当前曲线:
+                        <select name="table_line_v32" id="table_line_v32" onchange="call_char_henxian2()">
+                          <option value="">选择</option>
+                          <?php $i=0; $func_count=$this->fun_count;ksort($func_count); foreach($func_count as $k=>$v){  $i++;?>
+                          <option value="<?php echo rawurlencode($k)?>" <?php if($i==1){?>selected="selected"<?php }?> ><?php echo $k?></option>
+                          <?php }?>
+                          <?php if($i<=20){?>
+                          <option value="all">=全部组合=</option>
+                          <?php }?>
+                        </select>
+                        &nbsp;&nbsp;
+                        叠加曲线:
+                        <select name="table_line22" id="table_line22" onchange="call_char_henxian2()">
+                          <option value="">选择</option>
+                          <?php $i=0; $func_count=$this->fun_count;ksort($func_count); foreach($func_count as $k=>$v){  $i++;?>
+                          <option value="<?php echo rawurlencode($k)?>" ><?php echo $k?></option>
+                          <?php }?>
+                        </select>
+                        <span ><a class="blue" href="javascript:void(0)" onclick="call_char();$('#char_div2').hide();$('#char_div').show();">横线:对比模式</a></span> </th>
+                    </tr>
+                    <tr >
+                      <td>
+                        <div id="char_table_line22" style="width:98%; height:250px" >&nbsp;</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <script type="text/javascript">
+function call_char_henxian2()
+{
+	<?php if(strpos($_SERVER["HTTP_USER_AGENT"],'MSIE')!==false){?>
+		$('#char_table_line22').html(xie);
+		$('#char_div').hide();
+	<?php }else{?>
+	var table_line_act=$('#table_line_type2').val().split('/');
+	loadjs($('#table_line_v32').val(),$('#ns1').val(),$('#ns2').val(),'char_table_line22',table_line_act[0],table_line_act[1],$('#table_line22').val());
+	<?php }?>
+}
+</script>
+              </div>
+              <?php }?>
+              <div class="tBd" id="table_1">
+                <?php if($this->v1_config[$_REQUEST['type']]['SHOW_TEMPLATE']==1){?>
+                <table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <thead>
+                    <tr class = "tr-th2">
+                      <th>&nbsp;</th>
+                      <th><a href="?act=report_check_do&v1=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue">验收7天内数据</a></th>
+                      <th colspan="10"  >&nbsp;</th>
+                    </tr>
+                    <tr class = "tr-th2">
+                      <th>序号</th>
+                      <th>日期</th>
+                      <?php  for($i=strtotime($s2);$i>=strtotime($s2." -8 day");$i-=3600*24){ $tmp_date=date("Y-m-d",$i);  ?>
+                      <th  style="text-align:left; width:150px; <?php if((date('w',strtotime($tmp_date))+7)%6 ==1){?>color:#CC0<?php }?>"><?php echo $tmp_date?>
+                        <?php if($this->v1_config[$_REQUEST['type']]['START_CLOCK']){?>
+                        (<?php echo intval($this->v1_config[$_REQUEST['type']]['START_CLOCK'])?>点+24)
+                        <?php }?>
+                        <?php if(date('w',strtotime($tmp_date))==6){?>
+                        六
+                        <?php }?>
+                        <?php if(date('w',strtotime($tmp_date))==0){?>
+                        天
+                        <?php }?>
+                        <?php if($tmp_date<>date("Y-m-d") && ! $this->all_start_date[$tmp_date]['LOOKUP'] && $this->all_start_date[$tmp_date] ){?>
+                        <span style="color:red">未验</span>
+                        <?php }?>
+                      </th>
+                      <?php }?>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php $ki=0; foreach($this->host as $k=>$v){  $ki++; ?>
+                    <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
+                      <td  class="b-r" title="<?php echo $v['V2']?>"><?php echo $ki;?>&nbsp;</td>
+                      <td  class="b-r" title="<?php echo $v['V2']?>">
+                        <?php if($v['PHONE']){ ?>
+                        <span style="color:red;"><?php echo $v['AS_NAME1']?></span>
+                        <?php }else{?>
+                        <?php echo $v['AS_NAME1']?>
+                        <?php }?>
+                      </td>
+                    <?php  for($i=strtotime($s2);$i>=strtotime($s2." -8 day");$i-=3600*24){ $tmp_date=date("Y-m-d",$i);  $num=$this->all_start_date[$tmp_date][$v['V2']] ?>
+                      <td class="b-r" title="<?php echo $num?>">
+                        <?php if($this->all_start_date[$tmp_date][$v['V2']]==0){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                        <span><a href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
+                            <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                        </a></span>
+                        <?php }?>
+                        <?php if($v['PERCENT_COUNT_TYPE']>0){ if($v['PERCENT_COUNT_TYPE']==1)$all=$this->all_start_date[$tmp_date][$this->host[0]['V2']]; if($v['PERCENT_COUNT_TYPE']==2)$all=$this->all_start_date_all[$tmp_date]; ?>
+                        (<?php echo sprintf('%.1f',$this->all_start_date[$tmp_date][$v['V2']]/$all*100)?>%)
+                        <?php   }?>
+                      </td>
+                      <?php }?>
+                    </tr>
+                    <?php }?>
+                  </tbody>
+                </table>
+                <?php }else{?>
+                <?php if($_REQUEST['start_date']){?>
+                <div id="tab_class_0">
+                  <table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <thead>
+                    <?php if ($is_group){?>
+                    <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                        <td>汇总</td>
+                        <?php  foreach($this->group as $k=>$v){
+                        $num = $this->group_count[$k]['count'];
+                        ?>
+                        <td  title="<?php echo intval($num);?>" colspan="<?php echo count($v)?>">
+                            <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                        </td>
+                        <?php }?>
+                    </tr>
+                    <tr class = "tr-th2">
+                        <th>分组</th>
+                        <?php  foreach($this->group as $k=>$v){?>
+                        <?php
+                            $group_ids = '';
+                            foreach($v as $row){
+                                $group_ids.="_".$row['ID'];
+                            }?>
+                        <th class="b-r" colspan="<?php echo count($v)?>" id="v2_group_<?php echo md5($k)?>" ondblclick="edit_v2_group(this,'<?php echo $group_ids?>');$(this).attr('ondblclick','');"><?php echo $k?></th>
+                        <?php }?>
+                    </tr>
+                    <?php }?>
+                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1){?>
+                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                        <td>汇总</td>
+                        <?php  foreach($this->host as $k=>$v){  $num=$this->all_start_date_count[$v['V2']]['total'];?>
+                        <td title="<?php echo intval($num);?>">
+                          <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                        </td>
+                        <?php }?>
+                      </tr>
+                      <?php }else{?>
+                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                        <td>平均</td>
+                        <?php  foreach($this->host as $k=>$v){
+                        ?>
+
+                        <td><?php echo $this->all_start_date_count[$v['V2']]['total_avg']?></td>
+                        <?php }?>
+                      </tr>
+                      <?php }?>
+                      <tr class = "tr-th2">
+                        <th>日期</th>
+                        <?php  foreach($this->host as $k=>$v){  ?>
+                        <th title="<?php echo $v['V2']?>" <?php if($v['V2_CONFIG_OTHER']['API_ID']) echo "style='color:red'" ?>>
+                          <?php if($v['PHONE']){ ?>
+                          <span style="color:red;"><?php echo $v['AS_NAME1']?></span>
+                          <?php }else{?>
+                          <?php echo $v['AS_NAME1']?>
+                          <?php }?>
+                        </th>
+                        <?php }?>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php  for($i=strtotime($_REQUEST['start_date']);$i>=strtotime($_REQUEST['start_date']);$i-=3600*24){ $tmp_date=date("Y-m-d",$i); ?>
+                      <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
+                        <td class="b-r" style="text-align:left; width:70px; <?php if((date('w',strtotime($tmp_date))+7)%6==1){?>color:#CC0<?php }?>"><?php echo $tmp_date?>
+                          <?php if($this->v1_config[$_REQUEST['type']]['START_CLOCK']){?>
+                          (<?php echo intval($this->v1_config[$_REQUEST['type']]['START_CLOCK'])?>点+24)
+                          <?php }?>
+                          <?php if(date('w',strtotime($tmp_date))==6){?>
+                          六
+                          <?php }?>
+                          <?php if(date('w',strtotime($tmp_date))==0){?>
+                          天
+                          <?php }?>
+                          <br />
+                          <a href="javascript:void(0);" onclick="document.getElementById('tab_class_1').style.display='block';document.getElementById('tab_class_0').style.display='none';" class="blue">&gt;&gt;展开全部</a></td>
+                        <?php  foreach($this->host as $k=>$v){ $num=$this->all_start_date[$tmp_date][$v['V2']];?>
+                        <td class="b-r" title="<?php echo $num?>">
+                          <?php if($num===null){?>
+                          <span style="color:#AAA">0</span>
+                          <?php }else{?>
+                          <span><a href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
+                              <?php if($this->host[$v['V2']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
+                                if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
+                              }
+                               else{if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
+                          </a></span>
+                          <?php }?>
+                          <?php if($v['PERCENT_COUNT_TYPE']>0){ if($v['PERCENT_COUNT_TYPE']==1)$all=$this->all_start_date[$tmp_date][$this->host[0]['V2']]; if($v['PERCENT_COUNT_TYPE']==2)$all=$this->all_start_date_all[$tmp_date]; ?>
+                          (<?php printf('%.2f',$num/$all*100)?>%)
+                          <?php   }?>
+                        </td>
+                        <?php }?>
+                      </tr>
+                      <?php }?>
+                  </table>
+                </div>
+                <?php }?>
+                <!----------------------------------->
+                <div id="tab_class_1" <?php if($_REQUEST['start_date']){?>style="display:none"<?php }?>>
+                  <table id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <thead>
+                      <tr class = "tr-th2">
+                        <th><a href="?act=report_check_do&v1=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue">验收7天内数据</a></th>
+                        <th colspan="<?php echo $cospan?>" style="text-align:right;">
+                            <span><a class="blue" href="?act=report_sort&v1=<?php echo rawurlencode($_REQUEST['type'])?>">按照名称排序</a>&nbsp;&nbsp;</span>
+                          <label><span>隐藏空白日期</span>
+                            <input name="char" id="char" type="checkbox" value="" <?php if($_COOKIE['no_emptyday']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('no_emptyday',this.checked);window.location.reload()" />
+                          </label>
+                          &nbsp;
+                        </th>
+                      </tr>
+                      <!----------------------分组----------------------------->
+                      <?php if ($is_group){?>
+                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                        <td>汇总</td>
+                        <?php  foreach($this->group as $k=>$v){
+                        $num = $this->group_count[$k]['count'];
+                           ?>
+                        <td  title="<?php echo intval($num);?>" colspan="<?php echo count($v)?>">
+                          <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                        </td>
+                        <?php }?>
+                      </tr>
+                      <tr class = "tr-th2">
+                        <th>分组</th>
+                        <?php  foreach($this->group as $k=>$v){?>
+                          <?php
+                            $group_ids = '';
+                            foreach($v as $row){
+                                $group_ids.="_".$row['ID'];
+                            }?>
+                        <th class="b-r" colspan="<?php echo count($v)?>" id="v2_group_<?php echo md5($k)?>" ondblclick="edit_v2_group(this,'<?php echo $group_ids?>');$(this).attr('ondblclick','');"><?php echo $k?></th>
+                        <?php }?>
+                      </tr>
+                      <?php }?>
+                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1){?>
+                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                        <td>汇总</td>
+                        <?php  foreach($this->group as $k=>$i){
+                         foreach($i as $v){
+                        $num=$this->all_start_date_count[$v['V2']]['total'];?>
+                        <td title="<?php echo intval($num);?>">
+                          <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                        </td>
+                        <?php }}?>
+                      </tr>
+                      <?php }else{?>
+                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                        <td>平均</td>
+                        <?php  foreach($this->group as $k=>$vv){
+						        foreach($vv as $v){
+						   ?>
+                        <td><?php echo $this->all_start_date_count[$v['V2']]['total_avg']?></td>
+                        <?php }}?>
+                      </tr>
+                      <?php }?>
+                      <tr class = "tr-th2">
+                        <th>日期</th>
+                        <?php  foreach($this->group as $k=>$i){
+      foreach($i as $v){
+ ?><!----------onclick="edit_as_name(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');">--------->
+                        <th  title='<?php echo $v["V2"]."\r\n";
+                        foreach($v["API_INFO"]["CONTRACT"] as $cid=>$contractor)
+                            echo $contractor["DETAIL_NAME"].":".$contractor["NOTE"]."\r\n";
+                        if($v["API_INFO"]["TEST_INFO"]){
+                            echo "成功:".$v["API_INFO"]["TEST_INFO"]["成功"]."\r\n";
+                            echo "失败:".$v["API_INFO"]["TEST_INFO"]["失败"]."\r\n";
+                            echo "超时:".$v["API_INFO"]["TEST_INFO"]["超时"]."\r\n";
+                            echo "未超时:".$v["API_INFO"]["TEST_INFO"]["未超时"]."\r\n";
+                        }
+                        ?>' id="as_name_<?php echo md5($v['V1'].$v['V2'])?>" <?php if( $v['V2_CONFIG_OTHER']['API_ID']) echo "style='color:red'"?> ondblclick="edit_as_name(this,<?php echo intval($v['ID'])?>);$(this).attr('ondblclick','');"
+                                ><?php if($v['PHONE']){ ?><span style="color:red;"><?php echo $v['AS_NAME1']?></span><?php }else{?><?php echo $v['AS_NAME1']?><?php }?></th>
+                        <?php }}?>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php  for($i=strtotime($s2);$i>=strtotime($s1);$i-=3600*24){
+                        $tmp_yestoday = date("Y-m-d", $i-3600*24);
+                        $tmp_date=date("Y-m-d",$i);
+                        if(!$this->all_start_date[$tmp_date] && $_COOKIE['no_emptyday']=='true')
+                        continue;
+                      ?>
+                      <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
+                        <td class="b-r" style="text-align:left; width:70px; <?php if((date('w',strtotime($tmp_date))+7)%6==1){?>color:#CC0<?php }?>"><?php echo $tmp_date?>
+                          <?php if($this->v1_config[$_REQUEST['type']]['START_CLOCK']){?>
+                          (<?php echo intval($this->v1_config[$_REQUEST['type']]['START_CLOCK'])?>点+24)
+                          <?php }?>
+                          <?php if(date('w',strtotime($tmp_date))==6){?>
+                          六
+                          <?php }?>
+                          <?php if(date('w',strtotime($tmp_date))==0){?>
+                          天
+                          <?php }?>
+                          <?php if($tmp_date<>date("Y-m-d") && ! $this->all_start_date[$tmp_date]['LOOKUP'] && $this->all_start_date[$tmp_date] && $this->v1_config[$_REQUEST['type']]['IS_DUTY']<>1 ){?>
+                          <span style="color:red">未验</span>
+                          <?php }?>
+                          <?php if($_REQUEST['start_date']==$tmp_date){?>
+                          <br>
+                          <a href="javascript:void(0);" onclick="document.getElementById('tab_class_1').style.display='none';document.getElementById('tab_class_0').style.display='block';" class="blue">&lt;&lt;隐藏全部</a>
+                          <?php }?>
+                        </td>
+                        <?php  foreach($this->group as $k=>$c){
+         foreach($c as $v){
+              $yestoday_num = isset($this->all_start_date[$tmp_yestoday][$v['V2']])?$this->all_start_date[$tmp_yestoday][$v['V2']]:0;
+              $num=$this->all_start_date[$tmp_date][$v['V2']];?>
+                        <td class="b-r" >
+
+                          <?php if($num===null){?>
+                          <span style="color:#AAA">0</span>
+                          <?php }else{?>
+                            <p  style="<?php
+                            $tips = $num;
+                            $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
+                            $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
+                            if($yestoday_num>0 && $num>$cmp_base && $num>($red_factor*$yestoday_num*2)){
+                                echo 'border:2px solid red;';
+                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                            }
+                            elseif($yestoday_num>0 && $num>$cmp_base && $num>($red_factor*$yestoday_num)){
+                                echo 'border:1px solid red;';
+                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                            }
+
+                            elseif($yestoday_num>0 && $num>$cmp_base && $yestoday_num>($red_factor*$num*2)){
+                                echo 'border:2px solid green;';
+                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                            }
+                            elseif($yestoday_num>0 && $num>$cmp_base && $yestoday_num>($red_factor*$num)){
+                                echo 'border:1px solid green;';
+                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                            }
+
+                          ?>"
+                          >
+                          <span><a title="<?php echo $tips;?>" href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
+                              <?php if($this->host[$v['V2']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
+                                if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
+                              }
+                              else{if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
+                          </a> </span>
+                          <?php }?>
+                          <?php if($v['PERCENT_COUNT_TYPE']>0){
+                       if($v['PERCENT_COUNT_TYPE']==1)
+                        $all=$this->all_start_date[$tmp_date][$this->host[0]['V2']];
+                       if($v['PERCENT_COUNT_TYPE']==2)
+                        $all=$this->all_start_date_all[$tmp_date]; ?>
+                          (<?php  printf('%.2f',$num/$all*100)?>%)
+                          <?php   }?>
+                        </p>
+                        </td>
+                        <?php }}?>
+                      </tr>
+                      <?php }?>
+                    </tbody>
+                  </table>
+                </div>
+                <?php }?>
+              </div>
+              <br />
+            <?php if($this->api_info){?>
+            <div class="m-nav">
+                <ul>
+                    <li title="点击查看" class="cur" ><a target="_blank" href="?act=doc_index&doc_id=30&group_name=2.%BD%D3%BF%DA%B7%FE%CE%F1&group_name_1=%CF%EE%C4%BF%CE%C4%B5%B5&group_name_2=A.%BC%DC%B9%B9&query_infos=<?php echo $this->api_info['LIST_ID']?>"><span>接口信息</span></a></li>
+                </ul>
+            </div>
+            <div class="tBd" style="margin-bottom:20px;">
+                <span class="noi" style="font-size:23px;color:#0000CC;">接口(<?php echo $this->api_info['LIST_ID'] ?>)：<?php echo $this->api_info['LIST_NAME'] ?> </span>
+                <br/><span class="noi" style="font-size:23px;color:#0000CC;">描述：<?php echo $this->api_info['DES'] ?></span>
+            </div>
+            <?php }?>
+            <br />
+              <?php if($_REQUEST['start_date']){?>
+              <div class="tHd">
+                <!--mnav-->
+                <div class="m-nav">
+                  <ul>
+                    <?php foreach($this->host as $f){?>
+                    <li <?php if($_REQUEST['host']==$f['V2']) echo 'class="cur"';?>><a href="?act=report_monitor&type=<?php echo rawurlencode($_REQUEST['type'])?>&host=<?php echo rawurlencode($f['V2'])?>&start_date=<?php echo $start_date?>"><span><?php echo $f['AS_NAME1']; ?></span></a></li>
+                    <?php }?>
+                  </ul>
+                </div>
+                <!--/mnav-->
+              </div>
+              <div class="tBd" id="table_2">
+                <table  id="nums_1" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <thead>
+                    <tr class = "tr-th2">
+                      <th>&nbsp;</th>
+                      <th>&nbsp;</th>
+                      <th colspan='24'>24小时状态
+                        <?php if($_REQUEST['start_date'] && strtotime($_REQUEST['start_date'])>time()-3600*24*9 ){?>
+                        (<a href="?act=monitor_config&hour=<?php echo $_REQUEST['start_date']?>&v1=<?php echo rawurlencode($_REQUEST['type'])?>&v2=<?php echo rawurlencode($_REQUEST['host'])?>" class="blue" target="_blank">重刷<?php echo $_REQUEST['start_date']?>数据</a>)
+                        <?php }?>
+                      </th>
+                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <th colspan='8'>监控项目</th>
+                        <?php } else{?>
+                        <th colspan='2'>监控项目</th>
+                        <?php }?>
+                      <th colspan='3'><a href="javascript:void(0)" onclick="$('#nums_1').hide();$('#nums_2').show();" class="blue">百分比模式</a></th>
+                    </tr>
+                    <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1){?>
+                    <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                      <td>汇总</td>
+                      <td><?php echo count($this->fun_count)?>个&nbsp;</td>
+                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ $num=$this->fun_count2[date("d H",$id)]; ?>
+                      <td>
+                        <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                      </td>
+                      <?php }?>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    <?php }?>
+                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
+                      <td>&nbsp;</td>
+                      <?php }else{?>
+                      <td>
+                        <?php $num=array_sum($this->fun_count2)?>
+                        <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                      </td>
+                      <?php }?>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <?php }else{?>
+                    <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                      <td>平均</td>
+                      <td><?php echo count($this->fun_count)?>个&nbsp;</td>
+                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
+                      <td><?php echo round($this->fun_count2[date("d H",$id)]/count($this->fun_count),2)?></td>
+                      <?php }?>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
+                      <td><?php echo round($this->fun_count3['FUN_COUNT_AVG'],2)?>&nbsp;</td>
+                      <?php }else{?>
+                      <td></td>
+                      <?php }?>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <?php }?>
+                    <tr class = "tr-th2">
+                      <th>序号</th>
+                      <th>被监控对象</th>
+                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
+                      <th><?php echo date("H",$id)?></th>
+                      <?php }?>
+                      <th>用时</th>
+                      <th>总耗时</th>
+                    <?php if(strstr($_GET['type'], '功能执行')){?>
+                      <th>最大内存</th>
+                      <th>总内存</th>
+                      <th>用户最大CPU</th>
+                      <th>用户总CPU</th>
+                      <th>系统最大CPU</th>
+                      <th>用户总CPU</th>
+                    <?php }?>
+                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
+                      <th>平均</th>
+                      <?php }else{?>
+                      <th>总量</th>
+                      <?php }?>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php $i=0;if($this->fun_count) foreach($this->fun_count as $k=>$v){ if($this->v_config['V3_LINK'])$v['url']=str_replace(array('V1','V2','V3','CAL_DATE'),array($_REQUEST['type'],$_REQUEST['host'],$k,$start_date),$this->v_config['V3_LINK']);?>
+                    <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
+                      <td class="b-r"><?php echo $i+1+$this->pageObj->limit_1;?></td>
+                      <td class="b-r" style="text-align:left; width:130px;">
+                        <?php if(!$v['url']){?>
+                        <?php echo htmlspecialchars($v['AS_NAME1'])?>
+                        <?php }else{?>
+                        <a href="<?php echo $v['url']?>" target="_blank" class="blue"><?php echo htmlspecialchars($v['AS_NAME1'])?></a>
+                        <?php }?>
+                      </td>
+                      <?php  for($id=strtotime($start_date1);$id<strtotime($start_date1." +24 hour");$id+=3600){
+                                 $ii=date('d H',$id); $num=$v[$ii]['FUN_COUNT'];
+                                 $yi = date('d H', $id-3600*24); $num_y=isset($v[$yi]['FUN_COUNT'])?$v[$yi]['FUN_COUNT']:0;//上一天同一小时数据
+                                 $li = date('d H', $id-3600); $num_l=isset($v[$li]['FUN_COUNT'])?$v[$li]['FUN_COUNT']:0;//当天上一小时数据
+                      ?>
+                      <td class="b-r">
+                        <?php if($v[$ii]['FUN_COUNT']===null){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                          <p  style="<?php
+                            $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
+                            $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
+                            $cmp_num = ($num_y<$num_l&&$num_y!=0)?$num_y:$num_l;
+                            $tips = $num;
+                            if($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num*2)){
+                                if($cmp_num == $num_y && !($num>$cmp_base && $num>($red_factor*$num_l)))
+                                    echo 'border:2px solid pink;';
+                                else
+                                    echo 'border:2px solid red;';
+
+
+                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                            }
+                            elseif($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num)){
+                                if($cmp_num == $num_y && !($num>$cmp_base && $num>($red_factor*$num_l)))
+                                    echo 'border:1px solid pink;';
+                                else
+                                    echo 'border:1px solid red;';
+                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                            }
+                            elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num*2)){
+                                if($cmp_num == $num_y && !($num>$cmp_base && $num_l>($red_factor*$num*2)))
+                                    echo 'border:2px solid grey;';
+                                else
+                                    echo 'border:2px solid green;';
+                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                            }
+                            elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num)){
+                                if($cmp_num == $num_y && !($num>$cmp_base && $num_l>($red_factor*$num)))
+                                    echo 'border:1px solid grey;';
+                                else
+                                    echo 'border:1px solid green;';
+                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                            }
+                          ?>"
+                        >
+                        <span><a title="<?php echo $tips ?>" data-eventtype="click" data-prompt-position="tr" data-prompt-width=<?php  if(strstr($_GET['type'], '功能执行')) echo 800; else echo 660; ?> data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo date('H:00:00',$id)?>&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" >
+                            <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
+                            if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
+                            } else{ if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
+                        </a></span></p>
+                        <?php }?>
+                      </td>
+                      <?php  }?>
+                      <td class="b-r">
+                        <p <?php
+                            if($v['DIFF_TIME']>120)
+                          echo "style=' border:2px solid red;'";
+                          elseif($v['DIFF_TIME']>60)
+                          echo "style=' border:1px solid red;'";
+                          ?>
+                          >
+                        <?php if($v['DIFF_TIME']==0){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                        <?php $num_f=$v['DIFF_TIME']; if($num_f<60) printf('%.4f秒',$num_f); elseif($num_f<3600) printf('%.4f分',$num_f/60);else printf('%.4f小时',$num_f/3600);?>
+                        <?php }?>
+                          </p>
+                      </td>
+                      <td class="b-r">
+                          <p <?php
+                            if($v['TOTAL_DIFF_TIME']>120)
+                          echo "style=' border:2px solid red;'";
+                          elseif($v['TOTAL_DIFF_TIME']>60)
+                          echo "style=' border:1px solid red;'";
+                          ?>
+                          >
+                          <?php if($v['TOTAL_DIFF_TIME']==0){?>
+                          <span style="color:#AAA">0</span>
+                          <?php }else{?>
+                          <?php $num_t=$v['TOTAL_DIFF_TIME']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                          <?php }?>
+                          </p></td>
+                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <td class="b-r"><p>
+                            <?php if($v['MEMORY_MAX']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['MEMORY_MAX']; if($num_t<1024) printf('%.4fM',$num_t); elseif($num_t<1024*1024) printf('%.4fG',$num_t/1024);else printf('%.4fT',$num_t/(1024*1024)); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['MEMORY_TOTAL']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['MEMORY_TOTAL']; if($num_t<1024) printf('%.4fM',$num_t); elseif($num_t<1024*1024) printf('%.4fG',$num_t/1024);else printf('%.4fT',$num_t/(1024*1024)); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_USER_TIME_MAX']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_USER_TIME_MAX']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_USER_TIME_TOTAL']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_USER_TIME_TOTAL']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_SYS_TIME_MAX']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_SYS_TIME_MAX']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_SYS_TIME_TOTAL']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_SYS_TIME_TOTAL']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <?php }?>
+                        <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){ ?>
+                      <td class="b-r"><?php echo $v['FUN_COUNT_AVG']?>&nbsp;</td>
+                      <?php }else{?>
+                      <td class="b-r">
+                        <?php  $num=$v['FUN_COUNT'];if($num==0){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                        <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+                        <?php }?>
+                      </td>
+                      <?php }?>
+                      <td>
+                        <?php if($this->v_config['MIN_COUNT_TYPE']==0){?>
+                        <a href="#top" onclick="$('#table_line_v32').val('<?php echo rawurlencode($k)?>');$('#table_line22').val('');call_char_henxian2();$('#char_div').hide();$('#char_div2').show();" class="blue">曲线</a>
+                        <?php }?>
+                      </td>
+                    </tr>
+                    <?php $i++;}?>
+                  </tbody>
+                </table>
+                <table  id="nums_2" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%" style="display:none">
+                  <thead>
+                    <tr class = "tr-th2">
+                      <th>&nbsp;</th>
+                      <th>&nbsp;</th>
+                      <th colspan='24'>24小时状态
+                        <?php if($_REQUEST['start_date']){?>
+                        (<a href="?act=monitor_config&hour=<?php echo $_REQUEST['start_date']?>&v1=<?php echo rawurlencode($_REQUEST['type'])?>&v2=<?php echo rawurlencode($_REQUEST['host'])?>" class="blue" target="_blank">重刷<?php echo $_REQUEST['start_date']?>数据</a>)
+                        <?php }?>
+                      </th>
+                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <th colspan='8'>监控项目</th>
+                        <?php } else{?>
+                        <th colspan='2'>监控项目</th>
+                        <?php }?>
+                      <th colspan='2'><a href="javascript:void(0)" onclick="$('#nums_2').hide();$('#nums_1').show();"class="blue">数字模式</a></th>
+                    </tr>
+                    <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+                      <td>汇总</td>
+                      <td><?php echo count($this->fun_count)?>个&nbsp;</td>
+                      <?php  $fun_count2_sum=array_sum($this->fun_count2); for($id=strtotime($start_date1);$id < strtotime($start_date1.' +24 hour');$id+=3600){ $ii=date('d H',$id); ?>
+                      <td><?php printf('%.2f',$this->fun_count2[$ii]/$fun_count2_sum*100)?>%</td>
+                      <?php }?>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <?php }?>
+                      <td><?php echo array_sum($this->fun_count2)?></td>
+                      <td>&nbsp;</td>
+                    </tr>
+                    <tr class = "tr-th2">
+                      <th>序号</th>
+                      <th>被监控对象</th>
+                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
+                      <th><?php echo date('H',$id)?></th>
+                      <?php }?>
+                      <th>用时</th>
+                      <th>总耗时</th>
+                    <?php if(strstr($_GET['type'], '功能执行')){?>
+                      <th>最大内存</th>
+                      <th>总内存</th>
+                      <th>用户最大CPU</th>
+                      <th>用户总CPU</th>
+                      <th>系统最大CPU</th>
+                      <th>用户总CPU</th>
+                    <?php }?>
+                      <th>总量</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php $i=0;if($this->fun_count) foreach($this->fun_count as $k=>$v){ if($this->v_config['V3_LINK'])$v['url']=str_replace(array('V1','V2','V3','CAL_DATE'),array($_REQUEST['type'],$_REQUEST['host'],$k,$start_date),$this->v_config['V3_LINK']);?>
+                    <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
+                      <td class="b-r"><?php echo $i+1+$this->pageObj->limit_1;?></td>
+                      <td class="b-r" style="text-align:left; width:130px;">
+                        <?php if(!$v['url']){?>
+                        <?php echo $k?>
+                        <?php }else{?>
+                        <a href="<?php echo $v['url']?>" target="_blank" class="blue"><?php echo $k?></a>
+                        <?php }?>
+                      </td>
+                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1.' +24 hour');$id+=3600){ $ii=date('d H',$id);?>
+                      <td class="b-r">
+                        <?php if($v[$ii]['FUN_COUNT']==0){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                        <span><a data-eventtype="click" data-prompt-position="tr" data-prompt-width=<?php if(strstr($_GET['type'], '功能执行')) echo 800; else echo 660;?> data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo $ii?>:00:00&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" ><?php printf('%.2f',$v[$ii]['FUN_COUNT']/$fun_count2_sum*100)?>%</a></span>
+                        <?php }?>
+                      </td>
+                      <?php }?>
+                      <td class="b-r">
+                        <?php if($v['DIFF_TIME']==0){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+
+                        <?php $num_f=$v['DIFF_TIME']; if($num_f<60) printf('%.4f秒',$num_f); elseif($num_f<3600) printf('%.4f分',$num_f/60);else printf('%.4f小时',$num_f/3600);?>
+                        <?php }?>
+                      </td>
+                      <td class="b-r">
+                          <?php if($v['DIFF_TIME']==0){?>
+                          <span style="color:#AAA">0</span>
+                          <?php }else{?>
+                          <?php $num_t=$v['TOTAL_DIFF_TIME']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                          <?php }?>
+                      </td>
+                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <td class="b-r"><p>
+                            <?php if($v['MEMORY_MAX']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['MEMORY_MAX']; if($num_t<1024) printf('%.4fM',$num_t); elseif($num_t<1024*1024) printf('%.4fG',$num_t/1024);else printf('%.4fT',$num_t/(1024*1024)); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['MEMORY_TOTAL']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['MEMORY_TOTAL']; if($num_t<1024) printf('%.4fM',$num_t); elseif($num_t<1024*1024) printf('%.4fG',$num_t/1024);else printf('%.4fT',$num_t/(1024*1024)); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_USER_TIME_MAX']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_USER_TIME_MAX']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_USER_TIME_TOTAL']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_USER_TIME_TOTAL']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_SYS_TIME_MAX']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_SYS_TIME_MAX']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <td class="b-r"><p>
+                            <?php if($v['CPU_SYS_TIME_TOTAL']==0){?>
+                            <span style="color:#AAA">0</span>
+                            <?php }else{?>
+                            <?php $num_t=$v['CPU_SYS_TIME_TOTAL']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
+                            <?php }?>
+                        </p></td>
+                        <?php }?>
+                      <td class="b-r">
+                        <?php if($v['FUN_COUNT']==0){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                        <?php printf('%.2f',$v['FUN_COUNT']/$fun_count2_sum*100)?>%
+                        <?php }?>
+                      </td>
+                      <td><a href="?<?php echo http_build_query(array('v3'=>$k)+$_REQUEST)?>#all_v3" class="<?php if($_GET['v3']==$k){?>red<?php }else{?>blue<?php }?>">曲线</a></td>
+                    </tr>
+                    <?php $i++;}?>
+                  </tbody>
+                </table>
+                <?php  if($this->pageObj->total>1 && count($this->fun_count)>=300){?>
+                <!--分页-->
+                <br />
+                <div class="page  fr"><span>第<?php echo $this->pageObj->currentPage?>/<?php echo $this->pageObj->pages?>页：</span>
+                  <?php  _p("?".http_build_query(array('pageID'=>NULL)+$_GET)."&pageID={p}",false,"?".http_build_query(array('pageID'=>NULL)+$_GET));  ?>
+                  <?php if($this->pageObj->currentPage>1){?>
+                  <a href="<?php echo _p(1)?>" title='第1页' >|&lt;</a> <a href="<?php echo _p($this->pageObj->currentPage-1)?>" title='第<?php echo $this->pageObj->currentPage-1?>页' >&lt;&lt;</a>
+                  <?php }?>
+                  <?php for($i=$this->pageObj->min;$i<=$this->pageObj->max ;$i++){?>
+                  <?php if($this->pageObj->currentPage==$i){?>
+                  <span><?php echo $i?></span>
+                  <?php }else{?>
+                  <a title='第<?php echo $i?>页' href="<?php echo _p($i)?>"><?php echo $i?></a>
+                  <?php }?>
+                  <?php }?>
+                  <?php if($this->pageObj->currentPage < $this->pageObj->pages){?>
+                  <a href="<?php echo _p($this->pageObj->currentPage+1)?>" title='第<?php echo $this->pageObj->currentPage=1?>页' >&gt;&gt;</a> <a href="<?php echo _p($this->pageObj->pages)?>" title='第<?php echo $this->pageObj->pages?>页' >&gt;|</a>
+                  <?php }?>
+                </div>
+                <!--/分页-->
+                <?php }?>
+              </div>
+              <?php }?>
+				<br />
+			   <!--v230天数据-->
+			  <?php if($_REQUEST['host']&&$_COOKIE['v2_month'] == 'true'&&$_REQUEST['host']!='汇总'){?>
+              <div class="tHd" id="table_3">
+                <!--mnav-->
+                <div class="m-nav">
+                  <ul>
+                    <li class="cur"><a href="#"><span><?php echo $this->host[$_REQUEST['host']]['AS_NAME1']; ?></span></a></li>
+                  </ul>
+                </div>
+                <!--/mnav-->
+              </div>
+              <div class="tBd">
+			  <table  id="nums_1" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <thead>
+                    <tr class = "tr-th2">
+                      <th>日期</th>
+                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
+                      <th><?php echo date("H",$id)?></th>
+                      <?php }?>
+                      <th>总量</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php  for($i=strtotime($s2);$i>=strtotime($s1);$i-=3600*24){
+                        $tmp_date=date("Y-m-d",$i); if(!$this->all_start_date[$tmp_date] && $_COOKIE['no_emptyday']=='true') continue; ?>
+                      <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
+                        <td class="b-r" style="text-align:left; width:100px; <?php if((date('w',strtotime($tmp_date))+7)%6 == 1){?>color:#CC0<?php }?>"><?php echo $tmp_date?>
+                          <?php if($this->v1_config[$_REQUEST['type']]['START_CLOCK']){?>
+                          (<?php echo intval($this->v1_config[$_REQUEST['type']]['START_CLOCK'])?>点+24)
+                          <?php }?>
+                          <?php if(date('w',strtotime($tmp_date))==6){?>
+                          六
+                          <?php }?>
+                          <?php if(date('w',strtotime($tmp_date))==0){?>
+                          天
+                          <?php }?>
+                        </td>
+                        <?php  for($id=strtotime($tmp_date);$id<strtotime($tmp_date." +24 hour");$id+=3600){
+                        $ii=date('m d H',$id); $num=$this->fun_count_v2[$ii];
+                        $yi = date('m d H', $id-3600*24); $num_y=isset($this->fun_count_v2[$yi])?$this->fun_count_v2[$yi]:0;//上一天同一小时数据
+                        $li = date('m d H', $id-3600); $num_l=isset($this->fun_count_v2[$li])?$this->fun_count_v2[$li]:0;//当天上一小时数据
+						?>
+                      <td class="b-r">
+                        <?php if($this->fun_count_v2[$ii]===null){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+                          <p  style="<?php
+                            $tips = $num;
+                            $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
+                            $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
+                            $cmp_num = ($num_y<$num_l&&$num_y!=0)?$num_y:$num_l;
+                            if($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num*2)){
+                                 echo 'border:2px solid red;';
+                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                            }
+
+                            elseif($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num)){
+                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                                echo 'border:1px solid red;';
+                            }
+                            elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num*2)){
+                                 echo 'border:2px solid green;';
+                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                            }
+
+                            elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num)){
+                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                                echo 'border:1px solid green;';
+                            }
+                          ?>"
+                                  >
+                        <span><a class="blue" title="<?php echo $tips ?>">
+                            <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
+                            if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
+                            } else {if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
+                        </a></span></p>
+                        <?php }?>
+                      </td>
+                      <?php  }?>
+
+					   <?php  for($id=strtotime($tmp_date);$id<strtotime($tmp_date." +24 hour");$id+=3600*24){ $ii=date('m d',$id);
+						$num_c=$this->fun_count_3[$ii];
+						?>
+                      <td class="b-r" title="<?php echo $num_c;?>">
+
+                        <?php if($this->fun_count_3[$ii]===null){?>
+                        <span style="color:#AAA">0</span>
+                        <?php }else{?>
+
+                        <span><a class="blue">
+                            <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
+                            if($num_c>1024*1024){ echo round($num_c/1024/1024,1).'T';}elseif($num_c>1024){ echo round($num/1024,1).'G'; }else{ echo round($num_c,1).'M';}
+                            } else{ if($num_c>10000*10000){ echo round($num_c/10000/10000,1).'亿';}elseif($num_c>10000){ echo round($num_c/10000,1).'万'; }else{ echo $num_c;}}?>
+                        </a></span>
+                        <?php }?>
+                      </td>
+                      <?php  }?>
+                      </tr>
+                      <?php }?>
+                  </tbody>
+                </table>
+			<?php }?>
+			</div>
+			<!--v2 30天内数据结束-->
+            </div>
+            <!--/main-->
+            <!--/内容结束!-->
+          </div>
+          <!--/i-col1-1-->
+        </div>
+        <!--/内容结束-->
+      </div>
+      <!--/new-i-cols-->
+    </div>
+  </div>
+  <!--/container-->
+  <?php include "_footer.html";?>
+</div>
+<!--wrapper-->
+</body>
+</html>

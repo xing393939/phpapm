@@ -1,0 +1,45 @@
+/**********日历样式开始********************/
+#calendar_container {
+	width:160px;
+	border:1px solid #06C;
+}
+#calendar {
+	border-collapse:collapse;
+	background-color:#FFF;
+	width:160px;
+	height:120px;
+	margin:0px auto;
+	cursor:default;
+}
+#calendar td {
+	font-size:12px;
+	text-align:center;
+	vertical-align:middle;
+	font-family:"宋体";
+}
+#calendar thead {
+	background-color:#999;
+	color:#FFF;
+}
+#calendar caption {
+	background-color:#06C;
+}
+#calendar a{
+	color:#F90;
+	margin:0 5px;
+	text-decoration:none;
+}
+#calendar #prev_month,#calendar #next_month {
+	font-size:18px;
+	margin:0;
+}
+#calendar #c_today {
+	background-color:#036;
+	color:#FFF;
+}
+#calendar .over {
+	background-color:#CCC;
+}
+#calendar .keydate {
+	color:#06F;
+}

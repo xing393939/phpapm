@@ -1,0 +1,50 @@
+<?php
+$project_config = new project_config;
+$conn_db = _ocilogon($project_config->db);
+define('PROJECT_SQL',true);
+$sql = "select t.*,decode(as_name,null,v1,as_name) as_name1 from {$project_config->report_monitor_v1} t
+order by GROUP_NAME_1,GROUP_NAME_2,group_name ,decode(as_name,null,v1,as_name)  ";
+$stmt = _ociparse($conn_db, $sql);
+$ocierror = _ociexecute($stmt);
+$v1_config_group = $_row = array();
+while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS))
+{
+if(!$v1_config_group[$_row['GROUP_NAME_1']][$_row['GROUP_NAME_2']][$_row['GROUP_NAME']])
+$v1_config_group[$_row['GROUP_NAME_1']][$_row['GROUP_NAME_2']][$_row['GROUP_NAME']]=$_row['V1'];
+}
+if(is_object($this) && is_array($this->v1_config))
+{
+$top_config=current($this->v1_config);
+}else
+$top_config=array();
+$ki=0;foreach($v1_config_group as $k=>$v){ $ki++;?>
+<div class="xiala rating-menu" id="user-infor">
+    <span data-type="simulate-select-hover"
+        data-select-config="offsetParent=.xiala&dropLayer=.xiala-layer&select=cur&&minWidth=192&align=right&adjustX=2"
+        class="xiala-span t-bx dquser <?php if($top_config['GROUP_NAME_1']==$k){?>cur<?php }?>">
+        <em class="updata"><b class="nbi" id="nbi_num_<?php echo $ki;?>"></b></em><?php echo $k?>
+        <i class="i-triangle"></i>
+    </span>
+    <!--xiala-layer-->
+    <div class="xiala-layer">
+        <div class="xl-bd">
+            <?php foreach($v as $kk=>$vv){?>
+            <div class="xlbd-bx ">
+                <h2> <?php echo $kk?> <a class="h2r" href="#"></a></h2>
+                <ul class="uls">
+                    <?php foreach($vv as $kkk=>$vvv){ ?>
+                    <li>
+                        <a href="project.php?act=report_monitor&type=<?php echo rawurlencode($vvv)?>&group_name_2=<?php echo rawurlencode($kk)?>"
+                           class="<?php if($top_config['GROUP_NAME']==$kkk && $top_config['GROUP_NAME_1']==$k && $top_config['GROUP_NAME_2']==$kk){?>red<?php }else{?>blue<?php }?>"><?php echo $kkk?></a>
+                    </li>
+                    <?php }?>
+                </ul>
+            </div>
+            <?php }?>
+            <b class="xl-h"></b>
+            <b class="xl-f"></b>
+        </div>
+    </div>
+    <!--/xiala-layer-->
+</div>
+<?php }?>    

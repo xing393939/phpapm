@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>配置中心 - 监控后台</title>
+
+<link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
+<link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet">
+
+<script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
+<script type="text/javascript" src="project_res/commstyle/js/inspect2.js?v=20121111" ></script>
+<script>
+$.ajaxSetup({
+	ajaxSettings:{ contentType:"application/x-www-form-urlencoded;chartset=GB2312"}
+});
+</script>
+<style>
+.red{ color:#F00;}
+*{font-family:微软雅黑 !important}
+</style>
+<script>
+function edit_as_name(obj,id)
+{
+	var txt = $(obj).html();
+	if (txt.indexOf('<input')>-1)
+	{
+		return;
+	}
+	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_as_name_do(this,'+id+')" id="as_name_id_'+id+'" name="as_name" value="'+txt+'">');
+	$('#as_name_id_'+id)[0].select();
+}
+
+function edit_as_name_do(obj,id)
+{
+	$.post("?act=report_monitor_as_name&sign=<?php echo SIGN_KEY?>",{as_name : obj.value, id : id});
+	$(obj).parent().bind('click',function(data){edit_as_name($(this)[0],id)});
+	$(obj).parent().html(obj.value);
+}
+
+function edit_stats_flag(obj,id){
+    var txt = $(obj).html();
+    if (txt.indexOf('<input')>-1)
+    {
+        return;
+    }
+    $(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_stats_flag_do(this,'+id+')" id="stats_flag_id_'+id+'" name="stats_flag" value="'+txt+'">');
+    $('#stats_flag_id_'+id)[0].select();
+}
+
+function edit_stats_flag_do(obj,id)
+{
+    $.post("?act=report_monitor_stats_flag&sign=<?php echo SIGN_KEY?>",{stats_flag : obj.value, id : id});
+    $(obj).parent().bind('click',function(data){edit_as_name($(this)[0],id)});
+    $(obj).parent().html(obj.value);
+}
+
+function edit_v2_group(obj,id)
+{
+	var txt = $(obj).html();
+	if (txt.indexOf('<input')>-1)
+	{
+		return;
+	}
+	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_v2_group_do(this,'+id+')" id="v2_group_id_'+id+'" name="v2_group" value="'+txt+'">');
+	$('#v2_group_id_'+id)[0].select();
+}
+function edit_v2_group_do(obj,id)
+{
+	$.post("?act=report_monitor_v2_group&sign=<?php echo SIGN_KEY?>",{v2_group : obj.value, id : id});
+	$(obj).parent().bind('click',function(data){edit_v2_group($(this)[0],id)});
+	$(obj).parent().html(obj.value);
+}
+
+function edit_v2_api(obj,id)
+{
+	var txt = $(obj).html();
+	if (txt.indexOf('<input')>-1)
+	{
+		return;
+	}
+	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_v2_api_do(this,'+id+')" id="v2_api_id_'+id+'" name="v2_api" value="'+txt+'">');
+	$('#v2_api_id_'+id)[0].select();
+}
+function edit_v2_api_do(obj,id)
+{
+	$.post("?act=report_monitor_config_other&sign=<?php echo SIGN_KEY?>&API_ID="+obj.value+"&id="+id,{v2_api : obj.value, id : id});
+	$(obj).parent().bind('click',function(data){edit_v2_api($(this)[0],id)});
+	$(obj).parent().html(obj.value);
+}
+
+
+function edit_compare_group(obj,id)
+{
+	var txt = $(obj).html();
+	if (txt.indexOf('<input')>-1)
+	{
+		return;
+	}
+	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_compare_group_do(this,'+id+')" id="compare_group_id_'+id+'" name="compare_group" value="'+txt+'">');
+	$('#compare_group_id_'+id)[0].select();
+}
+function edit_compare_group_do(obj,id)
+{
+	$.post("?act=report_monitor_compare_group&sign=<?php echo SIGN_KEY?>",{compare_group : obj.value, id : id});
+	$(obj).parent().bind('click',function(data){edit_compare_group($(this)[0],id)});
+	$(obj).parent().html(obj.value);
+}
+//反选
+function call()
+{
+	var arrChk=$("input[name='uncount[]']");
+	$(arrChk).each(function(idx, item){
+		$(item).attr("checked", !$(item).attr("checked"));
+	});
+}
+</script>
+</head>
+<body>
+<div id="wrapper">
+<?php include "_header.html";?>
+  <!--container-->
+  <div id="container">
+    <!--new-i-cols-->
+    <div class="i-cols new-i-cols">
+    <!--内容开始-->
+      <div class="i-col1">
+        <!--i-col1-1-->
+        <div id="new-i-col1-1" class="i-col1-1">
+        <div class="crumb">您当前的位置：配置中心 >> <a href="?act=report_monitor&type=<?php echo rawurlencode($this->v1_config_act['V1'])?>" class="blue">返回数据指标</a></div>
+
+        <div id="main" class="mBox" style="clear:both">
+            <!--mnav-->
+            <div class="tHd">
+               <div class="m-nav">
+                  <ul>
+                  <?php  $i=0;foreach($this->v1_config as $k=>$v){ ?>
+                   <li  id="li_class_<?php echo $i?>" <?php if($_REQUEST['v1']==$v['V1']){?>class="cur"<?php }?>><a href="?act=report_monitor_config&v1=<?php echo rawurlencode($v['V1'])?>" title="<?php echo $v['V1']?>" ><span><?php echo $v['AS_NAME1']?></span></a></li>
+                  <?php  $i++;}?>
+                  </ul>
+                </div>
+            </div>
+            <!--/mnav-->
+
+<div class="tBd" style="margin-bottom:20px;">
+  <?php $percent_array=array('不做修改'=>'NULL','不显示'=>'0','相对于第一列的百分比'=>'1','相对于全部的百分比'=>2);?>
+  <?php $day_array=array('不做修改'=>'NULL','累计全部数据'=>'0','最后一小时数据'=>'1','当天最后一小时,前一天取24小时最高峰值'=>3,'24小时最高峰值'=>4,'最后一小时数据平均值'=>5,'当天平均值'=>6,'V3个数'=>7);?>
+  <?php $hour_array=array('不做修改'=>'NULL','累计全部数据'=>'0','当前小时的平均值'=>4);?>
+  <?php $sum_array=array('不做修改'=>'NULL','24小时总和'=>'0','24小时平均值'=>'1');?>
+  <?php $com_array=array('不做修改'=>'NULL','不显示'=>'0','显示'=>'1');?>
+
+  <form action="?act=report_monitor_v1_do&amp;v1=<?php echo rawurlencode($_REQUEST['v1'])?>" method="post" id="report_monitor_v1_do"  ><table   id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <th colspan="2" style="text-align:left; width:50%">基础配置</th>
+      <th colspan="2" style="text-align:left">联动配置</th>
+      <th colspan="2" style="text-align:left">菜单配置</th>
+      </tr>
+    <tr>
+      <td style="text-align:left">原名:</td>
+      <td style="text-align:left"><?php echo $this->v1_config_act['V1']?></td>
+      <td style="text-align:left"><span style="text-align:right">百分比</span>:</td>
+      <td style="text-align:left">                        <select name="percent_count_type" id="percent_count_type" >
+        <?php foreach($percent_array as $dk=>$dv){?>
+        <option value="<?php echo $dv?>" <?php if($this->v1_config_act['PERCENT_COUNT_TYPE']==$dv){?>selected="selected"<?php }?>><?php echo $dk?></option>
+        <?php }?>
+        </select> &nbsp;</td>
+      <td style="text-align:left">顶级菜单名称:<input name="show_group"  type="checkbox" id="show_group" value="1" checked="checked" />
+        <font color="#FF0000">同名联动</font></td>
+      <td style="text-align:left"><input name="group_name_1" type="text"  class="inpm" id="group_name_1" style="width:200px;" value="<?php echo $this->v1_config_act['GROUP_NAME_1']?>"/></td>
+      </tr>
+    <tr>
+      <td width="20%" style="text-align:left">别名:</td>
+      <td style="text-align:left"><input name="as_name" type="text"  class="inpm" id="as_name" style="width:300px;" value="<?php echo $this->v1_config_act['AS_NAME']?>"/></td>
+      <td style="text-align:left"><span style="text-align:right">日数据</span>:</td>
+      <td style="text-align:left"><select name="day_count_type" id="day_count_type">
+        <?php foreach($day_array as $dk=>$dv){?>
+        <option value="<?php echo $dv?>" <?php if($this->v1_config_act['DAY_COUNT_TYPE']==$dv){?>selected="selected"<?php }?>><?php echo $dk?></option>
+        <?php }?>
+        </select>&nbsp;</td>
+      <td style="text-align:left">顶级菜单下分组名:<input name="show_group_2"  type="checkbox" id="show_group_2" value="1"  checked="checked" />
+        <font color="#FF0000">同名联动</font></td>
+      <td style="text-align:left"><input name="group_name_2" type="text"  class="inpm" id="group_name_2" style="width:200px;" value="<?php echo $this->v1_config_act['GROUP_NAME_2']?>"/></td>
+      </tr>
+
+
+    <tr>
+      <td style="text-align:left">排版:</td>
+      <td style="text-align:left"><select name="show_template" id="show_template">
+        <option value="0">默认(日期竖列)</option>
+        <option value="1" <?php if($this->v1_config_act['SHOW_TEMPLATE']==1){?>selected="selected"<?php }?> >定制(日期横列,只显示10天)</option>
+        </select>
+        <input name="show_template_checkbox" type="checkbox" id="show_template_checkbox" value="1" />
+        本分组内统一排版</td>
+      <td style="text-align:left"><span style="text-align:right">小时数据</span>:</td>
+      <td style="text-align:left"><select name="hour_count_type" id="hour_count_type">
+        <?php foreach($hour_array as $dk=>$dv){?>
+        <option value="<?php echo $dv?>" <?php if($this->v1_config_act['HOUR_COUNT_TYPE']==$dv){?>selected="selected"<?php }?>><?php echo $dk?></option>
+        <?php }?>
+        </select>&nbsp;</td>
+      <td style="text-align:left">分组名:<input name="show_group_3"  type="checkbox" id="show_group_3" value="1"  checked="checked" />
+        <font color="#FF0000">同名联动</font></td>
+      <td style="text-align:left"><input name="group_name" type="text"  class="inpm" id="group_name" style="width:200px;" value="<?php echo $this->v1_config_act['GROUP_NAME']?>"/>
+        </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">默认显示图标:</td>
+      <td style="text-align:left"><select name="char_type" id="char_type">
+        <option value="0">默认不现实图例</option>
+        <option value="1" <?php if($v['CHAR_TYPE']==1){?>selected="selected"<?php }?>>=全部组合=</option>
+        <option value="2" <?php if($v['CHAR_TYPE']==2){?>selected="selected"<?php }?>>=排除第一个组合=</option>
+        </select></td>
+
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      </tr>
+    <tr>
+      <td style="text-align:left">日数据统计时间开始</td>
+      <td style="text-align:left"><select name="start_clock" id="start_clock">
+        <?php for($it=0;$it<=23;$it++){?>
+        <option value="<?php echo $it?>" <?php if($v['START_CLOCK']==$it){?>selected="selected"<?php }?> ><?php echo $it?>点</option>
+        <?php }?>
+        </select>
+        (编辑排版时候需要调整)</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left"><?php if($this->v1_config_act['PINFEN_RULE']){?>显示分数名:<?php }?></td>
+      <td style="text-align:left"><?php if($this->v1_config_act['PINFEN_RULE']){?><input name="pinfen_rule_name" type="text"  class="inpm" id="pinfen_rule_name"  value="<?php echo $this->v1_config_act['PINFEN_RULE_NAME']?>"/>
+        分<?php }?></td>
+      </tr>
+    <tr>
+      <td style="text-align:left">不参与验收</td>
+      <td style="text-align:left"><input name="is_duty" type="checkbox" id="is_duty" value="1" <?php if($this->v1_config_act['IS_DUTY']==1){?>checked="checked"<?php }?> /></td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left"><input type="submit" name="button" id="button" value="提交" class="ibtn" />&nbsp;&nbsp;<input type="submit" id="delete_v1" name='delete_v1' value="删除V1" class="ibtn" onclick="return  confirm('确认删除?');" />&nbsp;&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      <td style="text-align:left">&nbsp;</td>
+      </tr>
+  </table></form>
+</div>
+
+
+<div class="tBd">
+           		  <form action="?act=report_count_type&amp;v1=<?php echo rawurlencode($vv['V1'])?>" method="post" id="report_count_type"><table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <thead>
+<tr class="tr-td-bd  even " >
+                      <th colspan="16" style="text-align:right">&nbsp;联动同名配置(包括排序):
+                        <input name="group_all" type="checkbox" id="group_all" value="1" />                        &nbsp;百分比:
+                        <select name="percent_count_type_1" id="percent_count_type_1" >
+                        <?php foreach($percent_array as $dk=>$dv){?>
+                          <option value="<?php echo $dv?>"><?php echo $dk?></option>
+                        <?php }?>
+                      </select>
+
+                        日数据:&nbsp;<span class="b-r"  >
+                        <select name="day_count_type_1" id="day_count_type_1">
+                        <?php foreach($day_array as $dk=>$dv){?>
+                          <option value="<?php echo $dv?>"><?php echo $dk?></option>
+                        <?php }?>
+                        </select>
+
+                        </span>小时数据:&nbsp;<span class="b-r" style="text-align:left">
+                        <select name="hour_count_type_1" id="hour_count_type_1">
+                          <?php foreach($hour_array as $dk=>$dv){?>
+                          <option value="<?php echo $dv?>"><?php echo $dk?></option>
+                        <?php }?>
+                        </select>
+                        </span>
+</span>显示增量:
+                        <span class="b-r" style="text-align:left">
+<select name="v2_compare" id="v2_compare">
+                          <?php foreach($com_array as $dk=>$dv){?>
+                          <option value="<?php echo $dv?>"><?php echo $dk?></option>
+                        <?php }?>
+</select>
+</span>
+                      <input type="submit" name="button2" id="button2" class="ibtn" value="提交" />
+                      <input type="submit" style="color:red;" name="all_delete" id="all_delete" class="ibtn" value="批量删除" onclick="return  confirm('确认删除?');" />
+                      <input type="hidden" style= "" name="v1" value="<?php echo $_REQUEST['v1']?>" />
+                      </th>
+                      </tr>
+
+                      <tr class = "tr-th2">
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th colspan="3" >主键</th>
+                        <th>默认展示方式</th>
+                        <th>比较归类</th>
+                        <th colspan="3">数据统计方式</th>
+                        <th colspan="2">替换连接</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                      </tr>
+                      <tr class = "tr-th2">
+                        <th width="40"><a href="javascript:void(0)" onclick="call();" class="blue">反选</a></th>
+                        <th width="100">序号</th>
+                      	<th>V2</th>
+                        <th>别名</th>
+                        <th>分组名</th>
+                        <th>显示增量</th>
+                        <th>比较归类</th>
+                        <th>百分比</th>
+                        <th>日数据</th>
+                        <th>小时数据</th>
+                        <th>V3</th>
+                        <th>V4</th>
+                        <th>来自统计数据标志</th>
+                        <th>接口id</th>
+                        <th  width="120">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+<?php foreach($this->all as $kk=>$vv){ ?>
+                    <tr class="tr-td-bd  <?php if($kk%2==0){echo 'odd';}else{echo 'even';}?> ">
+                      <td class="b-r"><input name="uncount[]" type="checkbox" id="uncount[]" value="<?php echo $vv['V1']?>#@<?php echo $vv['V2']?>" /></td>
+                      <td class="b-r"><?php echo $vv['ORDERBY']?>&nbsp;<?php if($kk){?><a href="?act=report_monitor_order_up&v1=<?php echo rawurlencode($vv['V1'])?>&v2=<?php echo rawurlencode($vv['V2'])?>&orderby=<?php echo $vv['ORDERBY']?>">上升</a>&nbsp;<a href="?act=report_monitor_order_top&v1=<?php echo rawurlencode($vv['V1'])?>&v2=<?php echo rawurlencode($vv['V2'])?>&orderby=<?php echo $vv['ORDERBY']?>">顶部</a><?php }?></td>
+                      <td class="b-r"><?php echo $vv['V2']?></td>
+                      <td class="b-r" id="as_name_<?php echo md5($vv['V1'].$vv['V2'])?>" onclick="edit_as_name(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');"><?php echo $vv['AS_NAME']?></td>
+                      <td class="b-r" id="v2_group_<?php echo md5($vv['V1'].$vv['V2'])?>" onclick="edit_v2_group(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');"><?php echo $vv['V2_GROUP']?></td>
+
+                      <td class="b-r" style="text-align:left">
+                        <?php if($vv['V2_COMPARE']==0){?>&nbsp;<?php }?>
+                        <?php if($vv['V2_COMPARE']==1){?>显示<?php }?>
+                      </td>
+                      <td class="b-r" id="compare_group<?php echo md5($vv['V1'].$vv['V2'])?>" onclick="edit_compare_group(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');"><?php echo $vv['COMPARE_GROUP']?></td>
+                      <td class="b-r" style="text-align:left">
+                        <?php if($vv['PERCENT_COUNT_TYPE']==0){?>不显示<?php }?>
+                        <?php if($vv['PERCENT_COUNT_TYPE']==1){?>相对于第一列的百分比<?php }?>
+                      <?php if($vv['PERCENT_COUNT_TYPE']==2){?>相对于全部的百分比<?php }?></td>
+                      <td class="b-r" style="text-align:left">
+                      <?php foreach($day_array as $dk=>$dv){ if($vv['DAY_COUNT_TYPE']==$dv) echo $dk;}?>
+                      </td>
+                      <td class="b-r" style="text-align:left">
+                        <?php foreach($hour_array as $dk=>$dv){ if($vv['HOUR_COUNT_TYPE']==$dv) echo $dk;}?>
+                     </td>
+
+                      <td class="b-r"><?php echo $vv['V3_LINK']?></td>
+                      <td class="b-r"><?php echo $vv['V4_LINK']?></td>
+                      <td class="b-r" id="v2_stats_flag_<?php echo md5($vv['V1'].$vv['V2'])?>" onclick="edit_stats_flag(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');"><?php echo $vv['V2_CONFIG_OTHER']['stats_flag'] ?></td>
+                      <td class="b-r" id="v2_api_id_<?php echo md5($vv['V1'].$vv['V2'])?>"><?php echo $vv['V2_CONFIG_OTHER']['api_id'] ?></td>
+                      <td class="b-r">
+                          <?php if(!$vv['V2_CONFIG_OTHER']['NO_COUNT']){ ?>
+                          <a href="?act=report_monitor_config_other&id=<?php echo intval($vv['ID']) ?>&NO_COUNT=true" onclick="return confirm('确定不参与统计?')" class="blue">不参与统计</a>
+                          <?php }else{?>
+                          <a href="?act=report_monitor_config_other&id=<?php echo intval($vv['ID']) ?>&NO_COUNT=false" onclick="return confirm('确定参与统计?')" class="blue">参与统计</a>
+                          <?php }?>
+                          <?php if(!$vv['V2_CONFIG_OTHER']['DATA_UNITS'] || $vv['V2_CONFIG_OTHER']['DATA_UNITS']=='digital'){ ?>
+                          <a href="?act=report_monitor_config_other&id=<?php echo intval($vv['ID']) ?>&DATA_UNITS=capacity" onclick="return confirm('确定修改为容量单位?')" class="blue">改为容量单位</a>
+                          <?php }else{?>
+                          <a href="?act=report_monitor_config_other&id=<?php echo intval($vv['ID']) ?>&DATA_UNITS=digital" onclick="return confirm('确定修改为数字单位?')" class="blue">改为数字单位</a>
+                          <?php }?>
+                      </td>
+                      </tr>
+<?php }?>
+
+                    </tbody>
+                  </table></form>
+</div>
+
+<br />
+
+
+<!--mnav-->
+<div class="tHd">
+    <div class="m-nav">
+        <ul>
+            <li id="li_class_<?php echo $i?>" class="cur"><a href="" title="<?php echo $v['V1']?>"><span>评分体系</span></a></li>
+        </ul>
+    </div>
+</div>
+<!--/mnav-->
+<div class="tBd">
+<form action="project.php?act=report_pinfen" method="post" id="report_pinfen"><table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <thead>
+<tr class = "tr-th2" >
+  <th>&nbsp;&nbsp;评分体系名</th>
+  <th>扣分项名称</th>
+  <th>基数</th>
+  <th>前提</th>
+  <th>步长</th>
+  <th>每步长扣分</th>
+  <th>&nbsp;</th>
+</tr>
+<tr  >
+<?php $v1_info=unserialize($this->v1_config_act['PINFEN_RULE']); ?>
+  <td><input name="pinfen_name" type="text"  class="inpm" id="pinfen_name" value="<?php echo $v1_info['pinfen_name'];?>" /></td>
+  <td><input name="koufen_name" type="text"  class="inpm" id="koufen_name" value="<?php echo $v1_info['koufen_name'];?>" /></td>
+  <td><input name="base_num" type="text"  class="inpm" id="base_num" value="<?php echo $v1_info['base_num'];?>" /></td>
+  <td>小于
+    <input type="radio" name="just_rule" id="radio" value="<" <?php if($v1_info['just_rule']=='<'){ ?>checked="checked"<?php }?> />
+    大于
+    <input name="just_rule" type="radio" id="radio2" value=">" <?php if($v1_info['just_rule']=='>'){ ?>checked="checked"<?php }?> />
+    基数才扣分
+  </td><td><input name="pinfen_step" type="text"  class="inpm" id="pinfen_step" value="<?php echo $v1_info['pinfen_step'];?>" /></td>
+  <td><input name="rule_num" type="text"  class="inpm" id="rule_num" value="<?php echo $v1_info['rule_num'];?>" /></td>
+  <td><label>
+    <input name="v1" type="hidden" id="v1" value="<?php echo $this->v1_config_act['V1']?>" />
+    <input type="submit" name="button3" id="button3" value="保存" />
+  </label></td>
+</tr>
+                </thead>
+</table></form>
+</div><br />
+<div class="tBd">
+
+<table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <thead>
+<tr class = "tr-th2" >
+  <th>V2</th>
+  <th>&nbsp;&nbsp;评分体系名</th>
+  <th>扣分项名称</th>
+  <th>基数</th>
+  <th>前提</th>
+  <th>步长</th>
+  <th>每步长扣分</th>
+  <th>&nbsp;</th>
+</tr>
+<?php foreach($this->all as $kk=>$vv){ ?>
+<form action="project.php?act=report_pinfen" method="post" id="report_pinfen">
+<tr  >
+  <td><?php echo $vv['V2']?>&nbsp;</td>
+<?php $v1_info=unserialize($vv['PINFEN_RULE']); ?>
+  <td><input name="pinfen_name" type="text"  class="inpm" id="pinfen_name" value="<?php echo $v1_info['pinfen_name'];?>" /></td>
+  <td><input name="koufen_name" type="text"  class="inpm" id="koufen_name" value="<?php echo $v1_info['koufen_name'];?>" /></td>
+  <td><input name="base_num" type="text"  class="inpm" id="base_num" value="<?php echo $v1_info['base_num'];?>" /></td>
+  <td>小于
+    <input type="radio" name="just_rule" id="radio" value="<" <?php if($v1_info['just_rule']=='<'){ ?>checked="checked"<?php }?> />
+    大于
+    <input name="just_rule" type="radio" id="radio3" value=">" <?php if($v1_info['just_rule']=='>'){ ?>checked="checked"<?php }?> />
+基数才扣分
+  </td><td><input name="pinfen_step" type="text"  class="inpm" id="pinfen_step" value="<?php echo $v1_info['pinfen_step'];?>" /></td>
+  <td><input name="rule_num" type="text"  class="inpm" id="rule_num" value="<?php echo $v1_info['rule_num'];?>" /></td>
+  <td><label>
+    <input name="v1" type="hidden" id="v1" value="<?php echo $this->v1_config_act['V1']?>" />
+    <input name="v2" type="hidden" id="v2" value="<?php echo $vv['V2']?>" />
+    <input type="submit" name="button3" id="button3" value="保存" />
+  </label></td>
+</tr>
+</form>
+<?php } ?>
+                </thead>
+</table>
+</div>
+<br />
+
+
+          </div>
+          <!--/main-->
+        <!--/内容结束!!!-->
+        </div>
+        <!--/i-col1-1-->
+      </div>
+      <!--/内容结束-->
+
+    </div>
+    <!--/new-i-cols-->
+  </div>
+  <!--/container-->
+  <?php include "_footer.html";?>
+</div>
+<!--wrapper-->
+</body>
+</html>
