@@ -39,6 +39,7 @@ class memcache_config
 class project_config
 {
     var $db = 'PHPAPM';
+    var $admin_user = array('admin', 'admin');
     var $log_path = "/usr/local/apache/logs/www.example.com";
     var $ipcs = IPCS;
     var $report_monitor_queue = 'phpapm_monitor_queue';
