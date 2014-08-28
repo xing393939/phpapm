@@ -1,7 +1,5 @@
 PHPAPM
 ======
-
-## About
 PHP项目的监控程序，提供面向效果编程的数据表报，为优化维护项目提供数据支持
 ## Requirements
 PHP，Mysql(用于记录统计数据)
