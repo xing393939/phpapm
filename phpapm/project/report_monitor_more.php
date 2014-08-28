@@ -10,6 +10,10 @@ class report_monitor_more extends project_config
 {
     function _initialize()
     {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+            exit();
+        }
+
         $conn_db = _ocilogon($this->db);
         $this->pageObj = new page(10000, 100);
         if ($_REQUEST['fun_host'] == '汇总') {

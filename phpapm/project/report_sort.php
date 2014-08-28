@@ -10,6 +10,10 @@ class report_sort extends project_config
 {
     function _initialize()
     {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+            exit();
+        }
+
         $conn_db = _ocilogon($this->db);
         $sql = "select * from {$this->report_monitor_config} t where v1=:v1 order by v2_group,decode(as_name,null,v2,as_name) asc ";
         $stmt = _ociparse($conn_db, $sql);

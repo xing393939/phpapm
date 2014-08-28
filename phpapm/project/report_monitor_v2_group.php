@@ -10,6 +10,10 @@ class report_monitor_v2_group extends project_config
 {
     function _initialize()
     {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+            exit();
+        }
+
         $conn_db = _ocilogon($this->db);
 
         $sql = "select * from {$this->report_monitor_config} where id=:id";

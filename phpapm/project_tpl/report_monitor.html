@@ -126,7 +126,18 @@ var xie="<h1 style='margin-top:70px;'>由于经常假死,图例显示不支持<f
                          <input name="v2_month" id="v2_month" type="checkbox" value="1" <?php if($_COOKIE['v2_month']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('v2_month',this.checked);window.location.reload(); " />
                           <span>显示V2对比数据</span>
                       </label>
-                      <a class="blue" href="?act=report_monitor_config&v1=<?php echo rawurlencode($_REQUEST['type'])?>" >配置中心</a>&nbsp;</div>
+                        <?php
+                     if (empty($_COOKIE['admin_user'])) {
+                     ?>
+                        <a class="blue" data-eventtype="click" data-prompt-width="300" style="cursor:pointer;text-decoration:underline;" data-prompt="./project.php?act=login&v1=<?php echo rawurlencode($_GET['type']);?>">登录</a>
+                        <?php
+                     } else {
+                     ?>
+                        <a class="blue" href="?act=report_monitor_config&v1=<?php echo rawurlencode($_REQUEST['type'])?>" >配置中心</a>
+                        <?php
+                     }
+                     ?>
+                    </div>
                   </div>
                 </form>
               </div>

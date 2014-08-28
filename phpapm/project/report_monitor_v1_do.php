@@ -10,6 +10,10 @@ class report_monitor_v1_do extends project_config
 {
     function _initialize()
     {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+            exit();
+        }
+
         $conn_db = _ocilogon($this->db);
         //删除v1
         if ($_POST['delete_v1']) {
