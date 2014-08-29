@@ -1,6 +1,6 @@
 PHPAPM
 ======
-PHP项目的监控程序，提倡面向效果编程，为优化维护项目提供数据监控服务
+PHP项目的监控程序，提倡面向效果编程，为优化维护项目提供数据监控服务 
 APM = Application Performance Management，应用性能管理，对企业系统即时监控以实现对应用程序性能管理和故障管理的系统化的解决方案。
 ## Requirements
 PHP，Mysql(用于记录统计数据)
