@@ -10,6 +10,9 @@ class oci_explain extends project_config
 {
     function _initialize()
     {
+        //暂时关闭
+        exit();
+
         #每小时执行一次
         if (date('i') != 30) {
             exit();
