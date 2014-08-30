@@ -5,6 +5,7 @@ define('VIP', strpos(PHP_OS, 'WIN') === false ? $u_name_arr[1] : $u_name_arr[2])
 define('VHOST', 'www.dxslaw.com');
 define('IPCS', '0x00000222');
 include PHPAPM_PATH . "./common/oci2mysql.php";
+include PHPAPM_PATH . "./common/_status.php";
 include PHPAPM_PATH . "./common/header_function.php";
 
 class oracleDB_config
