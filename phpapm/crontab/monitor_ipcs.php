@@ -6,12 +6,13 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class monitor
+class monitor_ipcs
 {
     function _initialize()
     {
         ini_set("display_errors", true);
         $xxi = 0;
+        $this->_ipcs();
         $conn_db = _ocilogon(APM_DB_ALIAS);
         if (!$conn_db)
             exit('no db');
@@ -20,72 +21,68 @@ class monitor
         $tt1 = microtime(true);
         echo "<pre> 准备压缩数据:\n";
         $monitor_count = $files = $monitor = $monitor_min = array();
+        $IPCS = explode('|', APM_IPCS);
+        shuffle($IPCS);
         $ic = 0;
+        print_r($IPCS);
         $config_data = array();
+        foreach ($IPCS as $ipcs) {
+            $seg = msg_get_queue($ipcs, 0600);
+            $msgtype = 1;
+            $msg_array = array();
+            //读取队列数据
+            while (msg_receive($seg, $msgtype, $msgtype, 1024 * 1024 * 5, $msg_array, true, MSG_IPC_NOWAIT)) {
+                if ($msg_array['v5'] == null)
+                    $msg_array['v5'] = APM_VIP;
+                //专门对付SQL不规范的写法
+                if (strpos($msg_array['v1'], 'SQL') !== false) {
+                    $out = array();
+                    preg_match('# in(\s+)?\(#is', $msg_array['v4'], $out);
+                    if ($out)
+                        $msg_array['v4'] = substr($msg_array['v4'], 0, strpos($msg_array['v4'], ' in')) . ' in....';
+                }
+                if (strpos($msg_array['v1'], 'SQL') !== false) {
+                    preg_match('# in(\s+)?\(#is', $msg_array['v3'], $out);
+                    if ($out)
+                        $msg_array['v3'] = substr($msg_array['v3'], 0, strpos($msg_array['v3'], ' in')) . ' in....';
+                }
 
-        $sql = "select * from ".APM_DB_PREFIX."monitor_queue order by id desc LIMIT 0, 2000";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
-        $_row = array();
-        while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
-            $msg_array = unserialize($_row['QUEUE']);
+                foreach ((array)$msg_array['includes'] as $file)
+                    $files[$msg_array['vhost']][$file] = $file;
+                //查看命中了哪些监控
+                $config_data[$msg_array['v1']][$msg_array['v2']]++;
+                //日志数据,不会被删除
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['uptype'] = $msg_array['uptype'];
+                if ($msg_array['uptype'] == 'replace')
+                    $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['count'] = $msg_array['num'];
+                else
+                    $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['count'] += $msg_array['num'];
+                //最大耗时
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['diff_time'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['diff_time'], abs($msg_array['diff_time']));
+                //总耗时
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['total_diff_time'] += abs($msg_array['diff_time']);
 
-            if ($msg_array['v5'] == null)
-                $msg_array['v5'] = APM_VIP;
-            //专门对付SQL不规范的写法
-            if (strpos($msg_array['v1'], 'SQL') !== false) {
-                $out = array();
-                preg_match('# in(\s+)?\(#is', $msg_array['v4'], $out);
-                if ($out)
-                    $msg_array['v4'] = substr($msg_array['v4'], 0, strpos($msg_array['v4'], ' in')) . ' in....';
+                //内存单次最大消耗
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_max'], abs($msg_array['memory']));
+                //内存消耗.总
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_total'] += abs($msg_array['memory']);
+
+                // 用户消耗CPU,单次最大
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_max'], abs($msg_array['user_cpu']));
+                //用户消耗CPU,总
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_total'] += abs($msg_array['user_cpu']);
+
+                //系统消耗CPU,单次最大
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_max'], abs($msg_array['sys_cpu']));
+                //系统消耗CPU,总
+                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_total'] += abs($msg_array['sys_cpu']);
+
+                $monitor_count[md5(date('Y-m-d H', strtotime($msg_array['time'])) . $msg_array['v1'] . $msg_array['v2'] . $msg_array['v3'] . $msg_array['v4'] . $msg_array['v5'])] = 1;
+
+                if ($ic++ > 10 * 10000)
+                    break;
             }
-            if (strpos($msg_array['v1'], 'SQL') !== false) {
-                preg_match('# in(\s+)?\(#is', $msg_array['v3'], $out);
-                if ($out)
-                    $msg_array['v3'] = substr($msg_array['v3'], 0, strpos($msg_array['v3'], ' in')) . ' in....';
-            }
-
-            foreach ((array)$msg_array['includes'] as $file)
-                $files[$msg_array['vhost']][$file] = $file;
-            //查看命中了哪些监控
-            $config_data[$msg_array['v1']][$msg_array['v2']]++;
-            //日志数据,不会被删除
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['uptype'] = $msg_array['uptype'];
-            if ($msg_array['uptype'] == 'replace')
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['count'] = $msg_array['num'];
-            else
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['count'] += $msg_array['num'];
-            //最大耗时
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['diff_time'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['diff_time'], abs($msg_array['diff_time']));
-            //总耗时
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['total_diff_time'] += abs($msg_array['diff_time']);
-
-            //内存单次最大消耗
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_max'], abs($msg_array['memory']));
-            //内存消耗.总
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_total'] += abs($msg_array['memory']);
-
-            // 用户消耗CPU,单次最大
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_max'], abs($msg_array['user_cpu']));
-            //用户消耗CPU,总
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_total'] += abs($msg_array['user_cpu']);
-
-            //系统消耗CPU,单次最大
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_max'], abs($msg_array['sys_cpu']));
-            //系统消耗CPU,总
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_total'] += abs($msg_array['sys_cpu']);
-
-            $monitor_count[md5(date('Y-m-d H', strtotime($msg_array['time'])) . $msg_array['v1'] . $msg_array['v2'] . $msg_array['v3'] . $msg_array['v4'] . $msg_array['v5'])] = 1;
-
-            if ($ic++ > 10 * 10000)
-                break;
         }
-        //clear queue start
-        $sql_d = "TRUNCATE ".APM_DB_PREFIX."monitor_queue";
-        $stmt_d = _ociparse($conn_db, $sql_d);
-        _ociexecute($stmt_d);
-        //clear queue end
-
         $diff_time = sprintf('%.5f', microtime(true) - $tt1);
         echo "\n从{$ic}个压缩到" . count($monitor_count) . "(耗时:{$diff_time})\n";
         echo "命中的类型:\n";
@@ -260,6 +257,40 @@ class monitor
         die("\n" . date("Y-m-d H:i:s") . ',file:' . __FILE__ . ',line:' . __LINE__ . "\n");
     }
 
+    function _ipcs()
+   	{
+   		//监控当前系统的队列个数
+   		$out = NULL;
+   		exec('ipcs', $out);
+   		foreach ($out as $k => $v) {
+   			if (strpos($v, '0x') === false) {
+   				unset($out[$k]);
+   				continue;
+   			}
+   			$out[$k] = array_diff(explode(" ", $v), array(
+   				""
+   			));
+   		}
+   		$_num = $_name = null;
+   		foreach ($out as $k => $v) {
+   			if (count($v) != 6)
+   				continue;
+   			$i = 0;
+   			foreach ($v as $vv) {
+   				$i++;
+   				if ($i == 1)
+   					$_name = (string)$vv;
+   				if ($i == 5)
+   					$_num = $vv / 1048576;
+   			}
+   			$ipcs_out[] = array(
+   				'num'  => $_num,
+   				'name' => $_name
+   			);
+   		}
+   		foreach ($ipcs_out as $k => $v)
+   			_status($v['num'], APM_HOST . '(WEB日志分析)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_VIP);
+   	}
 }
 
 ?>

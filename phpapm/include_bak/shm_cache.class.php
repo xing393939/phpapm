@@ -13,7 +13,7 @@ class shm_mem
      */
     function _dir($key)
     {
-        $this->dir = "/dev/shm/" . VHOST . '/' . substr(md5($key), 0, 2) . '/';
+        $this->dir = "/dev/shm/" . APM_HOST . '/' . substr(md5($key), 0, 2) . '/';
         if (!is_dir($this->dir))
             mkdir($this->dir);
         return $this->dir . md5($key);
@@ -30,15 +30,15 @@ class shm_mem
         $unserialize = NULL;
         $file = $this->_dir($key);
         if (_sys_overload()) {
-            _status(1, VHOST . "(本机缓存)", "过载命中");
+            _status(1, APM_HOST . "(本机缓存)", "过载命中");
             $unserialize = unserialize(_file_get_contents($file));
         } elseif (filemtime($file) > time() - $max_times) {
             $unserialize = unserialize(_file_get_contents($file));
         }
         if ($unserialize)
-            _status(1, VHOST . "(本机缓存)", "命中");
+            _status(1, APM_HOST . "(本机缓存)", "命中");
         else
-            _status(1, VHOST . "(本机缓存)", "未命中");
+            _status(1, APM_HOST . "(本机缓存)", "未命中");
         return $unserialize;
     }
 
@@ -51,7 +51,7 @@ class shm_mem
     function set($key, $data)
     {
         $unserialize = _file_put_contents($this->_dir($key), serialize($data));
-        _status(1, VHOST . "(本机缓存)", "写入缓存");
+        _status(1, APM_HOST . "(本机缓存)", "写入缓存");
         return $unserialize;
     }
 
@@ -66,9 +66,9 @@ class shm_mem
         $cache_file = $this->_dir($key);
         if (is_file($cache_file)) {
             unlink($cache_file);
-            _status(1, VHOST . "(本机缓存)", "删除缓存[命中]");
+            _status(1, APM_HOST . "(本机缓存)", "删除缓存[命中]");
         } else {
-            _status(1, VHOST . "(本机缓存)", "删除缓存[未命中]");
+            _status(1, APM_HOST . "(本机缓存)", "删除缓存[未命中]");
         }
     }
 }

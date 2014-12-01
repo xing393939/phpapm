@@ -1,14 +1,14 @@
 <?php
 header('Content-Type: text/html;charset=utf-8');
-include "header.php";
-include PHPAPM_PATH . "./lib/page.class.php";
+include "../header.php";
+include APM_PATH . "./include/page.class.php";
 
 ini_set('display_errors', 'On');
-error_reporting(E_ERROR);
+error_reporting(E_ALL);
 
 $_GET['act'] = isset($_GET['act']) ? $_GET['act'] : "index";
 $_GET['act_method'] = isset($_GET['act_method']) ? $_GET['act_method'] : "_initialize";
-$file = PHPAPM_PATH . './project/' . $_GET['act'] . '.php';
+$file = APM_PATH . './project/' . $_GET['act'] . '.php';
 
 if (file_exists($file)) {
     include $file;

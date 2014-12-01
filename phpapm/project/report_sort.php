@@ -6,16 +6,16 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_sort extends project_config
+class report_sort
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
-        $sql = "select * from {$this->report_monitor_config} t where v1=:v1 order by v2_group,decode(as_name,null,v2,as_name) asc ";
+        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $sql = "select * from ".APM_DB_PREFIX."monitor_config t where v1=:v1 order by v2_group,decode(as_name,null,v2,as_name) asc ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
         $oci_error = _ociexecute($stmt);
@@ -23,7 +23,7 @@ class report_sort extends project_config
         $i = 0;
         while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
             $i++;
-            $sql2 = "update {$this->report_monitor_config} set orderby=:orderby where id=:id ";
+            $sql2 = "update ".APM_DB_PREFIX."monitor_config set orderby=:orderby where id=:id ";
             $stmt2 = _ociparse($conn_db, $sql2);
             _ocibindbyname($stmt2, ':id', $_row['ID']);
             _ocibindbyname($stmt2, ':orderby', $i);

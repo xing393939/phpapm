@@ -6,12 +6,12 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class monitor_fix extends project_config
+class monitor_fix
 {
     function _initialize()
     {
         $IPCS = array();
-        $_IPCS = explode('|', $this->ipcs);
+        $_IPCS = explode('|', APM_IPCS);
         foreach ($_IPCS as $k => $v)
             if ($k % $_GET['total'] == $_GET['mod'])
                 $IPCS[] = $v;
@@ -50,7 +50,7 @@ class monitor_fix extends project_config
                     }
                 }
             }
-            _status((($ic - $cs) / $ic) * 100, VHOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, VIP, 0, 'replace');
+            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, APM_VIP, 0, 'replace');
             unset($monitor);
         }
     }

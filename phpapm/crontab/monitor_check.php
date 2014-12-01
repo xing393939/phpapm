@@ -6,7 +6,7 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class monitor_check extends project_config
+class monitor_check
 {
     function _initialize()
     {
@@ -16,7 +16,7 @@ class monitor_check extends project_config
         }
 
         //清空之前xss文件,重新检测
-        $dirs = glob('/dev/shm/xss_' . VHOST . '/*');
+        $dirs = glob('/dev/shm/xss_' . APM_HOST . '/*');
         foreach ($dirs as $k => $v)
             unlink($v);
         if (class_exists('memcache_config')) {
@@ -33,10 +33,10 @@ class monitor_check extends project_config
                     $memcache_server->connect('testkey');
                     $x = $memcache_server->memcacheObj->getStats();
                     $memcache_server->close();
-                    _status($x["bytes"] / 1048576, VHOST . "(Memcache状态)", '已使用(M)', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, VIP, 0, 'replace');
-                    _status($x["limit_maxbytes"] / 1048576, VHOST . "(Memcache状态)", '总空间(M)', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, VIP, 0, 'replace');
-                    _status($x["curr_items"], VHOST . "(Memcache状态)", 'KEY个数', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, VIP, 0, 'replace');
-                    _status(round($x["uptime"] / 86400, 0), VHOST . "(Memcache状态)", '运行天数', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, VIP, 0, 'replace');
+                    _status($x["bytes"] / 1048576, APM_HOST . "(Memcache状态)", '已使用(M)', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, APM_VIP, 0, 'replace');
+                    _status($x["limit_maxbytes"] / 1048576, APM_HOST . "(Memcache状态)", '总空间(M)', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, APM_VIP, 0, 'replace');
+                    _status($x["curr_items"], APM_HOST . "(Memcache状态)", 'KEY个数', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, APM_VIP, 0, 'replace');
+                    _status(round($x["uptime"] / 86400, 0), APM_HOST . "(Memcache状态)", '运行天数', "{$memcache_server->current_host['host']}:{$memcache_server->current_host['port']}", NULL, APM_VIP, 0, 'replace');
                 }
             }
         }

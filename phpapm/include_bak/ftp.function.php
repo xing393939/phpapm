@@ -17,9 +17,9 @@ function _ftp($configName, $dir, $file)
     $bool = $connRes = ftp_connect($interfaceConfig['host']);
     $diff_time = sprintf('%.5f', microtime(true) - $t1);
     if ($diff_time > 3)
-        _status(1, VHOST . '(BUG错误)', 'FTP超时(连接)', "{$configName}" . "@" . GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+        _status(1, APM_HOST . '(BUG错误)', 'FTP超时(连接)', "{$configName}" . "@" . APM_URI, NULL, APM_VIP, $diff_time);
 
-    _status(1, VHOST . '(FTP)', $interfaceConfig['host'], GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+    _status(1, APM_HOST . '(FTP)', $interfaceConfig['host'], APM_URI, NULL, APM_VIP, $diff_time);
 
     $t1 = microtime(true);
     $bool = ftp_login($connRes, $interfaceConfig['user_name'], $interfaceConfig['user_pass']);
@@ -40,7 +40,7 @@ function _ftp($configName, $dir, $file)
 
     $diff_time = sprintf('%.5f', microtime(true) - $t1);
     if ($diff_time > 3)
-        _status(1, VHOST . '(BUG错误)', 'FTP超时(登录切换目录)', "{$configName}" . "@" . GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+        _status(1, APM_HOST . '(BUG错误)', 'FTP超时(登录切换目录)', "{$configName}" . "@" . APM_URI, NULL, APM_VIP, $diff_time);
 
     $t1 = microtime(true);
     //上传文件
@@ -48,13 +48,13 @@ function _ftp($configName, $dir, $file)
     $bool = ftp_put($connRes, basename($file), $file, FTP_BINARY);
     $diff_time = sprintf('%.5f', microtime(true) - $t1);
     if ($diff_time > 3)
-        _status(1, VHOST . '(BUG错误)', 'FTP超时(上传)', "{$configName}" . "@" . GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+        _status(1, APM_HOST . '(BUG错误)', 'FTP超时(上传)', "{$configName}" . "@" . APM_URI, NULL, APM_VIP, $diff_time);
 
     $diff_time_str = _debugtime($diff_time);
     if ($diff_time < 1) {
-        _status(1, VHOST . '(FTP)', '一秒内', _debugtime($diff_time), $interfaceConfig['host'] . "@" . GET_INCLUDED_FILES . VIP, $configName, $diff_time);
+        _status(1, APM_HOST . '(FTP)', '一秒内', _debugtime($diff_time), $interfaceConfig['host'] . "@" . APM_URI . APM_VIP, $configName, $diff_time);
     } else {
-        _status(1, VHOST . '(FTP)', '超时', _debugtime($diff_time), $interfaceConfig['host'] . "@" . GET_INCLUDED_FILES . VIP, $configName, $diff_time);
+        _status(1, APM_HOST . '(FTP)', '超时', _debugtime($diff_time), $interfaceConfig['host'] . "@" . APM_URI . APM_VIP, $configName, $diff_time);
     }
     return ftp_close($connRes);
 }

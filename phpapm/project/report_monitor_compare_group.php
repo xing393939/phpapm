@@ -6,30 +6,30 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor_compare_group extends project_config
+class report_monitor_compare_group
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
         //config表
-        $sql = "select * from {$this->report_monitor_config} where id=:id ";
+        $sql = "select * from ".APM_DB_PREFIX."monitor_config where id=:id ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':id', $_POST['id']);
         $oci_error = _ociexecute($stmt);
         $_row = array();
         ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
         //v1表
-        $sql = "select * from {$this->report_monitor_v1} where v1=:v1 ";
+        $sql = "select * from ".APM_DB_PREFIX."monitor_v1 where v1=:v1 ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_row['V1']);
         $oci_error = _ociexecute($stmt);
         $_row_v1 = array();
         ocifetchinto($stmt, $_row_v1, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
-        $sql = "update {$this->report_monitor_config} set COMPARE_GROUP=:compare_group where v2=:v2  and v1=:v1";
+        $sql = "update ".APM_DB_PREFIX."monitor_config set COMPARE_GROUP=:compare_group where v2=:v2  and v1=:v1";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':compare_group', $_POST['compare_group']);
         _ocibindbyname($stmt, ':v2', $_row['V2']);
@@ -44,11 +44,11 @@ class report_monitor_compare_group extends project_config
         //新增
         foreach ($arr_add as $v) {
             if ($v != '') {
-                $sql = "insert into {$this->report_monitor_config}
+                $sql = "insert into ".APM_DB_PREFIX."monitor_config
                             (V1,V2,COUNT_TYPE,V3_LINK,V4_LINK,ORDERBY,PHONE,PHONE_ORDER,PHONE_ORDER_LESS,
                            ID,AS_NAME,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,V2_GROUP,VIRTUAL_COLUMNS) values(:V1,:V2,:COUNT_TYPE,:V3_LINK,
                            :V4_LINK,:ORDERBY,:PHONE,:PHONE_ORDER,:PHONE_ORDER_LESS,
-                           seq_{$this->report_monitor}.nextval,:AS_NAME,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:V2_GROUP,1)";
+                           seq_".APM_DB_PREFIX."monitor.nextval,:AS_NAME,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:V2_GROUP,1)";
                 $stmt = _ociparse($conn_db, $sql);
                 $as_name = $_row['AS_NAME'] ? $_row['AS_NAME'] : $_row['V2'];
                 _ocibindbyname($stmt, ':V1', $v);
@@ -67,10 +67,10 @@ class report_monitor_compare_group extends project_config
                 _ocibindbyname($stmt, ':V2_GROUP', $_row['V1']);
                 $oci_error = _ociexecute($stmt);
                 //插入v1表
-                $sql = "insert into {$this->report_monitor_v1}
+                $sql = "insert into ".APM_DB_PREFIX."monitor_v1
                             (V1,COUNT_TYPE,CHAR_TYPE,START_CLOCK,SHOW_TEMPLATE,SHOW_ALL,ID,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,SHOW_AVG,IS_DUTY)
                       values(:V1,:COUNT_TYPE,:CHAR_TYPE,:START_CLOCK,:SHOW_TEMPLATE,:SHOW_ALL,
-                           seq_{$this->report_monitor}.nextval,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:SHOW_AVG,1)";
+                           seq_".APM_DB_PREFIX."monitor.nextval,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:SHOW_AVG,1)";
                 $stmt = _ociparse($conn_db, $sql);
                 _ocibindbyname($stmt, ':V1', $v);
                 _ocibindbyname($stmt, ':COUNT_TYPE', $_row_v1['COUNT_TYPE']);
@@ -90,7 +90,7 @@ class report_monitor_compare_group extends project_config
         //删除
         foreach ($arr_del as $v) {
             if ($v != '') {
-                $sql = "delete from {$this->report_monitor_config} where v1=:v1 and v2=:v2";
+                $sql = "delete from ".APM_DB_PREFIX."monitor_config where v1=:v1 and v2=:v2";
                 $stmt = _ociparse($conn_db, $sql);
                 _ocibindbyname($stmt, ':v1', $v);
                 _ocibindbyname($stmt, ':v2', $_row['V1'] . '_' . $_row['V2']);

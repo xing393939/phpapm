@@ -1,9 +1,9 @@
 #!/bin/sh
-#´ËÎÄ¼þÒª¸³ÓèÖ´ÐÐÈ¨ÏÞ£¬ÇÒÈÃgitºöÂÔ¶ÔÎÄ¼þÈ¨ÏÞµÄ¸Ä±ä£ºgit config core.filemode false
+#ï¿½ï¿½ï¿½Ä¼ï¿½Òªï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½È¨ï¿½Þ£ï¿½ï¿½ï¿½ï¿½ï¿½gitï¿½ï¿½ï¿½Ô¶ï¿½ï¿½Ä¼ï¿½È¨ï¿½ÞµÄ¸Ä±ä£ºgit config core.filemode false
 
 log_date=/dev/shm/`date +%Y_%m_%d`
 rm -f ${log_date}_wget.log
-#±£Ö¤ÊÇµ¥Ò»½ø³ÌÔÚÅÜ.
+#ï¿½ï¿½Ö¤ï¿½Çµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 function callact()
 {
     exec_pwd=`pwd`
@@ -15,7 +15,7 @@ function callact()
         nohup $cmd > /dev/null 2>&1 &
     fi
 }
-#±£Ö¤ÊÇµ¥Ò»½ø³ÌÔÚÅÜ.×èÈûÄ£Ê½ÅÜ
+#ï¿½ï¿½Ö¤ï¿½Çµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½
 function callact2()
 {
     exec_pwd=`pwd`
@@ -29,23 +29,20 @@ function callact2()
 }
 
 project_pwd=`dirname $0`
-cd $project_pwd
-
-#test sh
-/bin/sh test.sh
+cd $project_pwd/phpapm
 
 #perminute
-#callact "/alidata/server/php/bin/php crontab.php act=monitor_fix"
+callact "/alidata/server/php/bin/php crontab.php act=monitor_fix"
 callact "/alidata/server/php/bin/php crontab.php act=file_change"
 callact2 "/alidata/server/php/bin/php crontab.php act=monitor go=1"
-callact2 "/alidata/server/php/bin/php crontab.php act=sysload"
+#callact2 "/alidata/server/php/bin/php crontab.php act=sysload"
 callact2 "/alidata/server/php/bin/php crontab.php act=monitor_config del=1 master=yes"
 #perhour
-callact2 "/alidata/server/php/bin/php crontab.php act=web_log"
+#callact2 "/alidata/server/php/bin/php crontab.php act=web_log"
 callact2 "/alidata/server/php/bin/php crontab.php act=P1D_ClickStats master=yes"
 callact2 "/alidata/server/php/bin/php crontab.php act=report_monitor_group master=yes"
 callact2 "/alidata/server/php/bin/php crontab.php act=report_monitor_order master=yes"
 callact2 "/alidata/server/php/bin/php crontab.php act=crontab_report_pinfen master=yes"
 callact2 "/alidata/server/php/bin/php crontab.php act=monitor_duty master=yes"
-callact2 "/alidata/server/php/bin/php crontab.php act=monitor_check master=yes"
+#callact2 "/alidata/server/php/bin/php crontab.php act=monitor_check master=yes"
 callact2 "/alidata/server/php/bin/php crontab.php act=oci_explain master=yes"

@@ -6,7 +6,7 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class monitor_config extends project_config
+class monitor_config
 {
     function _initialize()
     {

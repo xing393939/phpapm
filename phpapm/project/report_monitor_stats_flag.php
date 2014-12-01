@@ -6,17 +6,17 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor_stats_flag extends project_config
+class report_monitor_stats_flag
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
 
-        $sql = "select * from {$this->report_monitor_config} where id=:id";
+        $sql = "select * from ".APM_DB_PREFIX."monitor_config where id=:id";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':id', $_POST['id']);
         $oci_error = _ociexecute($stmt);
@@ -30,7 +30,7 @@ class report_monitor_stats_flag extends project_config
             unset($v2_config_other['stats_flag']);
         }
         $v2_config_other = serialize($v2_config_other);
-        $sql = "update {$this->report_monitor_config} set v2_config_other=:v2_config_other where v2=:v2";
+        $sql = "update ".APM_DB_PREFIX."monitor_config set v2_config_other=:v2_config_other where v2=:v2";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v2_config_other', $v2_config_other);
         _ocibindbyname($stmt, ':v2', $_row['V2']);

@@ -6,7 +6,7 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class crontab_report_pinfen extends project_config
+class crontab_report_pinfen
 {
     function _initialize()
     {
@@ -15,10 +15,10 @@ class crontab_report_pinfen extends project_config
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
         //获取V1级别的评分要求
         $_row_infos = array();
-        $sql = "select * from {$this->report_monitor_v1} t where pinfen_rule is not null ";
+        $sql = "select * from ".APM_DB_PREFIX."monitor_v1 t where pinfen_rule is not null ";
         $stmt_list = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt_list);
         $_row = array();
@@ -28,7 +28,7 @@ class crontab_report_pinfen extends project_config
                 $_row_infos[] = $_row;
         }
         //获取V2级别的评分要求
-        $sql = "select * from {$this->report_monitor_config} t where pinfen_rule is not null ";
+        $sql = "select * from ".APM_DB_PREFIX."monitor_config t where pinfen_rule is not null ";
         $stmt_list = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt_list);
         $_row = array();
@@ -41,15 +41,15 @@ class crontab_report_pinfen extends project_config
         foreach ($_row_infos as $_row_info) {
             if ($_row_info['v2']) {
                 if ($_row_info['just_rule'] == '>') {
-                    $sql = "select   case  when nvl(t.fun_count,0) > :base_num then  - round((nvl(t.fun_count,0) - :base_num) / :pinfen_step)  else  0  end as num from {$this->report_monitor_date} t where v1 = :v1  and v2 = :v2  and cal_date = trunc(sysdate) ";
+                    $sql = "select   case  when nvl(t.fun_count,0) > :base_num then  - round((nvl(t.fun_count,0) - :base_num) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1  and v2 = :v2  and cal_date = trunc(sysdate) ";
                 } else {
-                    $sql = "select t.fun_count, case  when nvl(t.fun_count,0) < :base_num then  - round((:base_num - nvl(t.fun_count,0)) / :pinfen_step)  else  0  end as num from {$this->report_monitor_date} t where v1 = :v1   and v2 = :v2  and cal_date = trunc(sysdate) ";
+                    $sql = "select t.fun_count, case  when nvl(t.fun_count,0) < :base_num then  - round((:base_num - nvl(t.fun_count,0)) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1   and v2 = :v2  and cal_date = trunc(sysdate) ";
                 }
             } else {
                 if ($_row_info['just_rule'] == '>') {
-                    $sql = "select  case  when sum(nvl(t.fun_count,0)) > :base_num then  - round((  sum(nvl(t.fun_count,0)) - :base_num) / :pinfen_step)  else  0  end as num from {$this->report_monitor_date} t where v1 = :v1    and cal_date = trunc(sysdate) ";
+                    $sql = "select  case  when sum(nvl(t.fun_count,0)) > :base_num then  - round((  sum(nvl(t.fun_count,0)) - :base_num) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1    and cal_date = trunc(sysdate) ";
                 } else {
-                    $sql = "select  case  when  sum(nvl(t.fun_count,0)) < :base_num then  - round((:base_num -  sum(nvl(t.fun_count,0)) ) / :pinfen_step)  else  0  end as num from {$this->report_monitor_date} t where v1 = :v1     and cal_date = trunc(sysdate) ";
+                    $sql = "select  case  when  sum(nvl(t.fun_count,0)) < :base_num then  - round((:base_num -  sum(nvl(t.fun_count,0)) ) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1     and cal_date = trunc(sysdate) ";
                 }
 
             }

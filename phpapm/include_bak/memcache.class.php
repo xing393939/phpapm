@@ -1,9 +1,38 @@
 <?php
 
 /**
- * 调用方式: $memcache_server = new memcache_server('74');
+ * 调用方式: $memcache_server = new memcache_server('19');
  * Class memcache_server
  */
+
+if (!class_exists('Memcache')) {
+    class Memcache {
+        function connect() {
+            return false;
+        }
+
+        function getStats() {
+            return false;
+        }
+    }
+}
+
+class memcache_config
+{
+    var $config = array(
+        '19' => array(
+            array(
+                'host' => '10.77.6.19',
+                'port' => 11211
+            ),
+            array(
+                'host' => '10.77.6.20',
+                'port' => 11311
+            ),
+        )
+    );
+}
+
 class memcache_server
 {
 
@@ -57,7 +86,7 @@ class memcache_server
             $hashCode = (int)(($hashCode * 33) + ord($key[$i])) & 0x7fffffff;
         $this->current_host = $this->config[$hashCode % count($this->config)];
         if (!$this->current_host)
-            _status(1, VHOST . '(BUG错误)', "Memcache错误", "没命中当前主机", GET_INCLUDED_FILES . var_export(debug_backtrace(), true), VIP);
+            _status(1, APM_HOST . '(BUG错误)', "Memcache错误", "没命中当前主机", APM_URI . var_export(debug_backtrace(), true), APM_VIP);
     }
 
     /**
@@ -78,9 +107,9 @@ class memcache_server
                 $bool = $memcache->connect($current_host['host'], $current_host['port']);
             $diff_time = sprintf('%.5f', microtime(true) - $t1);
 
-            _status(1, VHOST . '(Memcahe连接)', "{$current_host['host']}:{$current_host['port']}[打开]", GET_INCLUDED_FILES);
+            _status(1, APM_HOST . '(Memcahe连接)', "{$current_host['host']}:{$current_host['port']}[打开]", APM_URI);
             if (!$bool)
-                _status(1, VHOST . '(BUG错误)', "Memcache错误", "Memcahe连接错误", "{$current_host['host']}:{$current_host['port']}", GET_INCLUDED_FILES);
+                _status(1, APM_HOST . '(BUG错误)', "Memcache错误", "Memcahe连接错误", "{$current_host['host']}:{$current_host['port']}", APM_URI);
             $memcacheObj = $_SERVER['memcache_server']["{$current_host['host']}:{$current_host['port']}"] = & $memcache;
             $_SERVER['memcache_server_connect']++;
         }
@@ -107,11 +136,11 @@ class memcache_server
         }
 
         if (!$key) {
-            _status(1, VHOST . '(BUG错误)', "Memcache错误", "没有传KEY", GET_INCLUDED_FILES . var_export(debug_backtrace(), true), VIP);
+            _status(1, APM_HOST . '(BUG错误)', "Memcache错误", "没有传KEY", APM_URI . var_export(debug_backtrace(), true), APM_VIP);
             return null;
         }
         if (!$this->config) {
-            _status(1, VHOST . '(BUG错误)', "Memcache错误", "配置文件为空", GET_INCLUDED_FILES . var_export(debug_backtrace(), true), VIP);
+            _status(1, APM_HOST . '(BUG错误)', "Memcache错误", "配置文件为空", APM_URI . var_export(debug_backtrace(), true), APM_VIP);
             return null;
         }
         $this->_key_connect($key);
@@ -138,12 +167,12 @@ class memcache_server
                 }
 
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
-                _status(1, VHOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(get)", GET_INCLUDED_FILES, var_export((bool)$bool, true), VIP, $diff_time);
+                _status(1, APM_HOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(get)", APM_URI, var_export((bool)$bool, true), APM_VIP, $diff_time);
                 //命中计算
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . APM_VIP, APM_URI, $diff_time);
                 }
             }
         } else {
@@ -156,12 +185,12 @@ class memcache_server
                 $bool = $this->memcacheObj->get($key);
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
 
-                _status(1, VHOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(get)", GET_INCLUDED_FILES, var_export((bool)$bool, true), VIP, $diff_time);
+                _status(1, APM_HOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(get)", APM_URI, var_export((bool)$bool, true), APM_VIP, $diff_time);
                 //命中计算
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Memcache)', '一秒内', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Memcache)', '一秒内', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Memcache)', '超时', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Memcache)', '超时', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . APM_VIP, APM_URI, $diff_time);
                 }
             }
 
@@ -218,12 +247,12 @@ class memcache_server
                 }
 
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
-                _status(1, VHOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(get)", GET_INCLUDED_FILES, var_export((bool)$bool, true), VIP, $diff_time);
+                _status(1, APM_HOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(get)", APM_URI, var_export((bool)$bool, true), APM_VIP, $diff_time);
                 //命中计算
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . APM_VIP, APM_URI, $diff_time);
                 }
             }
         }
@@ -249,11 +278,11 @@ class memcache_server
                 }
 
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
-                _status(1, VHOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(view)", $document . "|" . $view . "|" . var_export($options, true), VIP, $diff_time);
+                _status(1, APM_HOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(view)", $document . "|" . $view . "|" . var_export($options, true), APM_VIP, $diff_time);
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(view)" . VIP, $document . "|" . $view . "|" . var_export($options, true), $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(view)" . APM_VIP, $document . "|" . $view . "|" . var_export($options, true), $diff_time);
                 } else {
-                    _status(1, VHOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(view)" . VIP, $document . "|" . $view . "|" . var_export($options, true), $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(view)" . APM_VIP, $document . "|" . $view . "|" . var_export($options, true), $diff_time);
                 }
             }
         }
@@ -275,15 +304,15 @@ class memcache_server
                 try {
                     $bool = $this->memcacheObj->set($key, $var, $expire);
                 } catch (Exception $e) {
-                    _status(1, VHOST . '(Couchbase)', '异常', "{$this->config['host_alias']}:{$this->config['bucket']}(set)", $key . '|' . var_export($var, true), VIP, GET_INCLUDED_FILES);
+                    _status(1, APM_HOST . '(Couchbase)', '异常', "{$this->config['host_alias']}:{$this->config['bucket']}(set)", $key . '|' . var_export($var, true), APM_VIP, APM_URI);
                 }
 
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
-                _status(1, VHOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(set)", GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+                _status(1, APM_HOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(set)", APM_URI, NULL, APM_VIP, $diff_time);
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(set)" . APM_VIP, APM_URI, $diff_time);
                 }
             }
         } else {
@@ -295,11 +324,11 @@ class memcache_server
                 $bool = $this->memcacheObj->set($key, $var, $flag, $expire);
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
 
-                _status(1, VHOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(set)", GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+                _status(1, APM_HOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(set)", APM_URI, NULL, APM_VIP, $diff_time);
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Memcache)', '一秒内', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Memcache)', '一秒内', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Memcache)', '超时', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Memcache)', '超时', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(get)" . APM_VIP, APM_URI, $diff_time);
                 }
             }
 
@@ -338,16 +367,16 @@ ON DUPLICATE KEY UPDATE mem_value=:mem_value, update_time=NOW(), server_host=:se
                 try {
                     $bool = $this->memcacheObj->delete($key);
                 } catch (Exception $e) {
-                    _status(1, VHOST . '(Couchbase)', '异常', "{$this->config['host_alias']}:{$this->config['bucket']}(delete)", $key, VIP, GET_INCLUDED_FILES);
+                    _status(1, APM_HOST . '(Couchbase)', '异常', "{$this->config['host_alias']}:{$this->config['bucket']}(delete)", $key, APM_VIP, APM_URI);
 
                 }
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
 
-                _status(1, VHOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(delete)", GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+                _status(1, APM_HOST . '(Couchbase)', "{$this->config['host_alias']}:{$this->config['bucket']}(delete)", APM_URI, NULL, APM_VIP, $diff_time);
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(delete)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '一秒内', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(delete)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(delete)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Couchbase)', '超时', _debugtime($diff_time), "{$this->config['host_alias']}:{$this->config['bucket']}(delete)" . APM_VIP, APM_URI, $diff_time);
                 }
 
             }
@@ -360,11 +389,11 @@ ON DUPLICATE KEY UPDATE mem_value=:mem_value, update_time=NOW(), server_host=:se
                 $bool = $this->memcacheObj->delete($key, 0);
                 $diff_time = sprintf('%.5f', microtime(true) - $t1);
 
-                _status(1, VHOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(delete)", GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+                _status(1, APM_HOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(delete)", APM_URI, NULL, APM_VIP, $diff_time);
                 if ($diff_time < 1) {
-                    _status(1, VHOST . '(Memcache)', '一秒内', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(delete)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Memcache)', '一秒内', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(delete)" . APM_VIP, APM_URI, $diff_time);
                 } else {
-                    _status(1, VHOST . '(Memcache)', '超时', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(delete)" . VIP, GET_INCLUDED_FILES, $diff_time);
+                    _status(1, APM_HOST . '(Memcache)', '超时', _debugtime($diff_time), "{$this->current_host['host']}:{$this->current_host['port']}(delete)" . APM_VIP, APM_URI, $diff_time);
                 }
             }
 
@@ -408,9 +437,9 @@ ON DUPLICATE KEY UPDATE mem_value=:mem_value, update_time=NOW(), server_host=:se
             }
             $diff_time = sprintf('%.5f', microtime(true) - $t1);
 
-            _status(1, VHOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(increment)", GET_INCLUDED_FILES, NULL, VIP, $diff_time);
+            _status(1, APM_HOST . '(Memcache)', "{$this->current_host['host']}:{$this->current_host['port']}(increment)", APM_URI, NULL, APM_VIP, $diff_time);
             $diff_time_str = _debugtime($diff_time);
-            _status(1, VHOST . '(Memcache)', $diff_time_str, "{$this->current_host['host']}:{$this->current_host['port']}(increment)", GET_INCLUDED_FILES, VIP, $diff_time);
+            _status(1, APM_HOST . '(Memcache)', $diff_time_str, "{$this->current_host['host']}:{$this->current_host['port']}(increment)", APM_URI, APM_VIP, $diff_time);
             return $bool;
         }
         return false;
@@ -426,7 +455,7 @@ ON DUPLICATE KEY UPDATE mem_value=:mem_value, update_time=NOW(), server_host=:se
     {
         if (is_object($this->memcacheObj) && method_exists($this->memcacheObj, 'close')) {
             $this->memcacheObj->close();
-            _status(1, VHOST . '(Memcahe连接)', "{$this->current_host['host']}:{$this->current_host['port']}[关闭]", GET_INCLUDED_FILES);
+            _status(1, APM_HOST . '(Memcahe连接)', "{$this->current_host['host']}:{$this->current_host['port']}[关闭]", APM_URI);
             $_SERVER['memcache_server']["{$this->current_host['host']}:{$this->current_host['port']}"] = $this->memcacheObj = null;
             unset($this->memcacheObj, $_SERVER['memcache_server']["{$this->current_host['host']}:{$this->current_host['port']}"]);
         }

@@ -6,19 +6,19 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class login extends project_config
+class login
 {
     function _initialize()
     {
         if (!empty($_POST)) {
-            $arr_str = md5(serialize(array($_POST['v1'], $_POST['v2'])));
-            if ($arr_str == md5(serialize($this->admin_user))) {
+            $arr_str = md5($_POST['v1'] . ',' . $_POST['v2']);
+            if ($arr_str == md5(APM_ADMIN_USER)) {
                 setcookie('admin_user', $arr_str);
             }
             header("location: {$_SERVER['HTTP_REFERER']}");
             exit();
         }
-        include PHPAPM_PATH . "./project_tpl/login.html";
+        include APM_PATH . "./project_tpl/login.html";
     }
 }
 

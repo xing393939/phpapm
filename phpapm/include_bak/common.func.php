@@ -15,7 +15,7 @@ function _file_get_contents($filename)
     } else {
         $status_filename = dirname($filename);
     }
-    _status(1, VHOST . '(BUG错误)', '文件读写', VIP . ADD_PROJECT, "{$status_filename}@file:" . GET_INCLUDED_FILES, VIP, $diff_time);
+    _status(1, APM_HOST . '(BUG错误)', '文件读写', APM_VIP . APM_PROJECT, "{$status_filename}@file:" . APM_URI, APM_VIP, $diff_time);
     return $data;
 }
 
@@ -35,7 +35,7 @@ function _file_put_contents($filename, $data)
     } else {
         $status_filename = dirname($filename);
     }
-    _status(1, VHOST . '(BUG错误)', '文件读写', VIP . ADD_PROJECT, "{$status_filename}@file:" . GET_INCLUDED_FILES, VIP, $diff_time);
+    _status(1, APM_HOST . '(BUG错误)', '文件读写', APM_VIP . APM_PROJECT, "{$status_filename}@file:" . APM_URI, APM_VIP, $diff_time);
     return $int;
 }
 
@@ -62,7 +62,7 @@ function _curl(&$chinfo, $url, $post_data = null, $config = array(), $upload_fil
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Expect:',
         'Accept-Encoding:gzip,deflate,sdch',
-        'User-Agent:Mozilla/5.0 (Windows NT 5.1; rv:2.0) Gecko/20100101 Firefox/4.0' . trim(GET_INCLUDED_FILES),
+        'User-Agent:Mozilla/5.0 (Windows NT 5.1; rv:2.0) Gecko/20100101 Firefox/4.0' . trim(APM_URI),
         "Referer:{$url}"
     ));
     foreach ($config as $k => $v)
@@ -102,14 +102,14 @@ function _curl(&$chinfo, $url, $post_data = null, $config = array(), $upload_fil
         $debug_backtrace_str .= "line:({$vv['line']}){$vv['function']}@file:{$vv['file']}\n";
     //
     if ($chinfo['http_code'] != '200' && $chinfo['http_code'][0] != '3') {
-        _status(1, VHOST . '(BUG错误)', "网址抓取", "{$url_arr['host']}{$url_arr['path']}({$chinfo['http_code']})err:" . $curl_error, GET_INCLUDED_FILES . "\n{$chinfo['url']}\n{$debug_backtrace_str}", VIP, $total_time);
+        _status(1, APM_HOST . '(BUG错误)', "网址抓取", "{$url_arr['host']}{$url_arr['path']}({$chinfo['http_code']})err:" . $curl_error, APM_URI . "\n{$chinfo['url']}\n{$debug_backtrace_str}", APM_VIP, $total_time);
     } else
-        _status(1, VHOST . '(网址抓取)', $url_arr_list_str, "{$url_arr['host']}/{$url_arr['path']} ({$chinfo['http_code']})", GET_INCLUDED_FILES . "\n{$debug_backtrace_str}", VIP, $total_time);
+        _status(1, APM_HOST . '(网址抓取)', $url_arr_list_str, "{$url_arr['host']}/{$url_arr['path']} ({$chinfo['http_code']})", APM_URI . "\n{$debug_backtrace_str}", APM_VIP, $total_time);
     //超时错误记录
     if ($total_time < 1) {
-        _status(1, VHOST . '(网址抓取)', '一秒内', _debugtime($total_time), $url_arr['host'] . "{$url_arr['path']} ({$chinfo['http_code']})" . $curl_error, GET_INCLUDED_FILES . "\n{$debug_backtrace_str}", $total_time);
+        _status(1, APM_HOST . '(网址抓取)', '一秒内', _debugtime($total_time), $url_arr['host'] . "{$url_arr['path']} ({$chinfo['http_code']})" . $curl_error, APM_URI . "\n{$debug_backtrace_str}", $total_time);
     } else {
-        _status(1, VHOST . '(网址抓取)', '超时', _debugtime($total_time), $url_arr['host'] . "{$url_arr['path']} ({$chinfo['http_code']})" . $curl_error, GET_INCLUDED_FILES . "\n{$debug_backtrace_str}", $total_time);
+        _status(1, APM_HOST . '(网址抓取)', '超时', _debugtime($total_time), $url_arr['host'] . "{$url_arr['path']} ({$chinfo['http_code']})" . $curl_error, APM_URI . "\n{$debug_backtrace_str}", $total_time);
     }
     return $curl_data;
 }

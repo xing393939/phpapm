@@ -6,7 +6,7 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class file_change extends project_config
+class file_change
 {
     function _initialize()
     {
@@ -17,7 +17,7 @@ class file_change extends project_config
         $num = exec("ls -R --full-time | grep  '{$time}' | awk '{print $7}' |  awk -F ':' '{print $1\":\"$2}'   |sort |uniq -c  |sort -nr ");
         if ($num) {
             list($num_1, $time_1) = explode(' ', trim($num));
-            _status($num_1, VHOST . '(WEB日志分析)', '文件', NULL, $time_1);
+            _status($num_1, APM_HOST . '(WEB日志分析)', '文件', NULL, $time_1);
         }
     }
 }

@@ -6,11 +6,11 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor extends project_config
+class report_monitor
 {
     function _initialize()
     {
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
         $s1 = date('Y-m-d', strtotime("-1 month"));
         $s2 = date('Y-m-d');
         if ($_REQUEST['s1'])
@@ -33,7 +33,7 @@ class report_monitor extends project_config
         if ($_COOKIE[md5($_SERVER['SCRIPT_FILENAME']) . '_v1_group_name'])
             $group_name = $_COOKIE[md5($_SERVER['SCRIPT_FILENAME']) . '_v1_group_name'];
         //别名替换
-        $sql = "select t.*,decode(as_name,null,v1,as_name) as_name1 from {$this->report_monitor_v1} t where id>0
+        $sql = "select t.*,decode(as_name,null,v1,as_name) as_name1 from ".APM_DB_PREFIX."monitor_v1 t where id>0
             order by decode(as_name,null,v1,as_name)  ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
@@ -51,7 +51,7 @@ class report_monitor extends project_config
         if ($this->v1_config[$_REQUEST['type']]['START_CLOCK'])
             $start_date1 = date('Y-m-d H:i:s', strtotime($start_date . " +{$this->v1_config[$_REQUEST['type']]['START_CLOCK']} hour"));
         //所有类型
-        $sql = "select v1 from {$this->report_monitor_config} where id>0  group by v1 order by v1 ";
+        $sql = "select v1 from ".APM_DB_PREFIX."monitor_config where id>0  group by v1 order by v1 ";
         $stmt = _ociparse($conn_db, $sql);
         _ociexecute($stmt);
         $this->type = $_row = array();
@@ -63,7 +63,7 @@ class report_monitor extends project_config
         }
 
         //当前类型下面的所有模块
-        $sql = "select t.* ,decode(as_name,null,v2,as_name) as_name1  from {$this->report_monitor_config} t where v1=:v1 and v2<>'汇总'
+        $sql = "select t.* ,decode(as_name,null,v2,as_name) as_name1  from ".APM_DB_PREFIX."monitor_config t where v1=:v1 and v2<>'汇总'
             order by orderby,as_name1 ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['type']);
@@ -87,7 +87,7 @@ class report_monitor extends project_config
 
         //全部下级日统计数据
         $sql = "select t.*,to_char(cal_date, 'yyyy-mm-dd')  CAL_DATE_F  from
-            {$this->report_monitor_date} t where
+            ".APM_DB_PREFIX."monitor_date t where
             cal_date>=to_date(:s1,'yyyy-mm-dd') and cal_date<=to_date(:s2,'yyyy-mm-dd')  and v1=:v1 and v2<>'汇总' ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['type']);
@@ -137,7 +137,7 @@ class report_monitor extends project_config
         }
 
         //获取v2分组
-        $sql = "select t.* ,decode(as_name,null,v2,as_name) as_name1  from {$this->report_monitor_config} t where v1=:v1 and v2<>'汇总'
+        $sql = "select t.* ,decode(as_name,null,v2,as_name) as_name1  from ".APM_DB_PREFIX."monitor_config t where v1=:v1 and v2<>'汇总'
                             order by orderby,as_name1 ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['type']);
@@ -188,7 +188,7 @@ class report_monitor extends project_config
         //时区有偏差,改成从小时表读取数据
         if ($this->v1_config[$_REQUEST['type']]['START_CLOCK']) {
             $sql = "select v1,v2,sum(fun_count) fun_count, to_char(t.cal_date, 'yyyy-mm-dd hh24:mi:ss') as cal_date_f
-                    	from  {$this->report_monitor_hour} t
+                    	from  ".APM_DB_PREFIX."monitor_hour t
                         where cal_date>=to_date(:s1,'yyyy-mm-dd')+:diff/24 and cal_date<=to_date(:s2,'yyyy-mm-dd')+:diff/24
                         and v1=:v1
                         group by v1,v2,to_char(t.cal_date, 'yyyy-mm-dd hh24:mi:ss') ";
@@ -222,7 +222,7 @@ class report_monitor extends project_config
             $sql = "  select v2 as v3,sum(fun_count) fun_count,round(avg(fun_count),2) fun_count_avg,to_char(t.cal_date, 'dd hh24') as cal_date_f,
                 max(t.diff_time) diff_time, sum(t.total_diff_time) total_diff_time,max(t.memory_max) memory_max, sum(t.memory_total) memory_total,
                 max(t.cpu_user_time_max) cpu_user_time_max, sum(t.cpu_user_time_total) cpu_user_time_total,max(t.cpu_sys_time_max) cpu_sys_time_max, sum(t.cpu_sys_time_total) cpu_sys_time_total
-                from  {$this->report_monitor_hour} t where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
+                from  ".APM_DB_PREFIX."monitor_hour t where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
                 and v1=:v1  and v2<>'汇总'
                 group by v1,v2,to_char(t.cal_date, 'dd hh24')  ";
             $stmt2 = _ociparse($conn_db, $sql);
@@ -262,7 +262,7 @@ class report_monitor extends project_config
         } elseif ($start_date) {
             $this->pageObj = new page(10000, 300);
             //文档数据
-            $sql_v2 = "select * from {$this->report_monitor_config} where v2=:v2";
+            $sql_v2 = "select * from ".APM_DB_PREFIX."monitor_config where v2=:v2";
             $stmt_v2 = _ociparse($conn_db, $sql_v2);
             _ocibindbyname($stmt_v2, ':v2', $_REQUEST['host']);
             _ociexecute($stmt_v2);
@@ -272,7 +272,7 @@ class report_monitor extends project_config
             }
 
             //当日数据
-            $sql = "{$this->pageObj->num_1} select v3,sum(fun_count) fun_count from  {$this->report_monitor_hour}
+            $sql = "{$this->pageObj->num_1} select v3,sum(fun_count) fun_count from  ".APM_DB_PREFIX."monitor_hour
                     where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
                     and v1=:v1 and v2=:v2
                     group by v1,v2,v3  {$this->pageObj->num_3} ";
@@ -287,7 +287,7 @@ class report_monitor extends project_config
 
             while (ocifetchinto($stmt2, $_row2, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
                 $sql = "select t.*,to_char(t.cal_date, 'dd hh24') as cal_date_f
-                       from {$this->report_monitor_hour} t
+                       from ".APM_DB_PREFIX."monitor_hour t
                        where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
                        and v1=:v1 and v2=:v2 and v3=:v3   order by fun_count desc";
                 $stmt = _ociparse($conn_db, $sql);
@@ -328,7 +328,7 @@ class report_monitor extends project_config
         //获取v2 30天内数据
         if ($_REQUEST['host'] && $_COOKIE['v2_month'] == 'true' && $_REQUEST['host'] != '汇总') {
             $sql = "select v2,to_char(t.cal_date, 'mm dd hh24') as cal_date_f,sum(fun_count) fun_count,to_char(t.cal_date, 'mm dd') as cal_date_d
-                                  from {$this->report_monitor_hour} t
+                                  from ".APM_DB_PREFIX."monitor_hour t
                                   where cal_date>=to_date(:s1,'yyyy-mm-dd hh24:mi:ss') and cal_date<=to_date(:s2,'yyyy-mm-dd hh24:mi:ss')
                                   and v1=:v1 and v2=:v2 group by v2,cal_date  order by cal_date desc";
             $stmt = _ociparse($conn_db, $sql);
@@ -352,7 +352,7 @@ class report_monitor extends project_config
             $_COOKIE['red_factor'] = 2;
             setcookie('red_factor', 2, time() + 3600 * 24 * 7);
         }
-        include PHPAPM_PATH . "./project_tpl/report_monitor.html";
+        include APM_PATH . "./project_tpl/report_monitor.html";
     }
 }
 

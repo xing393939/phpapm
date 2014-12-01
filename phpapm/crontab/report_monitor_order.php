@@ -6,7 +6,7 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor_order extends project_config
+class report_monitor_order
 {
     function _initialize()
     {
@@ -15,8 +15,8 @@ class report_monitor_order extends project_config
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
-        $sql = "select * from {$this->report_monitor_config} order by v1, orderby,v2 ";
+        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $sql = "select * from ".APM_DB_PREFIX."monitor_config order by v1, orderby,v2 ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
         $this->all = $_row = array();
@@ -26,7 +26,7 @@ class report_monitor_order extends project_config
         //排序更新初始化
         foreach ($this->all as $k => $v) {
             foreach ($v as $kk => $vv) {
-                $sql = "update  {$this->report_monitor_config}  set orderby=:orderby where v1=:v1 and v2=:v2  ";
+                $sql = "update  ".APM_DB_PREFIX."monitor_config  set orderby=:orderby where v1=:v1 and v2=:v2  ";
                 $stmt = _ociparse($conn_db, $sql);
                 //每次都独立提交,所以这样绑定(相同变量$k,$v)没问题
                 _ocibindbyname($stmt, ':v1', $vv['V1']);

@@ -6,14 +6,14 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor_more extends project_config
+class report_monitor_more
 {
     function _initialize()
     {
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
         $this->pageObj = new page(10000, 100);
         if ($_REQUEST['fun_host'] == '汇总') {
-            $sql = "select FUN_COUNT,v3 v4  from {$this->report_monitor_hour} t where v1=:v1 and v2=:v2  and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc  ";
+            $sql = "select FUN_COUNT,v3 v4  from ".APM_DB_PREFIX."monitor_hour t where v1=:v1 and v2=:v2  and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc  ";
             $stmt = _ociparse($conn_db, "{$this->pageObj->num_1} {$sql} {$this->pageObj->num_3}");
             _ocibindbyname($stmt, ':v1', $_REQUEST['fun_type']);
             _ocibindbyname($stmt, ':v2', $_REQUEST['fun_act']);
@@ -28,9 +28,9 @@ class report_monitor_more extends project_config
             }
         } else {
             if ($_REQUEST['fun_act'])
-                $sql = "select * from {$this->report_monitor} where v1=:v1 and v2=:v2 and  v3=:v3 and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc ";
+                $sql = "select * from ".APM_DB_PREFIX."monitor where v1=:v1 and v2=:v2 and  v3=:v3 and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc ";
             else
-                $sql = "select * from {$this->report_monitor} where v1=:v1 and v2=:v2 and v3 is null and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc ";
+                $sql = "select * from ".APM_DB_PREFIX."monitor where v1=:v1 and v2=:v2 and v3 is null and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc ";
             $stmt = _ociparse($conn_db, "{$this->pageObj->num_1} {$sql} {$this->pageObj->num_3}");
             _ocibindbyname($stmt, ':v1', $_REQUEST['fun_type']);
             _ocibindbyname($stmt, ':v2', $_REQUEST['fun_host']);
@@ -46,7 +46,7 @@ class report_monitor_more extends project_config
                 $monitor_more[] = $_row;
             }
         }
-        include PHPAPM_PATH . "./project_tpl/report_monitor_more.html";
+        include APM_PATH . "./project_tpl/report_monitor_more.html";
     }
 }
 

@@ -76,9 +76,9 @@ class project_function
             if (!$v['author'])
                 $v['author'] = "未知";
             if (strpos($file, '/header_funtion.php') !== false || strpos($file, '/project') !== false)
-                _status(1, $module_name . "(代码负责人)", $v['author'] . "(项目)", basename($file) . '/' . $v['name'], var_export($v, true), VIP, 0, 'replace');
+                _status(1, $module_name . "(代码负责人)", $v['author'] . "(项目)", basename($file) . '/' . $v['name'], var_export($v, true), APM_VIP, 0, 'replace');
             else
-                _status(1, $module_name . "(代码负责人)", $v['author'], basename($file) . '/' . $v['name'], var_export($v, true), VIP, 0, 'replace');
+                _status(1, $module_name . "(代码负责人)", $v['author'], basename($file) . '/' . $v['name'], var_export($v, true), APM_VIP, 0, 'replace');
         }
     }
 
@@ -146,10 +146,10 @@ class project_function
             $tmp_fix_array[] = "{$v['name']}@{$v['line']}行";
         //文件函数
         $num = intval(count($fix_array) / 100);
-        _status(count($fix_array), $module_name . "(函数分布)", ($num * 100) . '-' . ($num * 100 + 100) . "个", $file, join("\n", $tmp_fix_array), VIP, 0, 'replace');
+        _status(count($fix_array), $module_name . "(函数分布)", ($num * 100) . '-' . ($num * 100 + 100) . "个", $file, join("\n", $tmp_fix_array), APM_VIP, 0, 'replace');
         //文件行数
         $num = intval($last_line / 1000);
-        _status($last_line, $module_name . "(代码行数)", ($num * 1000) . '-' . ($num * 1000 + 1000) . "行", $file, join("\n", $tmp_fix_array), VIP, 0, 'replace');
+        _status($last_line, $module_name . "(代码行数)", ($num * 1000) . '-' . ($num * 1000 + 1000) . "行", $file, join("\n", $tmp_fix_array), APM_VIP, 0, 'replace');
     }
 
     /**
@@ -226,9 +226,9 @@ class project_function
             if (!empty($v['disable_function'])) {
                 foreach ($v['disable_function'] as $kk => $vv) {
                     if (strpos($file, '/header_funtion.php') !== false || strpos($file, '/project') !== false)
-                        _status(1, $module_name . "(安全BUG)", "高危函数[项目]", "{$vv[1]}@{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), VIP);
+                        _status(1, $module_name . "(安全BUG)", "高危函数[项目]", "{$vv[1]}@{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), APM_VIP);
                     else
-                        _status(1, $module_name . "(安全BUG)", "高危函数", "{$vv[1]}@{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), VIP);
+                        _status(1, $module_name . "(安全BUG)", "高危函数", "{$vv[1]}@{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), APM_VIP);
                 }
             }
         }
@@ -295,9 +295,9 @@ class project_function
                     $txtline = count($txt);
                     $v['txt'] = join("\n", array_slice($txt, 0, 4)) . "\n(函数共{$txtline}行)";
                     if (strpos($file, '/header_funtion.php') !== false || strpos($file, '/project') !== false)
-                        _status(1, $module_name . "(安全BUG)", "CSRF攻击[项目]", "{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), VIP);
+                        _status(1, $module_name . "(安全BUG)", "CSRF攻击[项目]", "{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), APM_VIP);
                     else
-                        _status(1, $module_name . "(安全BUG)", "CSRF攻击", "{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), VIP);
+                        _status(1, $module_name . "(安全BUG)", "CSRF攻击", "{$v['name']}@(line:{$v['line']})@{$file}", var_export($v, true), APM_VIP);
                 }
             }
         }
@@ -376,9 +376,9 @@ class project_function
         }
         foreach ($fix_array as $k => $v) {
             if (strpos($file, '/header_funtion.php') !== false || strpos($file, '/project') !== false)
-                _status(1, $module_name . "(安全BUG)", "XSS注入[项目]", $file, var_export($v, true), VIP);
+                _status(1, $module_name . "(安全BUG)", "XSS注入[项目]", $file, var_export($v, true), APM_VIP);
             else
-                _status(1, $module_name . "(安全BUG)", "XSS注入", $file, var_export($v, true), VIP);
+                _status(1, $module_name . "(安全BUG)", "XSS注入", $file, var_export($v, true), APM_VIP);
         }
     }
 

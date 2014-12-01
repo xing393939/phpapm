@@ -1,4 +1,6 @@
 <?php
+define('VIMAGE', '/project/images/');
+define('VIMAGE_PATH', './project/images/');
 
 //上传,文件处理中心
 class file

@@ -8,25 +8,14 @@
  * project.php monitor_config����copy("project/doc/" . $o_file, "project/doc/doc_cpy/" . $time_file);�����
  * $o_file = $file = mb_convert_encoding($file, 'GBK', 'UTF-8');
 */
-if (!class_exists('Memcache')) {
-    class Memcache {
-        function connect() {
-            return false;
-        }
 
-        function getStats() {
-            return false;
-        }
-    }
-}
 if (!function_exists('msg_get_queue')) {
     function msg_get_queue() {}
 }
 if (!function_exists('ocinlogon')) {
     function ocinlogon($user_name, $password, $tns)
     {
-        $config = new project_config();
-        $mysql_db = _mysqllogon($config->db);
+        $mysql_db = _mysqllogon(APM_DB_ALIAS);
         mysql_query("SET NAMES 'utf8'");
         mysql_query("SET character_set_client=binary");
         return $mysql_db;
@@ -72,44 +61,48 @@ if (!function_exists('ocinlogon')) {
     function ociexecute($null, $mode = false)
     {
         _mysqlbindbyname($GLOBALS['$stmt'], ':oci_unique', round(lcg_value() * 100000000));
-        preg_match('/^[\s]*([\w]+)/', $GLOBALS['$stmt']['$sql'], $matchs);
-        $GLOBALS['$stmt_mode'] = empty($matchs[1]) ? 'default' : strtolower($matchs[1]);
+        preg_match('/^[\s]*([\w]+)/', $GLOBALS['$stmt']['$sql'], $matches);
+        $GLOBALS['$stmt_mode'] = empty($matches[1]) ? 'default' : strtolower($matches[1]);
         $GLOBALS['$stmt']['$sql'] = preg_replace(array(
-            '/[\w_]+_doc_list[\s\S]+where l\.list_id=d\.list_id\(\+\)/', //������
-
-            "/\(\+\)[\s]+/", //�����ӣ�(+)
-            '/decode\(([^,]+),([^,]+),([^,]+),([^,]+)\)/', //oracle��decode����
-            '/[\w\_]+\.nextval/', //����id
-            '/to_char\(([^,\'"]+),([^\)]+)\)/es', //to_char(d.add_time, 'yyyy-mm-dd hh24:mi:ss')
-            '/to_date\(([^,\)]+),([^\)]+)\)([\s\d\+\-\/]*)/es', //to_date('2013-11-08 17:00:00','yyyy-mm-dd hh24:mi:ss')+1/24
-            '/nvl\(([^,]+),([^\)]+)\)/', //nvl(v6,0)
-            '/^[\s]*select(.*)\.currval(.*)dual[\s]*$/', //select SEQ_{$this->report_doc}.currval doc_id from dual
-            '/^[\s]*(insert[^\(]+)([\s]+t[\s]+)\(/', //insert into tuijian_doc_list t (...)
-            '/(regexp_substr|regexp_replace)\(([^,\)]+),.*\'\)/U', //regexp_substr(V2, '[^_]+$')
-            '/trunc\(([^,\)]+)(\)|,([^\)]+)\))/es', //trunc(t.cal_date, 'hh24')��������sysdate֮ǰ�滻
-            '/(sysdate|SYSDATE)([ \d\+\-\/]*)/es', //sysdate-10/24
-            '/([\s]*)LOAD([\s]*)/', //`LOAD`
-            '/^[\s]*alter[\s]*session.*$/', //alter session set nls_date_format=...
-            '/^([\s]*update[\s]+.*[\s]+(set|SET)[\s]+)/', //ģ��ocirowcount
-            '/=[\s]+(null|NULL)[\s]+/', //=null���⣬http://www.tiandone.com/td/747.html
+            '/[\w_]+_doc_list[\s\S]+where l\.list_id=d\.list_id\(\+\)/',
+            "/\(\+\)[\s]+/",
+            '/decode\(([^,]+),([^,]+),([^,]+),([^,]+)\)/',
+            '/[\w\_]+\.nextval/',
         ), array(
-            'tuijian_doc_list l left join tuijian_doc_detail d on l.list_id=d.list_id where 1',
-
+            'phpapm_doc_list l left join phpapm_doc_detail d on l.list_id=d.list_id where 1',
             ' ',
             ' case when \\1 = \\2 then \\3  else \\4 End ',
             'NULL',
-            '_oci_to_char("\\1", "\\2")',
-            '_oci_to_date("\\1", "\\2", "\\3")',
+        ), $GLOBALS['$stmt']['$sql']);
+        $GLOBALS['$stmt']['$sql'] = preg_replace_callback(
+            '/to_char\(([^,\'"]+),([^\)]+)\)/', '_oci_to_char', $GLOBALS['$stmt']['$sql']);
+        $GLOBALS['$stmt']['$sql'] = preg_replace_callback(
+            '/to_date\(([^,\)]+),([^\)]+)\)([\s\d\+\-\/]*)/', '_oci_to_date', $GLOBALS['$stmt']['$sql']);
+        $GLOBALS['$stmt']['$sql'] = preg_replace(array(
+            '/nvl\(([^,]+),([^\)]+)\)/', //nvl(v6,0)
+            '/^[\s]*select(.*)\.currval(.*)dual[\s]*$/', //select SEQ_".APM_DB_PREFIX."doc}.currval doc_id from dual
+            '/^[\s]*(insert[^\(]+)([\s]+t[\s]+)\(/', //insert into phpapm_doc_list t (...)
+            '/(regexp_substr|regexp_replace)\(([^,\)]+),.*\'\)/U', //regexp_substr(V2, '[^_]+$')
+        ), array(
             'ifnull(\\1,\\2)',
             'SELECT last_insert_id()',
             '\\1 (',
             ' \\2 ',
-            '_oci_trunc("\\1", "\\3")',
-            '_oci_sysdate("\\2")',
+        ), $GLOBALS['$stmt']['$sql']);
+        $GLOBALS['$stmt']['$sql'] = preg_replace_callback(
+            '/trunc\(([^,\)]+)(\)|,([^\)]+)\))/', '_oci_truncate', $GLOBALS['$stmt']['$sql']);
+        $GLOBALS['$stmt']['$sql'] = preg_replace_callback(
+            '/(sysdate|SYSDATE)([ \d\+\-\/]*)/', '_oci_sysdate', $GLOBALS['$stmt']['$sql']);
+        $GLOBALS['$stmt']['$sql'] = preg_replace(array(
+            '/([\s]*)LOAD([\s]*)/', //`LOAD`
+            '/^[\s]*alter[\s]*session.*$/', //alter session set nls_date_format=...
+            '/^([\s]*update[\s]+.*[\s]+(set|SET)[\s]+)/',
+            '/=[\s]+(null|NULL)[\s]+/', //=null⣬http://www.tiandone.com/td/747.html
+        ), array(
             '\\1`LOAD`\\2',
             'select 1',
             '\\1 oci_unique=:oci_unique, ',
-            ' is NULL '
+            ' is NULL ',
         ), $GLOBALS['$stmt']['$sql']);
         $GLOBALS['lastSql'] = $GLOBALS['$stmt']['$sql'];
         $mysql_error = _mysqlexecute($GLOBALS['$stmt']);
@@ -156,14 +149,14 @@ if (!function_exists('ocinlogon')) {
         return _mysqlclose($conn_db);
     }
 
-    function _oci_sysdate($delay = '')
+    function _oci_sysdate($matches)
     {
-        $delay = trim($delay);
+        $delay = trim($matches[2]);
         if (empty($delay)) {
             $return = "NOW() ";
         } else {
             if (strpos($delay, '/') !== false) {
-                $delay = preg_replace('/([\d]+)[\s\/]+([\d]+)/es', '_oci_get_hour("\\1", "\\2")', $delay);
+                $delay = preg_replace_callback('/([\d]+)[\s\/]+([\d]+)/', '_oci_get_hour', $delay);
                 $return = "NOW() + INTERVAL $delay HOUR ";
             } else {
                 $return = "NOW() + INTERVAL $delay DAY ";
@@ -172,9 +165,11 @@ if (!function_exists('ocinlogon')) {
         return $return;
     }
 
-    function _oci_to_date($date, $format, $delay = '')
+    function _oci_to_date($matches)
     {
-        $delay = trim($delay);
+        $date = $matches[1];
+        $format = $matches[2];
+        $delay = trim($matches[3]);
         $return = '';
         $format_mysql = preg_replace(array(
             '/yyyy/',
@@ -197,7 +192,7 @@ if (!function_exists('ocinlogon')) {
             $return = "DATE_FORMAT($date, {$format_mysql}) ";
         } else {
             if (strpos($delay, '/') !== false) {
-                $delay = preg_replace('/([\d]+)[\s\/]+([\d]+)/es', '_oci_get_hour("\\1", "\\2")', $delay);
+                $delay = preg_replace_callback('/([\d]+)[\s\/]+([\d]+)/', '_oci_get_hour', $delay);
                 $return = "DATE_FORMAT($date, {$format_mysql}) + INTERVAL $delay HOUR ";
             } else {
                 $return = "DATE_FORMAT($date, {$format_mysql}) + INTERVAL $delay DAY ";
@@ -206,9 +201,10 @@ if (!function_exists('ocinlogon')) {
         return $return;
     }
 
-    function _oci_to_char($date, $format)
+    function _oci_to_char($matches)
     {
-        $format = trim($format);
+        $date = $matches[1];
+        $format = trim($matches[2]);
         $format_mysql = preg_replace(array(
             '/yyyy/',
             '/mm/',
@@ -230,14 +226,15 @@ if (!function_exists('ocinlogon')) {
         return $return;
     }
 
-    function _oci_get_hour($a, $b)
+    function _oci_get_hour($matches)
     {
-        return $a / $b * 24;
+        return $matches[1] / $matches[2] * 24;
     }
 
-    function _oci_trunc($date, $format = '')
+    function _oci_truncate($matches)
     {
-        $format = trim($format);
+        $date = $matches[1];
+        $format = trim($matches[3]);
         $format_mysql = preg_replace(array(
             '/hh24/',
             "/(^\\\\'|\\\\'$)/",
@@ -252,7 +249,7 @@ if (!function_exists('ocinlogon')) {
 
     /*$GLOBALS['$stmt'] = array();
     $GLOBALS['$stmt']['$sql'] = "select t.*,to_char(t.cal_date, 'dd hh24') as cal_date_f
-                       from tuijian_monitor_hour t
+                       from phpapm_monitor_hour t
                        where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
                        and v1=:v1 and v2=:v2 and v3=:v3   order by fun_count desc";
     ociexecute(0);

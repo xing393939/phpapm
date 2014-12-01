@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>[<?php echo VHOST?>]数据指标</title>
+<title>[<?php echo APM_HOST?>]数据指标</title>
 <link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
 <link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet">
 <script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
@@ -97,7 +97,7 @@ var xie="<h1 style='margin-top:70px;'>由于经常假死,图例显示不支持<f
               <label>高亮倍数</label><input style="width:20px" class="inpm" id="red_factor" value="<?php echo $_COOKIE['red_factor']?$_COOKIE['red_factor']:2 ?>">
               <label>基数</label><input style="width:40px" class="inpm" id="cmp_base" value="<?php echo $_COOKIE['cmp_base']?$_COOKIE['cmp_base']:10000 ?>">
               <button class='ibtn' onclick="PPS.setCookie('cmp_base',document.getElementById('cmp_base').value,3600*24);PPS.setCookie('red_factor',document.getElementById('red_factor').value,3600*24);window.location.reload(); ">提交</button>&nbsp
-              <?php echo VIP;?>
+              <?php echo APM_VIP;?>
               </span></div>
           <!--main-->
           <div class="bd">

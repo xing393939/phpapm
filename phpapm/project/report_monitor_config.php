@@ -6,24 +6,24 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor_config extends project_config
+class report_monitor_config
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
 
-        $sql = "select t.* from {$this->report_monitor_v1} t where v1=:v1 ";
+        $sql = "select t.* from ".APM_DB_PREFIX."monitor_v1 t where v1=:v1 ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
         $oci_error = _ociexecute($stmt);
         $this->row_config = array();
         ocifetchinto($stmt, $this->row_config, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
 
-        $sql = "select t.*,decode(as_name,null,v1,as_name) as_name1 from {$this->report_monitor_v1} t
+        $sql = "select t.*,decode(as_name,null,v1,as_name) as_name1 from ".APM_DB_PREFIX."monitor_v1 t
         order by decode(as_name,null,v1,as_name)  ";
         $stmt = _ociparse($conn_db, $sql);
         $oci_error = _ociexecute($stmt);
@@ -34,7 +34,7 @@ class report_monitor_config extends project_config
                 $this->v1_config_act = $_row;
         }
         $this->v1_config = $v1_config_group[$this->row_config['GROUP_NAME_1']][$this->row_config['GROUP_NAME_2']][$this->row_config['GROUP_NAME']];
-        $sql = "select * from {$this->report_monitor_config} where v1=:v1 order by orderby ";
+        $sql = "select * from ".APM_DB_PREFIX."monitor_config where v1=:v1 order by orderby ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
         $oci_error = _ociexecute($stmt);
@@ -44,7 +44,7 @@ class report_monitor_config extends project_config
             $this->all[] = $_row;
         }
 
-        include PHPAPM_PATH . "./project_tpl/report_monitor_config.html";
+        include APM_PATH . "./project_tpl/report_monitor_config.html";
     }
 }
 

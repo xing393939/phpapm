@@ -6,25 +6,25 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class report_monitor_order_up extends project_config
+class report_monitor_order_up
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(serialize($this->admin_user))) {
+        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
             exit();
         }
 
-        $conn_db = _ocilogon($this->db);
+        $conn_db = _ocilogon(APM_DB_ALIAS);
         if (!$_REQUEST['orderby'])
             $this->report_monitor_order();
         //上面的减下来
-        $sql = "update  {$this->report_monitor_config} set orderby=:orderby where v1=:v1 and   orderby=:orderby-1 ";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config set orderby=:orderby where v1=:v1 and   orderby=:orderby-1 ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
         _ocibindbyname($stmt, ':orderby', $_REQUEST['orderby']);
         $oci_error = _ociexecute($stmt);
         //本身上升
-        $sql = "update  {$this->report_monitor_config} set orderby=:orderby-1 where  v1=:v1 and v2=:v2 ";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config set orderby=:orderby-1 where  v1=:v1 and v2=:v2 ";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
         _ocibindbyname($stmt, ':v2', $_REQUEST['v2']);

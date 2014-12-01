@@ -6,7 +6,7 @@
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
  */
-class P1D_ClickStats extends project_config
+class P1D_ClickStats
 {
     function _initialize()
     {
@@ -16,8 +16,8 @@ class P1D_ClickStats extends project_config
         }
 
         $date = date('Y-m-d', time() - 3600 * 24);
-        $conn_db = _ocilogon($this->db);
-        $sql = "select v1, v2, v2_config_other from {$this->report_monitor_config} where v2_config_other like '%stats_flag%'";
+        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $sql = "select v1, v2, v2_config_other from ".APM_DB_PREFIX."monitor_config where v2_config_other like '%stats_flag%'";
         $stmt = _ociparse($conn_db, $sql);
         $_row = array();
         $error = _ociexecute($stmt);
@@ -56,7 +56,7 @@ class P1D_ClickStats extends project_config
             $result['AVG'] = 0;
         }
         //更新配置表
-        $sql = "update {$this->report_monitor} set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')";
+        $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $v1);
         _ocibindbyname($stmt, ':v2', $v2);
@@ -64,19 +64,19 @@ class P1D_ClickStats extends project_config
         _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
         $error = _ociexecute($stmt);
         if (ocirowcount($stmt)) {
-            $sql = "insert into {$this->report_monitor}(id, v1, v2, v3, v5,  fun_count, cal_date, md5, add_time ) values
-                (seq_{$this->report_monitor}.nextval, :v1, :v2, :vip, :vip, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'), :md5, sysdate)";
+            $sql = "insert into ".APM_DB_PREFIX."monitor(id, v1, v2, v3, v5,  fun_count, cal_date, md5, add_time ) values
+                (seq_".APM_DB_PREFIX."monitor.nextval, :v1, :v2, :vip, :vip, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'), :md5, sysdate)";
             $stmt = _ociparse($conn_db, $sql);
             _ocibindbyname($stmt, ':v1', $v1);
             _ocibindbyname($stmt, ':v2', $v2);
-            _ocibindbyname($stmt, ':vip', VIP);
+            _ocibindbyname($stmt, ':vip', APM_VIP);
             _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
             _ocibindbyname($stmt, ':cal_date', $date);
             _ocibindbyname($stmt, ':md5', md5($v1 . $v2 . $date));
             $error = _ociexecute($stmt);
         }
         //更新天表数据
-        $sql = "update {$this->report_monitor_date} set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd')";
+        $sql = "update ".APM_DB_PREFIX."monitor_date set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd')";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $v1);
         _ocibindbyname($stmt, ':v2', $v2);
@@ -85,7 +85,7 @@ class P1D_ClickStats extends project_config
         $error = _ociexecute($stmt);
         var_dump($error);
         if (!ocirowcount($stmt)) {
-            $sql = "insert into {$this->report_monitor_date}( v1, v2, fun_count, cal_date) values
+            $sql = "insert into ".APM_DB_PREFIX."monitor_date( v1, v2, fun_count, cal_date) values
                 ( :v1, :v2, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'))";
             $stmt = _ociparse($conn_db, $sql);
             _ocibindbyname($stmt, ':v1', $v1);
@@ -96,7 +96,7 @@ class P1D_ClickStats extends project_config
             var_dump($error);
         }
         //更新小时表数据
-        $sql = "update {$this->report_monitor_hour} set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')";
+        $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')";
         $stmt = _ociparse($conn_db, $sql);
         _ocibindbyname($stmt, ':v1', $v1);
         _ocibindbyname($stmt, ':v2', $v2);
@@ -105,12 +105,12 @@ class P1D_ClickStats extends project_config
         $error = _ociexecute($stmt);
         var_dump($error);
         if (!ocirowcount($stmt)) {
-            $sql = "insert into {$this->report_monitor_hour}( v1, v2, v3, fun_count, cal_date ) values
+            $sql = "insert into ".APM_DB_PREFIX."monitor_hour( v1, v2, v3, fun_count, cal_date ) values
                 (:v1, :v2, :v3, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'))";
             $stmt = _ociparse($conn_db, $sql);
             _ocibindbyname($stmt, ':v1', $v1);
             _ocibindbyname($stmt, ':v2', $v2);
-            _ocibindbyname($stmt, ':v3', VIP);
+            _ocibindbyname($stmt, ':v3', APM_VIP);
             _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
             _ocibindbyname($stmt, ':cal_date', $date);
             $error = _ociexecute($stmt);
