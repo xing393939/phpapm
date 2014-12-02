@@ -1,15 +1,15 @@
 <?php
 define('APM_URI', $_SERVER['PHP_SELF'] . (isset($_GET['act']) ? '?act=' . $_GET['act'] : ''));
-define('APM_HOST', 'alka-kang');
+define('APM_HOST', 'www.dxslaw.com');
 define('APM_IPCS', '0x00000222');
 
 define('APM_DB_ALIAS', 'APM');
 define('APM_DB_TYPE', 'mysql');
-define('APM_DB_USERNAME', 'tardis');
-define('APM_DB_PASSWORD', 'aa00qq99');
-define('APM_DB_TNS', 'rdsqe3uffzu3qey.mysql.rds.aliyuncs.com');
-define('APM_DB_NAME', 'phpapm');
-define('APM_DB_PREFIX', 'alka_');
+define('APM_DB_USERNAME', 'root');
+define('APM_DB_PASSWORD', '86bc1ec713');
+define('APM_DB_TNS', 'localhost');
+define('APM_DB_NAME', 'dxslaw');
+define('APM_DB_PREFIX', 'phpapm_');
 define('APM_ADMIN_USER', 'xing393939,159159');
 define('APM_LOG_PATH', "/usr/local/apache/logs/www.example.com");
 

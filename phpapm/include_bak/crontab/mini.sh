@@ -11,5 +11,5 @@ export PATH=$PATH:$ORACLE_HOME/bin
 export NLS_LANG="Simplified Chinese_china".ZHS16GBK
 
 
-#Éú³ÉTAG¶ÔÓ¦µÄ°æ±¾ÎÄ¼þ.²¢ÇÒ·¢²¼µ½²âÊÔ»·¾³ÉÏÃæÈ¥.
-php crontab.php act=tags model_id=417503900  exec="/usr/local/php/bin/php crontab.php" test_rsync="10.1.20.42::disk/project_lib.pps.tv";
+#ï¿½ï¿½ï¿½TAGï¿½ï¿½Ó¦ï¿½Ä°æ±¾ï¿½Ä¼ï¿½.ï¿½ï¿½ï¿½Ò·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥.
+php crontab.php act=tags model_id=417503900  exec="/usr/local/php/bin/php crontab.php" test_rsync="10.1.20.42::disk/project_lib.com";

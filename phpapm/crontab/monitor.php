@@ -12,7 +12,7 @@ class monitor
     {
         ini_set("display_errors", true);
         $xxi = 0;
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         if (!$conn_db)
             exit('no db');
         $get_included_files = basename(array_shift(get_included_files()));
@@ -24,10 +24,10 @@ class monitor
         $config_data = array();
 
         $sql = "select * from ".APM_DB_PREFIX."monitor_queue order by id desc LIMIT 0, 2000";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $_row = array();
-        while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt)) {
             $msg_array = unserialize($_row['QUEUE']);
 
             if ($msg_array['v5'] == null)
@@ -82,8 +82,8 @@ class monitor
         }
         //clear queue start
         $sql_d = "TRUNCATE ".APM_DB_PREFIX."monitor_queue";
-        $stmt_d = _ociparse($conn_db, $sql_d);
-        _ociexecute($stmt_d);
+        $stmt_d = apm_db_parse($conn_db, $sql_d);
+        apm_db_execute($stmt_d);
         //clear queue end
 
         $diff_time = sprintf('%.5f', microtime(true) - $tt1);
@@ -91,7 +91,7 @@ class monitor
         echo "命中的类型:\n";
         print_r($config_data);
         echo "\n\n";
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         foreach ($monitor as $time => $vtype) {
             foreach ($vtype as $type => $vhost) {
@@ -120,18 +120,18 @@ class monitor
                                 else
                                     $sql = "update ".APM_DB_PREFIX."monitor set fun_count=fun_count+:fun_count,v6=:v6, total_diff_time=:total_diff_time,
 								    memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total where md5=:md5 ";
-                                $stmt = _ociparse($conn_db, $sql);
-                                _ocibindbyname($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
-                                _ocibindbyname($stmt, ':fun_count', $v['count']);
-                                _ocibindbyname($stmt, ':v6', abs($v['diff_time']));
-                                _ocibindbyname($stmt, ':total_diff_time', $v['total_diff_time']);
-                                _ocibindbyname($stmt, ':memory_max', $v['memory_max']);
-                                _ocibindbyname($stmt, ':memory_total', $v['memory_total']);
-                                _ocibindbyname($stmt, ':cpu_user_time_max', $v['cpu_user_time_max']);
-                                _ocibindbyname($stmt, ':cpu_user_time_total', $v['cpu_user_time_total']);
-                                _ocibindbyname($stmt, ':cpu_sys_time_max', $v['cpu_sys_time_max']);
-                                _ocibindbyname($stmt, ':cpu_sys_time_total', $v['cpu_sys_time_total']);
-                                $oci_error = _ociexecute($stmt);
+                                $stmt = apm_db_parse($conn_db, $sql);
+                                apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
+                                apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
+                                apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
+                                apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
+                                apm_db_bind_by_name($stmt, ':memory_max', $v['memory_max']);
+                                apm_db_bind_by_name($stmt, ':memory_total', $v['memory_total']);
+                                apm_db_bind_by_name($stmt, ':cpu_user_time_max', $v['cpu_user_time_max']);
+                                apm_db_bind_by_name($stmt, ':cpu_user_time_total', $v['cpu_user_time_total']);
+                                apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $v['cpu_sys_time_max']);
+                                apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $v['cpu_sys_time_total']);
+                                $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error)
                                     _status(1, APM_HOST . "(BUG错误)", 'SQL错误', "{$get_included_files}/{$_GET['act']}", var_export(array(
@@ -159,24 +159,24 @@ class monitor
                                     echo "{$xxi}:[$time . $type . $host . $act . $key . $hostip]\n";
                                     $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total,md5)
                                     values(seq_".APM_DB_PREFIX."monitor.nextval,:v1,:v2,:v3,:v4,:v5,:fun_count,to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'),:v6,:total_diff_time,:memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total,:md5)";
-                                    $stmt = _ociparse($conn_db, $sql);
-                                    _ocibindbyname($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
-                                    _ocibindbyname($stmt, ':cal_date', $time);
-                                    _ocibindbyname($stmt, ':v1', $type);
-                                    _ocibindbyname($stmt, ':v2', $host);
-                                    _ocibindbyname($stmt, ':v3', $act);
-                                    _ocibindbyname($stmt, ':v4', $key);
-                                    _ocibindbyname($stmt, ':v5', $hostip);
-                                    _ocibindbyname($stmt, ':fun_count', $v['count']);
-                                    _ocibindbyname($stmt, ':v6', abs($v['diff_time']));
-                                    _ocibindbyname($stmt, ':total_diff_time', $v['total_diff_time']);
-                                    _ocibindbyname($stmt, ':memory_max', $v['memory_max']);
-                                    _ocibindbyname($stmt, ':memory_total', $v['memory_total']);
-                                    _ocibindbyname($stmt, ':cpu_user_time_max', $v['cpu_user_time_max']);
-                                    _ocibindbyname($stmt, ':cpu_user_time_total', $v['cpu_user_time_total']);
-                                    _ocibindbyname($stmt, ':cpu_sys_time_max', $v['cpu_sys_time_max']);
-                                    _ocibindbyname($stmt, ':cpu_sys_time_total', $v['cpu_sys_time_total']);
-                                    $oci_error = _ociexecute($stmt);
+                                    $stmt = apm_db_parse($conn_db, $sql);
+                                    apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
+                                    apm_db_bind_by_name($stmt, ':cal_date', $time);
+                                    apm_db_bind_by_name($stmt, ':v1', $type);
+                                    apm_db_bind_by_name($stmt, ':v2', $host);
+                                    apm_db_bind_by_name($stmt, ':v3', $act);
+                                    apm_db_bind_by_name($stmt, ':v4', $key);
+                                    apm_db_bind_by_name($stmt, ':v5', $hostip);
+                                    apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
+                                    apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
+                                    apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
+                                    apm_db_bind_by_name($stmt, ':memory_max', $v['memory_max']);
+                                    apm_db_bind_by_name($stmt, ':memory_total', $v['memory_total']);
+                                    apm_db_bind_by_name($stmt, ':cpu_user_time_max', $v['cpu_user_time_max']);
+                                    apm_db_bind_by_name($stmt, ':cpu_user_time_total', $v['cpu_user_time_total']);
+                                    apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $v['cpu_sys_time_max']);
+                                    apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $v['cpu_sys_time_total']);
+                                    $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
                                     if ($oci_error)
                                         _status(1, APM_HOST . "(BUG错误)", 'SQL错误', "{$get_included_files}/{$_GET['act']}", var_export(array(
@@ -206,7 +206,7 @@ class monitor
                 }
             }
         }
-        _ocilogoff($conn_db);
+        apm_db_logoff($conn_db);
         if (!is_writable('/dev/shm'))
             exit('no writable shm');
         if (!file_exists($dir = '/dev/shm/' . APM_HOST . '/'))

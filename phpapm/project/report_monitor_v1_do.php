@@ -14,48 +14,48 @@ class report_monitor_v1_do
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         //删除v1
         if ($_POST['delete_v1']) {
             $this->_report_monitor_delete($conn_db);
         } else {
             $sql = "select * from ".APM_DB_PREFIX."monitor_v1 t where v1=:v1 ";
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':v1', $_GET['v1']);
-            $oci_error = _ociexecute($stmt);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
+            $oci_error = apm_db_execute($stmt);
             $_row = array();
-            ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+            $_row = oci_fetch_assoc($stmt);
 
             $sql = "update ".APM_DB_PREFIX."monitor_v1 set as_name=:as_name,count_type=:count_type,char_type=:char_type,
         group_name=:group_name,group_name_1=:group_name_1,group_name_2=:group_name_2,start_clock=:start_clock,show_template=:show_template,show_all=1,
         percent_count_type=:percent_count_type,day_count_type=:day_count_type,hour_count_type=:hour_count_type,
         duibi_name=:duibi_name,is_duty=:is_duty,pinfen_rule_name=:pinfen_rule_name
         where v1=:v1 ";
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':v1', $_GET['v1']);
-            _ocibindbyname($stmt, ':as_name', $_POST['as_name']);
-            _ocibindbyname($stmt, ':count_type', $_POST['count_type']);
-            _ocibindbyname($stmt, ':char_type', $_POST['char_type']);
-            _ocibindbyname($stmt, ':group_name', $_POST['group_name']);
-            _ocibindbyname($stmt, ':group_name_1', $_POST['group_name_1']);
-            _ocibindbyname($stmt, ':group_name_2', $_POST['group_name_2']);
-            _ocibindbyname($stmt, ':start_clock', $_POST['start_clock']);
-            _ocibindbyname($stmt, ':show_template', $_POST['show_template']);
-            _ocibindbyname($stmt, ':percent_count_type', $_POST['percent_count_type']);
-            _ocibindbyname($stmt, ':day_count_type', $_POST['day_count_type']);
-            _ocibindbyname($stmt, ':hour_count_type', $_POST['hour_count_type']);
-            _ocibindbyname($stmt, ':duibi_name', $_POST['duibi_name']);
-            _ocibindbyname($stmt, ':is_duty', intval($_POST['is_duty']));
-            _ocibindbyname($stmt, ':pinfen_rule_name', $_POST['pinfen_rule_name']);
-            $oci_error = _ociexecute($stmt);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
+            apm_db_bind_by_name($stmt, ':as_name', $_POST['as_name']);
+            apm_db_bind_by_name($stmt, ':count_type', $_POST['count_type']);
+            apm_db_bind_by_name($stmt, ':char_type', $_POST['char_type']);
+            apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
+            apm_db_bind_by_name($stmt, ':group_name_1', $_POST['group_name_1']);
+            apm_db_bind_by_name($stmt, ':group_name_2', $_POST['group_name_2']);
+            apm_db_bind_by_name($stmt, ':start_clock', $_POST['start_clock']);
+            apm_db_bind_by_name($stmt, ':show_template', $_POST['show_template']);
+            apm_db_bind_by_name($stmt, ':percent_count_type', $_POST['percent_count_type']);
+            apm_db_bind_by_name($stmt, ':day_count_type', $_POST['day_count_type']);
+            apm_db_bind_by_name($stmt, ':hour_count_type', $_POST['hour_count_type']);
+            apm_db_bind_by_name($stmt, ':duibi_name', $_POST['duibi_name']);
+            apm_db_bind_by_name($stmt, ':is_duty', intval($_POST['is_duty']));
+            apm_db_bind_by_name($stmt, ':pinfen_rule_name', $_POST['pinfen_rule_name']);
+            $oci_error = apm_db_execute($stmt);
             print_r($oci_error);
             //排版统一
             if ($_POST['show_template_checkbox'] == 1) {
                 $sql = "update ".APM_DB_PREFIX."monitor_v1 set show_template=:show_template  where group_name=:group_name ";
-                $stmt = _ociparse($conn_db, $sql);
-                _ocibindbyname($stmt, ':show_template', $_POST['show_template']);
-                _ocibindbyname($stmt, ':group_name', $_POST['group_name']);
-                $oci_error = _ociexecute($stmt);
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':show_template', $_POST['show_template']);
+                apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
+                $oci_error = apm_db_execute($stmt);
             }
             foreach (array(
                          'percent_count_type',
@@ -65,10 +65,10 @@ class report_monitor_v1_do
                 //统一同类型配置
                 if ($_POST[$v] != 'NULL') {
                     $sql = "update ".APM_DB_PREFIX."monitor_config set {$v}=:{$v}  where v1=:v1 ";
-                    $stmt = _ociparse($conn_db, $sql);
-                    _ocibindbyname($stmt, ':v1', $_GET['v1']);
-                    _ocibindbyname($stmt, ":{$v}", $_POST[$v]);
-                    $oci_error = _ociexecute($stmt);
+                    $stmt = apm_db_parse($conn_db, $sql);
+                    apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
+                    apm_db_bind_by_name($stmt, ":{$v}", $_POST[$v]);
+                    $oci_error = apm_db_execute($stmt);
                     print_r($oci_error);
                 }
             }
@@ -76,12 +76,12 @@ class report_monitor_v1_do
             if ($_POST['show_group'] && $_POST['group_name_1'] <> $_row['GROUP_NAME_1']) {
                 $sql = "update ".APM_DB_PREFIX."monitor_v1 t set group_name_1=:group_name_1
             where group_name=:group_name_old and  group_name_1=:group_name_1_old ";
-                $stmt = _ociparse($conn_db, $sql);
-                _ocibindbyname($stmt, ':group_name', $_POST['group_name']);
-                _ocibindbyname($stmt, ':group_name_old', $_row['GROUP_NAME']);
-                _ocibindbyname($stmt, ':group_name_1', $_POST['group_name_1']);
-                _ocibindbyname($stmt, ':group_name_1_old', $_row['GROUP_NAME_1']);
-                $oci_error = _ociexecute($stmt);
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
+                apm_db_bind_by_name($stmt, ':group_name_old', $_row['GROUP_NAME']);
+                apm_db_bind_by_name($stmt, ':group_name_1', $_POST['group_name_1']);
+                apm_db_bind_by_name($stmt, ':group_name_1_old', $_row['GROUP_NAME_1']);
+                $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
             }
 
@@ -89,14 +89,14 @@ class report_monitor_v1_do
             if ($_POST['show_group_2'] && $_POST['group_name_2'] <> $_row['GROUP_NAME_2']) {
                 $sql = "update ".APM_DB_PREFIX."monitor_v1 t set  group_name_2=:group_name_2
             where group_name=:group_name_old and group_name_1=:group_name_1_old  and group_name_2=:group_name_2_old ";
-                $stmt = _ociparse($conn_db, $sql);
-                _ocibindbyname($stmt, ':group_name', $_POST['group_name']);
-                _ocibindbyname($stmt, ':group_name_old', $_row['GROUP_NAME']);
-                _ocibindbyname($stmt, ':group_name_1', $_POST['group_name_1']);
-                _ocibindbyname($stmt, ':group_name_1_old', $_row['GROUP_NAME_1']);
-                _ocibindbyname($stmt, ':group_name_2', $_POST['group_name_2']);
-                _ocibindbyname($stmt, ':group_name_2_old', $_row['GROUP_NAME_2']);
-                $oci_error = _ociexecute($stmt);
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
+                apm_db_bind_by_name($stmt, ':group_name_old', $_row['GROUP_NAME']);
+                apm_db_bind_by_name($stmt, ':group_name_1', $_POST['group_name_1']);
+                apm_db_bind_by_name($stmt, ':group_name_1_old', $_row['GROUP_NAME_1']);
+                apm_db_bind_by_name($stmt, ':group_name_2', $_POST['group_name_2']);
+                apm_db_bind_by_name($stmt, ':group_name_2_old', $_row['GROUP_NAME_2']);
+                $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
             }
 
@@ -104,14 +104,14 @@ class report_monitor_v1_do
             if ($_POST['show_group_3'] && $_POST['group_name'] <> $_row['GROUP_NAME']) {
                 $sql = "update ".APM_DB_PREFIX."monitor_v1 t set group_name=:group_name
             where group_name=:group_name_old and group_name_1=:group_name_1_old  and group_name_2=:group_name_2_old ";
-                $stmt = _ociparse($conn_db, $sql);
-                _ocibindbyname($stmt, ':group_name', $_POST['group_name']);
-                _ocibindbyname($stmt, ':group_name_old', $_row['GROUP_NAME']);
-                _ocibindbyname($stmt, ':group_name_1', $_POST['group_name_1']);
-                _ocibindbyname($stmt, ':group_name_1_old', $_row['GROUP_NAME_1']);
-                _ocibindbyname($stmt, ':group_name_2', $_POST['group_name_2']);
-                _ocibindbyname($stmt, ':group_name_2_old', $_row['GROUP_NAME_2']);
-                $oci_error = _ociexecute($stmt);
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
+                apm_db_bind_by_name($stmt, ':group_name_old', $_row['GROUP_NAME']);
+                apm_db_bind_by_name($stmt, ':group_name_1', $_POST['group_name_1']);
+                apm_db_bind_by_name($stmt, ':group_name_1_old', $_row['GROUP_NAME_1']);
+                apm_db_bind_by_name($stmt, ':group_name_2', $_POST['group_name_2']);
+                apm_db_bind_by_name($stmt, ':group_name_2_old', $_row['GROUP_NAME_2']);
+                $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
             }
         }
@@ -130,47 +130,47 @@ class report_monitor_v1_do
             $where = 'and v2=:v2';
         }
         $sql = "delete from ".APM_DB_PREFIX."monitor where v1=:v1 {$where} and  cal_date>sysdate-10/24 ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
         if ($_REQUEST['v2']) {
-            _ocibindbyname($stmt, ':v2', $_REQUEST['v2']);
+            apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }
-        $oci_error = _ociexecute($stmt);
+        $oci_error = apm_db_execute($stmt);
         $sql = "delete from ".APM_DB_PREFIX."monitor_config where v1=:v1 {$where} ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
         if ($_REQUEST['v2']) {
-            _ocibindbyname($stmt, ':v2', $_REQUEST['v2']);
+            apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }
-        $oci_error = _ociexecute($stmt);
+        $oci_error = apm_db_execute($stmt);
 
         $sql = "delete from ".APM_DB_PREFIX."monitor_date where v1=:v1 {$where} and cal_date>sysdate-10 ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
         if ($_REQUEST['v2']) {
-            _ocibindbyname($stmt, ':v2', $_REQUEST['v2']);
+            apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }
-        $oci_error = _ociexecute($stmt);
+        $oci_error = apm_db_execute($stmt);
 
         $sql = "delete from ".APM_DB_PREFIX."monitor_hour where v1=:v1 {$where}  and cal_date>sysdate-10";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
         if ($_REQUEST['v2']) {
-            _ocibindbyname($stmt, ':v2', $_REQUEST['v2']);
+            apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }
-        $oci_error = _ociexecute($stmt);
+        $oci_error = apm_db_execute($stmt);
 
         $sql = "select * from ".APM_DB_PREFIX."monitor_config where v1=:v1 ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         if (!$_row) {
             $sql = "delete from ".APM_DB_PREFIX."monitor_v1 where v1=:v1   ";
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
-            _ociexecute($stmt);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+            apm_db_execute($stmt);
         }
     }
 }

@@ -11,13 +11,13 @@ export ORACLE_HOME=/home/oracle/product/10.2.0
 export PATH=$PATH:$ORACLE_HOME/bin
 export NLS_LANG="Simplified Chinese_china".ZHS16GBK
 
-#ÈÕÖ¾ÎÄ¼þµÄ´æ´¢Î»ÖÃ.
+#ï¿½ï¿½Ö¾ï¿½Ä¼ï¿½ï¿½Ä´æ´¢Î»ï¿½ï¿½.
 log_date=/home/webid/logs/`date +%Y_%m_%d`
 if [ ! -d "/home/webid/logs/" ]; then
     mkdir "/home/webid/logs/"
 fi
 
-#ÓÃPHPÀ´»ñÈ¡ÍøÒ³µØÖ·,µ÷ÓÃ_status½øÐÐÍ³¼Æ
+#ï¿½ï¿½PHPï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½Ò³ï¿½ï¿½Ö·,ï¿½ï¿½ï¿½ï¿½_statusï¿½ï¿½ï¿½ï¿½Í³ï¿½ï¿½
 function phpwget()
 {
         exec_pwd=`pwd`
@@ -30,7 +30,7 @@ function phpwget()
         fi
 }
 
-#wgetÒ»¸öÍøÖ·,±£Ö¤ÊÇµ¥Ò»½ø³ÌÔÚÅÜ.
+#wgetÒ»ï¿½ï¿½ï¿½ï¿½Ö·,ï¿½ï¿½Ö¤ï¿½Çµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 function callurl()
 {
         exec_pwd=`pwd`
@@ -42,7 +42,7 @@ function callurl()
         fi
 }
 
-#wgetÒ»¸öÍøÖ·,×èÈûÄ£Ê½ÅÜ
+#wgetÒ»ï¿½ï¿½ï¿½ï¿½Ö·,ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½
 function callurl2()
 {
         cmd=`echo $1 |sed -e 's/\(^ *\)//' -e 's/\( *$\)//' `
@@ -54,7 +54,7 @@ function callurl2()
 }
 
 
-#wgetÒ»¸öÍøÖ·,±£Ö¤ÊÇµ¥Ò»½ø³ÌÔÚÅÜ.
+#wgetÒ»ï¿½ï¿½ï¿½ï¿½Ö·,ï¿½ï¿½Ö¤ï¿½Çµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 function callact()
 {
         exec_pwd=`pwd`
@@ -73,7 +73,7 @@ function callact()
         fi
 }
 
-#wgetÒ»¸öÍøÖ·,±£Ö¤ÊÇµ¥Ò»½ø³ÌÔÚÅÜ.×èÈûÄ£Ê½ÅÜ
+#wgetÒ»ï¿½ï¿½ï¿½ï¿½Ö·,ï¿½ï¿½Ö¤ï¿½Çµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½
 function callact2()
 {
         exec_pwd=`pwd`
@@ -93,18 +93,18 @@ function callact2()
 }
 
 
-############################Ã¿Ð¡Ê±ÅÜÒ»´Î############################################
+############################Ã¿Ð¡Ê±ï¿½ï¿½Ò»ï¿½ï¿½############################################
 
-#ÒÔÏÂÊÇÊ¾Àý
+#ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½
 
-#30 */1 * * *   /home/httpd/api.tuijian.pps.tv/crontab/monitorphp_pre_1hour.sh api.tuijian.pps.tv gz 1
-#*/1 * * * *  /home/httpd/api.tuijian.pps.tv/crontab/monitorphp_pre_1min.sh  api.tuijian.pps.tv 2 1
+#30 */1 * * *   /home/httpd/api.tuijian.com/crontab/monitorphp_pre_1hour.sh api.tuijian.com gz 1
+#*/1 * * * *  /home/httpd/api.tuijian.com/crontab/monitorphp_pre_1min.sh  api.tuijian.com 2 1
 
 
-#*/1 * * * * /home/httpd/api.tuijian.pps.tv/crontab/pre_1min.sh
-#*/10 * * * * /home/httpd/api.tuijian.pps.tv/crontab/pre_10min.sh
-#30 * * * * /home/httpd/api.tuijian.pps.tv/crontab/pre_1hour.sh
-#3 4 * * * /home/httpd/api.tuijian.pps.tv/crontab/pre_1day.sh
+#*/1 * * * * /home/httpd/api.tuijian.com/crontab/pre_1min.sh
+#*/10 * * * * /home/httpd/api.tuijian.com/crontab/pre_10min.sh
+#30 * * * * /home/httpd/api.tuijian.com/crontab/pre_1hour.sh
+#3 4 * * * /home/httpd/api.tuijian.com/crontab/pre_1day.sh
 
 
 

@@ -25,25 +25,25 @@ class  m
 {
 	/**
 	 * @desc   WHAT?
-	 * @author ÏÄÁÕÌ© mailto:resia@dev.ppstream.com
+	 * @author 
 	 * @since  2013-08-22 15:16:43
-	 * @throws ×¢Òâ:ÎŞDBÒì³£´¦Àí
+	 * @throws æ³¨æ„:æ— DBå¼‚å¸¸å¤„ç†
 	 */
 	function index()
 	{
-		//ÉèÖÃÔØÈëµÄÊı¾İ±í¸ñ:
+		//è®¾ç½®è½½å…¥çš„æ•°æ®è¡¨æ ¼:
 		$dir = './crontab';
 		exec("chmod 0755 {$dir}/* ");
 		if ($dh = opendir($dir)) {
 			while (($file = readdir($dh)) !== false) {
 				if ($file == '.' || $file == '..')
 					continue;
-				//È«Â·¾¶
+				//å…¨è·¯å¾„
 				$nfile = $dir . '/' . $file;
 				if (!is_dir($nfile) && strpos($file, '.sh') !== false) {
 					$data = file_get_contents($nfile);
 					$data = str_replace("\r", NULL, $data);
-					print_r("ĞŞ¸ÄÎÄ¼ş:{$nfile}");
+					print_r("ä¿®æ”¹æ–‡ä»¶:{$nfile}");
 					print_r("<br>\n");
 					$fp = fopen($nfile, 'w');
 					if ($fp) {
@@ -56,7 +56,7 @@ class  m
 			closedir($dh);
 		}
 
-		//ÉèÖÃÔØÈëµÄÊı¾İ±í¸ñ:
+		//è®¾ç½®è½½å…¥çš„æ•°æ®è¡¨æ ¼:
 		$dir = './shell';
 		if (is_dir($dir)) {
 			exec("chmod 0755 {$dir}/*.sh ");
@@ -64,12 +64,12 @@ class  m
 				while (($file = readdir($dh)) !== false) {
 					if ($file == '.' || $file == '..')
 						continue;
-					//È«Â·¾¶
+					//å…¨è·¯å¾„
 					$nfile = $dir . '/' . $file;
 					if (!is_dir($nfile) && strpos($file, '.sh') !== false) {
 						$data = file_get_contents($nfile);
 						$data = str_replace("\r", NULL, $data);
-						print_r("ĞŞ¸ÄÎÄ¼ş:{$nfile}");
+						print_r("ä¿®æ”¹æ–‡ä»¶:{$nfile}");
 						print_r("<br>\n");
 						$fp = fopen($nfile, 'w');
 						if ($fp) {
@@ -86,23 +86,23 @@ class  m
 
 	/**
 	 * @desc   WHAT?
-	 * @author ÏÄÁÕÌ© mailto:resia@dev.ppstream.com
+	 * @author 
 	 * @since  2013-08-23 18:23:20
-	 * @throws ×¢Òâ:ÎŞDBÒì³£´¦Àí
+	 * @throws æ³¨æ„:æ— DBå¼‚å¸¸å¤„ç†
 	 */
 	function mini_css_js($dir)
 	{
 		ini_set("display_errors", true);
 		echo date("\nY-m-d H:i:s\n");
 		$arr = array();
-		$conn_db = ocinlogon('PPS_OA_SVN', 'PPS_OA_SVN', 'PPS_gcwo');
+		$conn_db = ocinlogon('OA_SVN', 'OA_SVN', 'gcwo');
 		if ($_GET['model_id']) {
 			$sql = "select *
-  from PPS_OA.T_SVN_COMMITLOGS t
+  from OA.T_SVN_COMMITLOGS t
  where t.model_id = :model_id
    and t.commit_date > (select *
                           from (select t.datetime
-                                  from PPS_OA.T_SVN_UPGRADE_LOG t
+                                  from OA.T_SVN_UPGRADE_LOG t
                                  where t.model_id = :model_id
                                    and t.out_ok = 0
                                    and t.status = 'OUTER_SUCC'
@@ -114,25 +114,25 @@ class  m
 			ocibindbyname($stmt, ':model_id', $_GET['model_id']);
 			$ocierror = ociexecute($stmt);
 			$arr = $_row = array();
-			while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+			while ($_row = oci_fetch_assoc($stmt)) {
 				$arr[$_row['COMMIT_FILE']] = true;
 			}
 		}
-		//±¾´ÎÃ»ÓĞÌá½»¹ıjsµÄĞŞ¸Ä
+		//æœ¬æ¬¡æ²¡æœ‰æäº¤è¿‡jsçš„ä¿®æ”¹
 		if ($_GET['model_id'] && empty($arr)) {
-			echo "±¾´ÎÃ»ÓĞÌá½»¹ıjsµÄĞŞ¸Ä";
+			echo "æœ¬æ¬¡æ²¡æœ‰æäº¤è¿‡jsçš„ä¿®æ”¹";
 			die;
 		}
 		$this->_mini_css_js($arr, $dir);
 		die;
 
-		//Èç¹ûÓĞ°æ±¾ºÅÂë.ÄÇÃ´½øĞĞ°æ±¾±¸·İ.
+		//å¦‚æœæœ‰ç‰ˆæœ¬å·ç .é‚£ä¹ˆè¿›è¡Œç‰ˆæœ¬å¤‡ä»½.
 		$sql = "select t.curr_version,t.model_name
-  from PPS_OA.T_SVN_COMMITLOGS t
+  from OA.T_SVN_COMMITLOGS t
  where t.model_id = :model_id
    and t.commit_date > (select *
                           from (select t.datetime
-                                  from PPS_OA.T_SVN_UPGRADE_LOG t
+                                  from OA.T_SVN_UPGRADE_LOG t
                                  where t.model_id = :model_id
                                    and t.out_ok = 0
                                    and t.status = 'OUTER_SUCC'
@@ -143,18 +143,18 @@ class  m
 		ocibindbyname($stmt, ':model_id', $_GET['model_id']);
 		$ocierror = ociexecute($stmt);
 		$arr = $_row = array();
-		ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
 		if ($_row) {
-			//½öÍ¬²½tagÄ¿Â¼µÄ´úÂë.webid3¾ÍÊÇTAGÄ¿Â¼
+			//ä»…åŒæ­¥tagç›®å½•çš„ä»£ç .webid3å°±æ˜¯TAGç›®å½•
 			exec("rsync -vzrtopg --progress  --port 873   --exclude=.svn  --exclude=.settings   --exclude=crontab.php   /home/webid3/sh/{$_row['MODEL_NAME']}/ webid@10.1.20.42::disk/{$_row['MODEL_NAME']}");
 		}
 	}
 
 	/**
 	 * @desc   WHAT?
-	 * @author ÏÄÁÕÌ© mailto:resia@dev.ppstream.com
+	 * @author 
 	 * @since  2013-08-22 15:16:53
-	 * @throws ×¢Òâ:ÎŞDBÒì³£´¦Àí
+	 * @throws æ³¨æ„:æ— DBå¼‚å¸¸å¤„ç†
 	 */
 
 	function _mini_css_js($arr, $dir)
@@ -206,38 +206,37 @@ class  m
 
 	/**
 	 * @desc   WHAT?
-	 * @author ÏÄÁÕÌ© mailto:resia@dev.ppstream.com
+	 * @author 
 	 * @since  2013-08-24 15:18:58
-	 * @throws ×¢Òâ:ÎŞDBÒì³£´¦Àí
+	 * @throws æ³¨æ„:æ— DBå¼‚å¸¸å¤„ç†
 	 */
 	function tags()
 	{
 		echo date("Y-m-d H:i:s") . " TAGS :\n";
 		ini_set("display_errors", true);
-		$conn_db = ocinlogon('PPS_OA_SVN', 'PPS_OA_SVN', 'PPS_gcwo');
-		$sql = "select * from PPS_OA.T_SVN_MODELS t where t.model_id=:model_id";
+		$conn_db = ocinlogon('OA_SVN', 'OA_SVN', 'PPS_gcwo');
+		$sql = "select * from OA.T_SVN_MODELS t where t.model_id=:model_id";
 		$stmt = ociparse($conn_db, $sql);
 		ocibindbyname($stmt, ':model_id', $_GET['model_id']);
 		$ocierror = ociexecute($stmt);
-		$_row = array();
-		ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
 
-		//TAGÄ¿±êÎÄ¼ş¼Ğ
+		//TAGç›®æ ‡æ–‡ä»¶å¤¹
 		$model_path = str_replace("/webid/", "/webid3/", dirname($_row['MODEL_PATH']));
 		exec("mkdir -p {$model_path}");
-		//ÉÏÏß²âÊÔ°æ±¾ÎÄ¼ş¼Ğ
+		//ä¸Šçº¿æµ‹è¯•ç‰ˆæœ¬æ–‡ä»¶å¤¹
 		$model_path2 = str_replace("/webid/", "/webid4/", dirname($_row['MODEL_PATH']));
 		exec("mkdir -p {$model_path2}");
-		//È¡³ö
+		//å–å‡º
 		$svnroot = str_replace("/home/svn/", "http://10.1.20.56/", $_row['SVNROOT']);
 
-		#svnÇ©³ö,Èç¹û´æÔÚ,¾Í¸üĞÂ.
+		#svnç­¾å‡º,å¦‚æœå­˜åœ¨,å°±æ›´æ–°.
 		if (!is_dir("{$model_path}/{$_row['MNAME']}")) {
 			exec("cd {$model_path}; svn co --username {$_row['MODEL_USERNAME']} --password {$_row['MODEL_PASSWORD']}  {$svnroot}/{$_row['MNAME']}/tags/ {$_row['MNAME']};");
 		} else {
 			exec("cd {$model_path}/{$_row['MNAME']};svn cleanup;  svn up   --username {$_row['MODEL_USERNAME']} --password {$_row['MODEL_PASSWORD']} ;");
 		}
-		#svn½øĞĞ±¸·İ,É¾³ıµôÒÑ¾­²»´æÔÚµÄ´úÂë
+		#svnè¿›è¡Œå¤‡ä»½,åˆ é™¤æ‰å·²ç»ä¸å­˜åœ¨çš„ä»£ç 
 		$rsync = "rsync  -vzrtopg --delete  {$model_path}/{$_row['MNAME']}/ {$model_path2}/{$_row['MNAME']}/ ";
 		echo $rsync . "\n";
 		exec($rsync);
@@ -247,7 +246,7 @@ class  m
 			echo $runexec . "\n";
 			exec($runexec);
 		}
-		//·¢²¼µ½²âÊÔ»·¾³ÖĞ
+		//å‘å¸ƒåˆ°æµ‹è¯•ç¯å¢ƒä¸­
 		if ($_GET['test_rsync']) {
 			$MODEL_IGNORE_str = array_diff(explode(";", $_row['MODEL_IGNORE']), array("", NULL));
 			$MODEL_IGNORE_str = " --exclude=" . join(" --exclude=", $MODEL_IGNORE_str);

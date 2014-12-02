@@ -15,14 +15,14 @@ class monitor_duty
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
-        _ociexecute(_ociparse($conn_db, "alter session set nls_date_format='YYYY-MM-DD HH24:MI:SS'"));
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
+        apm_db_execute(apm_db_parse($conn_db, "alter session set nls_date_format='YYYY-MM-DD HH24:MI:SS'"));
 
         $sql = "select * from ".APM_DB_PREFIX."monitor_v1  where IS_DUTY=1 ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $v1_all = $_row_all = array();
-        while (ocifetchinto($stmt, $_row_all, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row_all = oci_fetch_assoc($stmt)) {
             $v1_all[$_row_all['V1']] = $_row_all['V1'];
         }
         $sql = "select t.lookup, trunc(t.cal_date) cal_date, v1
@@ -30,10 +30,10 @@ class monitor_duty
                where t.cal_date >= trunc(sysdate - 7)
                and t.cal_date < trunc(sysdate - 6) and t.lookup is null
                group by trunc(t.cal_date), t.lookup, v1 ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $_row = array();
-        while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt)) {
             if ($v1_all[$_row['V1']])
                 continue;
             _status(1, APM_HOST . "(BUG错误)", "验收责任未到位", $_row['V1'], "", APM_VIP);
@@ -57,10 +57,10 @@ class monitor_duty
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
               and t.cal_date = trunc(sysdate)) web_num  from dual ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $_row['SQLERR'] = round(($_row['PHP_NUM'] + $_row['SQL_NUM']) / $_row['WEB_NUM'] * 100, 2);
         $manyi = 0;
         if ($_row['SQLERR'] > 1)
@@ -85,10 +85,10 @@ class monitor_duty
             where v1 like '%(WEB日志分析)'
               and t.cal_date = trunc(sysdate - 1)) y_web_num
            from dual  ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $_row['SQLERR'] = round($_row['SQL_NUM'] / $_row['WEB_NUM'] * 100, 2);
         $manyi = 0;
         //按照前一天web量 判断
@@ -126,10 +126,10 @@ class monitor_duty
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(SQL统计)'
                               and t.cal_date = trunc(sysdate)";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         //扣分单小时SQL上限
         $hour = date('H');
         $manyi = 0;
@@ -148,10 +148,10 @@ class monitor_duty
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
               and t.cal_date = trunc(sysdate)) web_num from dual ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $_row['SQLERR'] = round($_row['MEM_NUM'] / $_row['WEB_NUM']);
         $manyi = 0;
         if ($_row['SQLERR'] > 6)
@@ -168,10 +168,10 @@ class monitor_duty
               where v1 like '%(BUG错误)'
                 and v2 = '验收责任未到位'
                 and t.cal_date = trunc(sysdate-1/24,'hh24') ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $manyi = 10;
         if ($_row['SQLERR'] > 0)
             $manyi = -10;
@@ -181,10 +181,10 @@ class monitor_duty
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)' and V2='TCP连接'
                               and t.cal_date = trunc(sysdate-1/24)";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $manyi = 0;
         if ($_row['TCP'] > 120) //tcp超120 每增加10扣100 无上限
             $manyi = -(floor(($_row['TCP'] - 120) / 10) * 100);
@@ -198,11 +198,11 @@ class monitor_duty
         //扣分项
         //机器重启当天,每小时扣200分
         $sql = "select fun_count from ".APM_DB_PREFIX."monitor_date t where v1 like'%(WEB日志分析)' and v2='运行天数' and t.cal_date = trunc(sysdate - 1/24 )";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
         $manyi = 0;
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         if ($_row['FUN_COUNT'] == '') {
             $manyi = -200;
         }
@@ -218,10 +218,10 @@ class monitor_duty
                     where v1 like '%(BUG错误)'
                       and t.cal_date = trunc(sysdate)) web_num
              from dual ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $_row['SQLERR'] = $_row['SQL_NUM'] / $_row['WEB_NUM'];
         $manyi = 0;
         if ($_row['SQL_NUM'] >= 1000) {
@@ -232,11 +232,11 @@ class monitor_duty
 
         //问题sql扫描
         $sql = "select fun_count from ".APM_DB_PREFIX."monitor_date t where v1 like'%(问题SQL)' and v2='全表扫描' and t.cal_date = trunc(sysdate-1/24)";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
         $manyi = 0;
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         if ($_row['FUN_COUNT'] > 5) {
             $manyi = -10;
         } else {
@@ -249,19 +249,18 @@ class monitor_duty
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)' and V2='CPU'
                               and t.cal_date = trunc(sysdate-1/24)";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
 
         $sql = "select nvl(avg(fun_count), 0) LOAD
                                      from ".APM_DB_PREFIX."monitor_date t
                                     where v1 like '%(WEB日志分析)' and V2='Load'
                                       and t.cal_date = trunc(sysdate-1/24)";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
-        $_row_load = array();
-        ocifetchinto($stmt, $_row_load, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
+        $_row_load = oci_fetch_assoc($stmt);
         $manyi = 0;
         if ($_row['CPU'] > 8 || $_row_load['LOAD'] > 8) {
             $manyi = -10;
@@ -277,19 +276,18 @@ class monitor_duty
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)'
                               and t.cal_date = trunc(sysdate)) web_num from dual ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $manyi = 0;
         $sql = "select nvl(sum(fun_count), 0) err_t_num
                                      from ".APM_DB_PREFIX."monitor_date t
                                     where v1 like '%(WEB日志分析)' and v2 = '499'
                                       and t.cal_date = trunc(sysdate)";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
-        $_row_t = array();
-        ocifetchinto($stmt, $_row_t, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
+        $_row_t = oci_fetch_assoc($stmt);
         if ($_row_t['ERR_T_NUM'] > 500) {
             $_row['ERR_NUM'] = $_row['ERR_NUM'] + $_row_t['ERR_T_NUM'];
         }
@@ -304,10 +302,10 @@ class monitor_duty
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(包含文件)' and V2='10s到∞个'
                               and t.cal_date = trunc(sysdate) ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
         $manyi = 0;
         if ($_row['FUN_COUNT']) {
             $manyi = $manyi - ($_row['FUN_COUNT'] * 5);
@@ -319,10 +317,9 @@ class monitor_duty
                                      from ".APM_DB_PREFIX."monitor_hour t
                                     where v1 like '%(BUG错误)' and V2='上传木马入侵'
                                       and t.cal_date= trunc(sysdate-1/24,'hh24')";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
-        $_row_cock = array();
-        ocifetchinto($stmt, $_row_cock, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
+        $_row_cock = oci_fetch_assoc($stmt);
         $manyi = $manyi - $_row_cock['COCK'] * 50;
         _status($manyi, APM_HOST . "(项目满意分)", "扣:安全", "安全事故", "入侵个数：{$_row_cock['COCK']}", APM_VIP, 0, 'replace');
 
@@ -331,13 +328,13 @@ class monitor_duty
                                      from ".APM_DB_PREFIX."monitor_hour t
                                     where v1 like '%(BUG错误)' and V2='PHP错误'
                                       and t.cal_date>= trunc(sysdate-1,'hh24') order by cal_date desc";
-        $stmt = _ociparse($conn_db, $sql);
-        _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $_row_php = array();
         $manyi = 0;
         $data = $arr = array();
         $time = date('Y-m-d H', time() - 3600);
-        while (ocifetchinto($stmt, $_row_php, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row_php = oci_fetch_assoc($stmt)) {
             $data[$_row_php['V3']][$_row_php['CAL_DATE']]['count'] = $_row_php['FUN_COUNT'];
         }
         foreach ($data as $k => $v) {

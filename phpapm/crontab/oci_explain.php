@@ -33,22 +33,22 @@ class oci_explain
                 if (strpos($v['sql'], 'alter session') !== false)
                     continue;
 
-                $conn_db = _ocilogon($v['db']);
+                $conn_db = apm_db_logon($v['db']);
                 $sql = "EXPLAIN PLAN SET STATEMENT_ID='pps' FOR " . $v['sql'];
-                $stmt = _ociparse($conn_db, $sql);
-                _ociexecute($stmt);
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_execute($stmt);
 
                 $sql = "SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY('PLAN_TABLE','pps','BASIC'))";
-                $stmt = _ociparse($conn_db, $sql);
-                _ociexecute($stmt);
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_execute($stmt);
                 $_row = array();
                 $row_text = NULL;
-                while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+                while ($_row = oci_fetch_assoc($stmt)) {
                     echo "change:explain\n";
                     $change = true;
                     $row_text .= "\n" . $_row['PLAN_TABLE_OUTPUT'];
                 }
-                _ocilogoff($conn_db);
+                apm_db_logoff($conn_db);
                 $sqls[$k]['paser_txt'] = $row_text;
                 $sql_type = NULL;
                 $vv = _sql_table_txt($v['sql'], $sql_type);

@@ -16,13 +16,13 @@ class P1D_ClickStats
         }
 
         $date = date('Y-m-d', time() - 3600 * 24);
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         $sql = "select v1, v2, v2_config_other from ".APM_DB_PREFIX."monitor_config where v2_config_other like '%stats_flag%'";
-        $stmt = _ociparse($conn_db, $sql);
+        $stmt = apm_db_parse($conn_db, $sql);
         $_row = array();
-        $error = _ociexecute($stmt);
+        $error = apm_db_execute($stmt);
         print_r($error);
-        while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt)) {
             print_r($_row);
             $_row['V2_CONFIG_OTHER'] = unserialize($_row['V2_CONFIG_OTHER']);
             $stats_flag = $_row['V2_CONFIG_OTHER']['stats_flag'];
@@ -57,63 +57,63 @@ class P1D_ClickStats
         }
         //更新配置表
         $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $v1);
-        _ocibindbyname($stmt, ':v2', $v2);
-        _ocibindbyname($stmt, ':cal_date', $date);
-        _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
-        $error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $v1);
+        apm_db_bind_by_name($stmt, ':v2', $v2);
+        apm_db_bind_by_name($stmt, ':cal_date', $date);
+        apm_db_bind_by_name($stmt, ':fun_count', $result[$v2_index]);
+        $error = apm_db_execute($stmt);
         if (ocirowcount($stmt)) {
             $sql = "insert into ".APM_DB_PREFIX."monitor(id, v1, v2, v3, v5,  fun_count, cal_date, md5, add_time ) values
                 (seq_".APM_DB_PREFIX."monitor.nextval, :v1, :v2, :vip, :vip, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'), :md5, sysdate)";
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':v1', $v1);
-            _ocibindbyname($stmt, ':v2', $v2);
-            _ocibindbyname($stmt, ':vip', APM_VIP);
-            _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
-            _ocibindbyname($stmt, ':cal_date', $date);
-            _ocibindbyname($stmt, ':md5', md5($v1 . $v2 . $date));
-            $error = _ociexecute($stmt);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $v1);
+            apm_db_bind_by_name($stmt, ':v2', $v2);
+            apm_db_bind_by_name($stmt, ':vip', APM_VIP);
+            apm_db_bind_by_name($stmt, ':fun_count', $result[$v2_index]);
+            apm_db_bind_by_name($stmt, ':cal_date', $date);
+            apm_db_bind_by_name($stmt, ':md5', md5($v1 . $v2 . $date));
+            $error = apm_db_execute($stmt);
         }
         //更新天表数据
         $sql = "update ".APM_DB_PREFIX."monitor_date set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd')";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $v1);
-        _ocibindbyname($stmt, ':v2', $v2);
-        _ocibindbyname($stmt, ':cal_date', $date);
-        _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
-        $error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $v1);
+        apm_db_bind_by_name($stmt, ':v2', $v2);
+        apm_db_bind_by_name($stmt, ':cal_date', $date);
+        apm_db_bind_by_name($stmt, ':fun_count', $result[$v2_index]);
+        $error = apm_db_execute($stmt);
         var_dump($error);
         if (!ocirowcount($stmt)) {
             $sql = "insert into ".APM_DB_PREFIX."monitor_date( v1, v2, fun_count, cal_date) values
                 ( :v1, :v2, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'))";
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':v1', $v1);
-            _ocibindbyname($stmt, ':v2', $v2);
-            _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
-            _ocibindbyname($stmt, ':cal_date', $date);
-            $error = _ociexecute($stmt);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $v1);
+            apm_db_bind_by_name($stmt, ':v2', $v2);
+            apm_db_bind_by_name($stmt, ':fun_count', $result[$v2_index]);
+            apm_db_bind_by_name($stmt, ':cal_date', $date);
+            $error = apm_db_execute($stmt);
             var_dump($error);
         }
         //更新小时表数据
         $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count where v1=:v1 and v2=:v2 and cal_date =to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $v1);
-        _ocibindbyname($stmt, ':v2', $v2);
-        _ocibindbyname($stmt, ':cal_date', $date);
-        _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
-        $error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $v1);
+        apm_db_bind_by_name($stmt, ':v2', $v2);
+        apm_db_bind_by_name($stmt, ':cal_date', $date);
+        apm_db_bind_by_name($stmt, ':fun_count', $result[$v2_index]);
+        $error = apm_db_execute($stmt);
         var_dump($error);
         if (!ocirowcount($stmt)) {
             $sql = "insert into ".APM_DB_PREFIX."monitor_hour( v1, v2, v3, fun_count, cal_date ) values
                 (:v1, :v2, :v3, :fun_count, to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'))";
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':v1', $v1);
-            _ocibindbyname($stmt, ':v2', $v2);
-            _ocibindbyname($stmt, ':v3', APM_VIP);
-            _ocibindbyname($stmt, ':fun_count', $result[$v2_index]);
-            _ocibindbyname($stmt, ':cal_date', $date);
-            $error = _ociexecute($stmt);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $v1);
+            apm_db_bind_by_name($stmt, ':v2', $v2);
+            apm_db_bind_by_name($stmt, ':v3', APM_VIP);
+            apm_db_bind_by_name($stmt, ':fun_count', $result[$v2_index]);
+            apm_db_bind_by_name($stmt, ':cal_date', $date);
+            $error = apm_db_execute($stmt);
             var_dump($error);
         }
     }

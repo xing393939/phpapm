@@ -15,8 +15,8 @@ else
 fi
 
 # alias
-if [ -f "/home/httpd/apache.pps.tv/crontab/jc.php" ]; then
-    alias jc='php /home/httpd/apache.pps.tv/crontab/jc.php act=php_ini ; php /home/httpd/apache.pps.tv/crontab/jc.php act=db_ini; php /home/httpd/apache.pps.tv/crontab/jc.php act=host_ini; php /home/httpd/apache.pps.tv/crontab/jc.php act=web_ini; php /home/httpd/apache.pps.tv/crontab/jc.php act=config_ini;php /home/httpd/apache.pps.tv/crontab/jc.php act=log_ini;'
+if [ -f "/home/httpd/com/crontab/jc.php" ]; then
+    alias jc='php /home/httpd/apache.com/crontab/jc.php act=php_ini ; php /home/httpd/apache.com/crontab/jc.php act=db_ini; php /home/httpd/apache.com/crontab/jc.php act=host_ini; php /home/httpd/apache.com/crontab/jc.php act=web_ini; php /home/httpd/apache.com/crontab/jc.php act=config_ini;php /home/httpd/apache.com/crontab/jc.php act=log_ini;'
 else
     alias jc='php /home/webid/jc.php act=php_ini ; php /home/webid/jc.php act=db_ini; php /home/webid/jc.php act=host_ini; php /home/webid/jc.php act=web_ini; php /home/webid/jc.php act=config_ini;php /home/webid/jc.php act=log_ini;'
 fi

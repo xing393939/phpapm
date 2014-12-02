@@ -15,24 +15,24 @@ class crontab_report_pinfen
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         //获取V1级别的评分要求
         $_row_infos = array();
         $sql = "select * from ".APM_DB_PREFIX."monitor_v1 t where pinfen_rule is not null ";
-        $stmt_list = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt_list);
+        $stmt_list = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt_list);
         $_row = array();
-        while (ocifetchinto($stmt_list, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt_list)) {
             $_row = unserialize($_row['PINFEN_RULE']);
             if ($_row['pinfen_name'] && $_row['koufen_name'] && $_row['base_num'] && $_row['just_rule'] && $_row['pinfen_step'] && $_row['rule_num'])
                 $_row_infos[] = $_row;
         }
         //获取V2级别的评分要求
         $sql = "select * from ".APM_DB_PREFIX."monitor_config t where pinfen_rule is not null ";
-        $stmt_list = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt_list);
+        $stmt_list = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt_list);
         $_row = array();
-        while (ocifetchinto($stmt_list, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt_list)) {
             $_row = unserialize($_row['PINFEN_RULE']);
             if ($_row['pinfen_name'] && $_row['koufen_name'] && $_row['base_num'] && $_row['just_rule'] && $_row['pinfen_step'] && $_row['rule_num'])
                 $_row_infos[] = $_row;
@@ -53,17 +53,16 @@ class crontab_report_pinfen
                 }
 
             }
-            $stmt = _ociparse($conn_db, $sql);
-            _ocibindbyname($stmt, ':base_num', $_row_info['base_num']);
-            _ocibindbyname($stmt, ':pinfen_step', $_row_info['pinfen_step']);
-            _ocibindbyname($stmt, ':v1', $_row_info['v1']);
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':base_num', $_row_info['base_num']);
+            apm_db_bind_by_name($stmt, ':pinfen_step', $_row_info['pinfen_step']);
+            apm_db_bind_by_name($stmt, ':v1', $_row_info['v1']);
             if ($_row_info['v2'])
-                _ocibindbyname($stmt, ':v2', $_row_info['v2']);
-            $oci_error = _ociexecute($stmt);
+                apm_db_bind_by_name($stmt, ':v2', $_row_info['v2']);
+            $oci_error = apm_db_execute($stmt);
             print_r($oci_error);
 
-            $_row_num = array();
-            ocifetchinto($stmt, $_row_num, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+            $_row_num = oci_fetch_assoc($stmt);
             _status($_row_num['NUM'], $_row_info['pinfen_name'], $_row_info['koufen_name'], $_row_info['v1'] . "@" . $_row_info['v2']);
             print_r($_row_num);
         }

@@ -14,21 +14,21 @@ class report_monitor_order_top
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         if (!$_REQUEST['orderby'])
             $this->report_monitor_order();
         //上面的减下来
         $sql = "update  ".APM_DB_PREFIX."monitor_config set orderby=orderby+1 where  v1=:v1 and orderby<:orderby";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
-        _ocibindbyname($stmt, ':orderby', $_REQUEST['orderby']);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        apm_db_bind_by_name($stmt, ':orderby', $_REQUEST['orderby']);
+        $oci_error = apm_db_execute($stmt);
         //本身上升
         $sql = "update  ".APM_DB_PREFIX."monitor_config set orderby=1 where  v1=:v1 and v2=:v2";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
-        _ocibindbyname($stmt, ':v2', $_REQUEST['v2']);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
+        $oci_error = apm_db_execute($stmt);
         header("location: {$_SERVER['HTTP_REFERER']}");
     }
 }

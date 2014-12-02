@@ -9,9 +9,6 @@
  * $o_file = $file = mb_convert_encoding($file, 'GBK', 'UTF-8');
 */
 
-if (!function_exists('msg_get_queue')) {
-    function msg_get_queue() {}
-}
 if (!function_exists('ocinlogon')) {
     function ocinlogon($user_name, $password, $tns)
     {
@@ -35,27 +32,6 @@ if (!function_exists('ocinlogon')) {
         if ($key == ':DES') {
             _mysqlbindbyname($GLOBALS['$stmt'], strtolower($key), $value);
         }
-    }
-
-    function ocifetchinto($null, &$_row, $type)
-    {
-        $trace = debug_backtrace();
-        $vLine = file($trace[0]["file"]);
-        $fLine = $vLine[$trace[0]['line'] - 1];
-        preg_match("#\\$([\w_]+)#", $fLine, $match);
-        $hash = '$oci_';
-        $hash .= !empty($match[1]) ? $match[1] : 'default';
-
-        if (empty($GLOBALS[$hash]) || (!empty($GLOBALS['$stmt']) && $GLOBALS['$stmt_mode'] == 'select')) {
-            $GLOBALS[$hash] = $GLOBALS['$stmt'];
-            $GLOBALS['$stmt'] = null;
-        }
-        $_row = mysql_fetch_assoc($GLOBALS[$hash]);
-        $_row = !empty($_row) ? array_change_key_case($_row, CASE_UPPER) : $_row;
-        if (!empty($_row['FUN_COUNT'])) {
-            $_row['FUN_COUNT'] = preg_replace("/\.00$/", '', $_row['FUN_COUNT']);
-        }
-        return $_row;
     }
 
     function ociexecute($null, $mode = false)
@@ -255,9 +231,9 @@ if (!function_exists('ocinlogon')) {
     ociexecute(0);
     exit($GLOBALS['lastSql']);*/
 }
-/*$conn = _ocilogon('PPS_73');
-$stmt = _ociparse($conn, "update v_monitor set v1=4 where id=1");
-$error = _ociexecute($stmt);
+/*$conn = apm_db_logon('PPS_73');
+$stmt = apm_db_parse($conn, "update v_monitor set v1=4 where id=1");
+$error = apm_db_execute($stmt);
 var_dump(ocirowcount($stmt));
 exit();*/
 ?>

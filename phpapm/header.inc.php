@@ -2,11 +2,27 @@
 define('APM_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 $u_name_arr = explode(' ', php_uname());
 define('APM_VIP', strpos(PHP_OS, 'WIN') === false ? $u_name_arr[1] : $u_name_arr[2]);
-if (in_array(APM_VIP, array('ITA-1405-3043', 'DOCTOR-PC'))) {
-    define('APM_LOCAL_ENV', true);
+
+//select db func
+if (APM_DB_TYPE == 'mysql') {
+    include APM_PATH . "./include/db_mysql.func.php";
+    include APM_PATH . "./include/oci2mysql.func.php";
+} elseif (APM_DB_TYPE == 'oci') {
+    include APM_PATH . "./include/db_oci.func.php";
+} else {
+    exit('config error');
 }
-include APM_PATH . "./include/oci2mysql.func.php";
-include APM_PATH . "./include/_status" . (strpos(PHP_OS, 'WIN') === false ? '_ipcs.php' : '.php');
+
+//select status type
+if (defined('APM_IPCS')) {
+    include APM_PATH . "./include/_status_ipcs.php";
+    if (isset($_GET['act']) && $_GET['act'] == 'monitor' &&
+        strpos($_SERVER['PHP_SELF'], 'crontab.php') !== false) {
+        $_GET['act'] = 'monitor_ipcs';
+    }
+} else {
+    include APM_PATH . "./include/_status.php";
+}
 include APM_PATH . "./include/header.func.php";
 
 class apm_db_config

@@ -5,8 +5,8 @@ echo 16384000 > /proc/sys/kernel/msgmnb
 echo 81920 > /proc/sys/kernel/msgmax
 echo 30 > /proc/sys/kernel/msgmni
 */
-if (isset($_GET['act']) && $_GET['act'] == 'monitor' && strpos($_SERVER['PHP_SELF'], 'crontab.php') !== false) {
-    $_GET['act'] = 'monitor_ipcs';
+if (!function_exists('msg_get_queue')) {
+    function msg_get_queue() {}
 }
 //ipcs方案end
 
@@ -16,7 +16,7 @@ if (isset($_GET['act']) && $_GET['act'] == 'monitor' && strpos($_SERVER['PHP_SEL
  * @since  2012-06-22 20:14:54
  * @throws 注意:无DB异常处理
  */
-function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff_time = 0, $uptype = null, $time = null, $add_array = array())
+function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff_time = 0, $up_type = null, $time = null, $add_array = array())
 {
     if (strpos(PHP_OS, 'WIN') === false) {
         if (!$time)
@@ -35,8 +35,7 @@ function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff
                 $v3 = APM_VIP;
             if ($v5 == APM_VIP)
                 $v5 = NULL;
-            $_uptype = $code = NULL;
-            list($_uptype, $code) = explode('/', $uptype);
+            list($_up_type) = explode('/', $up_type);
             settype($add_array, 'array');
             $array = array(
                     'vhost' => APM_HOST,
@@ -55,7 +54,7 @@ function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff
                     #连接地址
                     'diff_time' => $diff_time,
                     'time' => $START_TIME_DATE,
-                    'uptype' => $_uptype
+                    'uptype' => $_up_type
                 ) + $add_array;
             $bool = msg_send($seg, 1, $array, true, false);
             if (!$bool) {

@@ -14,20 +14,20 @@ class report_monitor_as_name
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         $sql = "select * from ".APM_DB_PREFIX."monitor_config where id=:id ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':id', $_POST['id']);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':id', $_POST['id']);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
-        ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS);
+        $_row = oci_fetch_assoc($stmt);
 
         $sql = "update ".APM_DB_PREFIX."monitor_config set as_name=:as_name where v2=:v2  ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':as_name', $_POST['as_name']);
-        _ocibindbyname($stmt, ':v2', $_row['V2']);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':as_name', $_POST['as_name']);
+        apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+        $oci_error = apm_db_execute($stmt);
     }
 }
 

@@ -14,20 +14,20 @@ class report_sort
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         $sql = "select * from ".APM_DB_PREFIX."monitor_config t where v1=:v1 order by v2_group,decode(as_name,null,v2,as_name) asc ";
-        $stmt = _ociparse($conn_db, $sql);
-        _ocibindbyname($stmt, ':v1', $_REQUEST['v1']);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        $oci_error = apm_db_execute($stmt);
         $_row = array();
         $i = 0;
-        while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt)) {
             $i++;
             $sql2 = "update ".APM_DB_PREFIX."monitor_config set orderby=:orderby where id=:id ";
-            $stmt2 = _ociparse($conn_db, $sql2);
-            _ocibindbyname($stmt2, ':id', $_row['ID']);
-            _ocibindbyname($stmt2, ':orderby', $i);
-            $oci_error_2 = _ociexecute($stmt2);
+            $stmt2 = apm_db_parse($conn_db, $sql2);
+            apm_db_bind_by_name($stmt2, ':id', $_row['ID']);
+            apm_db_bind_by_name($stmt2, ':orderby', $i);
+            $oci_error_2 = apm_db_execute($stmt2);
             $_row2 = array();
         }
         header("location: {$_SERVER['HTTP_REFERER']}");

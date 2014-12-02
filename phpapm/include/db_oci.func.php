@@ -5,7 +5,7 @@
  * @since  2012-06-20 18:30:44
  * @throws 注意:无DB异常处理
  */
-function _ocilogon($DB)
+function apm_db_logon($DB)
 {
     if (!$DB)
         return null;
@@ -40,7 +40,7 @@ function _ocilogon($DB)
  * @return resource $stmt
  * @throws 无DB异常处理
  */
-function _ociparse($conn_db, $sql)
+function apm_db_parse($conn_db, $sql)
 {
     $_SERVER['last_db_conn'] = $_SERVER['last_oci_link'][$conn_db];
     //SQL性能分析准备,定时任务的SQL不参与分析
@@ -78,7 +78,7 @@ function _ociparse($conn_db, $sql)
  * @since  2012-11-25 17:33:09
  * @throws 注意:无DB异常处理
  */
-function _ocibindbyname($stmt, $key, $value)
+function apm_db_bind_by_name($stmt, $key, $value)
 {
     settype($_SERVER['last_oci_bindname'], 'Array');
     $_SERVER['last_oci_bindname'][$key] = $value;
@@ -93,7 +93,7 @@ function _ocibindbyname($stmt, $key, $value)
  * @return resource $error 错误信息
  * @throws 无DB异常处理
  */
-function _ociexecute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
+function apm_db_execute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
 {
     $last_oci_sql = $_SERVER['last_oci_sql'];
     $APM_PROJECT = APM_PROJECT;
@@ -144,7 +144,7 @@ function _ociexecute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
  * @since  2012-06-20 18:30:44
  * @throws 注意:无DB异常处理
  */
-function _ocilogoff(&$conn_db)
+function apm_db_logoff(&$conn_db)
 {
     if ($conn_db) {
         ocilogoff($conn_db);

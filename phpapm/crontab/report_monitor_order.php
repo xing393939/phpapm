@@ -15,24 +15,24 @@ class report_monitor_order
             exit();
         }
 
-        $conn_db = _ocilogon(APM_DB_ALIAS);
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         $sql = "select * from ".APM_DB_PREFIX."monitor_config order by v1, orderby,v2 ";
-        $stmt = _ociparse($conn_db, $sql);
-        $oci_error = _ociexecute($stmt);
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
         $this->all = $_row = array();
-        while (ocifetchinto($stmt, $_row, OCI_ASSOC + OCI_RETURN_LOBS + OCI_RETURN_NULLS)) {
+        while ($_row = oci_fetch_assoc($stmt)) {
             $this->all[$_row['V1']][] = $_row;
         }
         //排序更新初始化
         foreach ($this->all as $k => $v) {
             foreach ($v as $kk => $vv) {
                 $sql = "update  ".APM_DB_PREFIX."monitor_config  set orderby=:orderby where v1=:v1 and v2=:v2  ";
-                $stmt = _ociparse($conn_db, $sql);
+                $stmt = apm_db_parse($conn_db, $sql);
                 //每次都独立提交,所以这样绑定(相同变量$k,$v)没问题
-                _ocibindbyname($stmt, ':v1', $vv['V1']);
-                _ocibindbyname($stmt, ':v2', $vv['V2']);
-                _ocibindbyname($stmt, ':orderby', intval($kk + 1));
-                $oci_error = _ociexecute($stmt);
+                apm_db_bind_by_name($stmt, ':v1', $vv['V1']);
+                apm_db_bind_by_name($stmt, ':v2', $vv['V2']);
+                apm_db_bind_by_name($stmt, ':orderby', intval($kk + 1));
+                $oci_error = apm_db_execute($stmt);
             }
         }
         echo 'ok';
