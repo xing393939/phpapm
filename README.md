@@ -11,7 +11,7 @@ PHP > 5，Mysql或Oracle(用于记录统计数据)
 4，在PHP项目中公共文件中引用header.php<br />
 5，加入定时任务：<br />
 windows平台：运行phpapm/crontab_perminute.bat(需要编辑bat文件修改路径)<br />
-linux平台：1，安装php扩展sysvmsg，参考[教程](http://www.banghui.org/2527.html)；2，赋给crontab_perminute.sh可执行权限再创建crontab，定时1分钟运行crontab_perminute.sh<br />
+linux平台：1，安装php扩展sysvmsg，参考[教程](http://www.banghui.org/2527.html)；2，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，定时1分钟运行cron_1minute.sh，定时1小时运行cron_1hour.sh<br />
 
 ## Config
 配置文件：header.php<br />
