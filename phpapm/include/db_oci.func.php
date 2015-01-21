@@ -20,10 +20,10 @@ function apm_db_logon($DB)
         return null;
     }
     $tt1 = microtime(true);
-    $conn_db = ocinlogon($dbconfiginterface['user_name'], $dbconfiginterface['password'], $dbconfiginterface['TNS']);
+    $conn_db = ocinlogon($dbconfiginterface['user_name'], $dbconfiginterface['password'], $dbconfiginterface['TNS'], 'AL32UTF8');
     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
     if (!is_resource($conn_db)) {
-        $err = ocierror();
+        $err = apm_db_error();
         _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . $err['message'], APM_URI, APM_VIP, $diff_time);
         return null;
     }
@@ -96,46 +96,20 @@ function apm_db_bind_by_name($stmt, $key, $value)
 function apm_db_execute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
 {
     $last_oci_sql = $_SERVER['last_oci_sql'];
-    $APM_PROJECT = APM_PROJECT;
     if (!is_resource($stmt)) {
         $debug_backtrace = debug_backtrace();
         array_walk($debug_backtrace, create_function('&$v,$k', 'unset($v["function"],$v["args"]);'));
         _status(1, APM_HOST . "(BUG错误)", "SQL错误", APM_URI, "非资源\$stmt | " . var_export($_SERVER['last_oci_bindname'], true) . "|" . var_export($_GET, true) . "|" . $last_oci_sql . "|" . var_export($debug_backtrace, true));
     }
-    if (PROJECT_SQL === true)
-        $APM_PROJECT = '[项目]';
-    $_SERVER['oci_sql_ociexecute']++;
     $t1 = microtime(true);
     ociexecute($stmt, $mode);
-    $diff_time = sprintf('%.5f', microtime(true) - $t1);
+    $oci_error = apm_db_error($stmt);
 
-    //表格与函数关联
-    $sql_type = NULL;
-    $v = _sql_table_txt($last_oci_sql, $sql_type);
-    $out = array();
-    preg_match('# in(\s+)?\(#is', $last_oci_sql, $out);
-    if ($out) {
-        $last_oci_sql = substr($last_oci_sql, 0, stripos($last_oci_sql, ' in')) . ' in....';
-        _status(1, APM_HOST . "(BUG错误)", '问题SQL', "IN语法" . $APM_PROJECT, "{$_SERVER['last_db_conn']}@" . APM_URI . "/{$_REQUEST['act']}", "{$last_oci_sql}");
-    }
-
-    _status(1, APM_HOST . '(SQL统计)' . $APM_PROJECT, "{$_SERVER['last_db_conn']}{$sql_type}", strtolower($v) . "@" . APM_URI, $last_oci_sql, APM_VIP, $diff_time);
-
-    $diff_time_str = _debugtime($diff_time);
-    if ($diff_time < 1) {
-        _status(1, APM_HOST . '(SQL统计)', '一秒内', _debugtime($diff_time), "{$_SERVER['last_db_conn']}." . strtolower($v) . "@" . APM_URI . APM_VIP, $last_oci_sql, $diff_time);
-    } else {
-        _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$_SERVER['last_db_conn']}." . strtolower($v) . "@" . APM_URI . APM_VIP, $last_oci_sql, $diff_time);
-    }
-    $ocierror = ocierror($stmt);
-    if ($ocierror) {
-        $debug_backtrace = debug_backtrace();
-        array_walk($debug_backtrace, create_function('&$v,$k', 'unset($v["function"],$v["args"]);'));
-        _status(1, APM_HOST . "(BUG错误)", "SQL错误", APM_URI, var_export($ocierror, true) . '|' . var_export($_SERVER['last_oci_bindname'], true) . "|GET:" . var_export($_GET, true) . '|POST:' . var_export($_POST, true) . "|" . $last_oci_sql . "|" . var_export($debug_backtrace, true), APM_VIP, $diff_time);
-    }
+    //apm start
+    apm_status_mysql($_SERVER['last_db_conn'], $last_oci_sql, $t1, $oci_error);
 
     $_SERVER['last_oci_bindname'] = array();
-    return $ocierror;
+    return $oci_error;
 }
 
 /**
@@ -148,6 +122,20 @@ function apm_db_logoff(&$conn_db)
 {
     if ($conn_db) {
         ocilogoff($conn_db);
-        $DB = $_SERVER['last_oci_link'][$conn_db];
     }
+}
+
+function apm_db_error($stmt = null)
+{
+    return ocierror($stmt);
+}
+
+function apm_db_row_count($stmt = null)
+{
+    return ocirowcount($stmt);
+}
+
+function apm_db_fetch_assoc($stmt = false)
+{
+    return oci_fetch_assoc($stmt);
 }

@@ -48,13 +48,9 @@ function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff
 
     //入队列
     if ($v1 == APM_HOST . "(BUG错误)" && in_array($v2, array('定时', '内网接口', '页面操作', '其他功能'))) {
-        $db_config = new apm_db_config();
-        $db_config = $db_config->dbconfig[APM_DB_ALIAS];
-        mysql_connect($db_config['TNS'], $db_config['user_name'], $db_config['password']) or die();
-        mysql_select_db($db_config['db']) or die();
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
         $_status_sql = rtrim($_status_sql, ',');
-        mysql_query("SET NAMES 'utf8'");
-        mysql_query("insert into ".APM_DB_PREFIX."monitor_queue (`queue`) values {$_status_sql}");
+        apm_db_execute(apm_db_parse($conn_db, "insert into ".APM_DB_PREFIX."monitor_queue (`queue`) values {$_status_sql}"));
     }
 }
 ?>

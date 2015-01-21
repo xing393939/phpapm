@@ -1,0 +1,357 @@
+<?php
+
+/**
+ * @desc   主机：整合运算
+ * @author xing39393939@gmail.com
+ * @since  2013-03-06 22:06:23
+ * @throws 注意:无DB异常处理
+ */
+class monitor_config
+{
+    function _initialize()
+    {
+        set_time_limit(0);
+        ini_set("display_errors", true);
+        echo "<pre>";
+        $conn_db = apm_db_logon(APM_DB_ALIAS);
+        if (!$conn_db)
+            return;
+
+        //每小时汇总[上小时+当前小时]
+        $hourtime = strtotime(date('Y-m-d H:0:0') . " -1 hour");
+        $endtime = time();
+        if ($_GET['hour']) {
+            $hourtime = strtotime($_GET['hour']);
+            $endtime = strtotime("{$_GET['hour']} +1 day");
+        }
+        //所有配置信息 包含虚列
+        $sql = "select * from  ".APM_DB_PREFIX."monitor_config t  where id>0";
+        $stmt = apm_db_parse($conn_db, $sql);
+        $oci_error = apm_db_execute($stmt);
+        $this->all_config = $_row = array();
+        while ($_row = apm_db_fetch_assoc($stmt))
+            $this->all_config[$_row['V1'] . $_row['V2']] = $_row;
+
+        $addwhere = null;
+        if ($_GET['v1'])
+            $addwhere .= " and v1=:v1 ";
+        if ($_GET['v2'])
+            $addwhere .= " and v2=:v2 ";
+        for ($it = $hourtime; $it <= $endtime; $it += 3600) {
+            $hour = date('Y-m-d H:00:00', $it);
+            echo "hour:{$hour}\n";
+            //每小时数据汇总memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total
+            $sql = "select DATE_FORMAT(t.cal_date, '%Y-%m-%d %H') cal_date, t.v1, v2,
+                    v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(ifnull(v6,0))) DIFF_TIME, sum(abs(t.total_diff_time)) total_diff_time,
+                    max(memory_max) memory_max, sum(memory_total) memory_total, max(cpu_user_time_max) cpu_user_time_max,sum(cpu_user_time_total) cpu_user_time_total, max(cpu_sys_time_max) cpu_sys_time_max, sum(cpu_sys_time_total) cpu_sys_time_total
+                    from ".APM_DB_PREFIX."monitor t
+                    where cal_date >= to_date(:hour,'yyyy-mm-dd hh24:mi:ss') and cal_date <to_date(:hour,'yyyy-mm-dd hh24:mi:ss')+1/24
+                    {$addwhere}
+                    group by t.v1, t.v2, t.v3, DATE_FORMAT(t.cal_date, '%Y-%m-%d %H')";
+            $stmt_list = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt_list, ':hour', $hour);
+            if ($_GET['v1'])
+                apm_db_bind_by_name($stmt_list, ':v1', $_GET['v1']);
+            if ($_GET['v2'])
+                apm_db_bind_by_name($stmt_list, ':v2', $_GET['v2']);
+            $oci_error = apm_db_execute($stmt_list);
+            print_r($oci_error);
+            $_row = array();
+
+            while ($_row = apm_db_fetch_assoc($stmt_list)) {
+                $_row['v2'] = $_row['v2'] ? $_row['v2'] : 'null';
+                $_row['v3'] = $_row['v3'] ? $_row['v3'] : 'null';
+                $_row2 = $this->all_config[$_row['V1'] . $_row['V2']];
+                //正常情况下从原始表读取数据.如果是按照最后一分钟计算.走min表
+                //虚列数据不进行计算
+                if ($_row2['VIRTUAL_COLUMNS'] == 0) {
+                    if ($_row2['HOUR_COUNT_TYPE'] == 4) {
+                        $_row['FUN_COUNT'] = $_row['FUN_COUNT_AVG'];
+                    }
+                    $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count,oci_unique=".round(lcg_value() * 100000000).",diff_time=:diff_time, total_diff_time=:total_diff_time,
+                memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total
+                where v1=:v1 and v2=:v2 and v3=:v3  and  cal_date=to_date(:cal_date,'yyyy-mm-dd hh24') ";
+                    $stmt = apm_db_parse($conn_db, $sql);
+                    apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                    apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+                    apm_db_bind_by_name($stmt, ':v3', $_row['V3']);
+                    apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                    apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
+                    apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
+                    apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
+                    apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
+                    apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
+                    apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
+                    apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
+                    apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
+                    apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
+                    $oci_error = apm_db_execute($stmt);
+                    print_r($oci_error);
+                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_VIP);
+                    $ocirowcount = apm_db_row_count($stmt);
+                    if ($ocirowcount < 1) {
+                        $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time, total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
+                    values (to_date(:cal_date,'yyyy-mm-dd hh24'),:v1,:v2,:v3,:fun_count,:diff_time, :total_diff_time, :memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total) ";
+                        $stmt = apm_db_parse($conn_db, $sql);
+                        apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                        apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+                        apm_db_bind_by_name($stmt, ':v3', $_row['V3']);
+                        apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                        apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
+                        apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
+                        apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
+                        apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
+                        apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
+                        apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
+                        apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
+                        apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
+                        apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
+                        $oci_error = apm_db_execute($stmt);
+                        print_r($oci_error);
+                        if ($oci_error) {
+                            $get_included_files = basename(array_shift(get_included_files()));
+                            _status(1, APM_HOST . "(BUG错误)", 'SQL错误', $get_included_files . '/' . $_GET['act'], var_export($oci_error, true) . "|" . var_export($_row, true));
+                        } else {
+                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_VIP);
+                        }
+                    }
+
+                    //虚数列数据
+                    $compare_group = array_filter(explode('|', '|' . $_row2['COMPARE_GROUP']));
+                    if (count($compare_group) > 0) {
+                        foreach ($compare_group as $v) {
+                            $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count,oci_unique=".round(lcg_value() * 100000000).",diff_time=:diff_time,total_diff_time=:total_diff_time,
+                                        memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total
+                                        where v1=:v1 and v2=:v2 and v3=:v3  and  cal_date=to_date(:cal_date,'yyyy-mm-dd hh24') ";
+                            $stmt = apm_db_parse($conn_db, $sql);
+                            apm_db_bind_by_name($stmt, ':v1', $v);
+                            apm_db_bind_by_name($stmt, ':v2', $_row['V1'] . '_' . $_row['V2']);
+                            apm_db_bind_by_name($stmt, ':v3', $_row['V3']);
+                            apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                            apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
+                            apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
+                            apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
+                            apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
+                            apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
+                            apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
+                            apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
+                            apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
+                            apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
+                            $oci_error = apm_db_execute($stmt);
+                            print_r($oci_error);
+                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_VIP);
+                            $ocirowcount = apm_db_row_count($stmt);
+                            if ($ocirowcount < 1) {
+                                $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
+                                            values (to_date(:cal_date,'yyyy-mm-dd hh24'),:v1,:v2,:v3,:fun_count,:diff_time,:total_diff_time, :memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total) ";
+                                $stmt = apm_db_parse($conn_db, $sql);
+                                apm_db_bind_by_name($stmt, ':v1', $v);
+                                apm_db_bind_by_name($stmt, ':v2', $_row['V1'] . '_' . $_row['V2']);
+                                apm_db_bind_by_name($stmt, ':v3', $_row['V3']);
+                                apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                                apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
+                                apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
+                                apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
+                                apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
+                                apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
+                                apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
+                                apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
+                                apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
+                                apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
+                                $oci_error = apm_db_execute($stmt);
+                                print_r($oci_error);
+                                if ($oci_error) {
+                                    $get_included_files = basename(array_shift(get_included_files()));
+                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', $get_included_files . '/' . $_GET['act'], var_export($oci_error, true) . "|" . var_export($_row, true));
+                                } else {
+                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_VIP);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //刷新一天的数据
+        $sql = "select DATE_FORMAT(t.cal_date, '%Y-%m-%d') cal_date, t.v1, v2,
+                  sum(fun_count) fun_count,avg(fun_count) fun_count_avg from ".APM_DB_PREFIX."monitor_hour t
+                  where cal_date >= to_date(:m_date,'yyyy-mm-dd') and cal_date<to_date(:m_date,'yyyy-mm-dd')+1 {$addwhere}
+                  group by t.v1, t.v2, DATE_FORMAT(t.cal_date, '%Y-%m-%d')";
+        $stmt_list = apm_db_parse($conn_db, $sql);
+        echo htmlspecialchars($sql);
+        var_dump(date("Y-m-d", $hourtime));
+        //print_r($_GET);
+        apm_db_bind_by_name($stmt_list, ':m_date', date("Y-m-d", $hourtime));
+        if ($_GET['v1'])
+            apm_db_bind_by_name($stmt_list, ':v1', $_GET['v1']);
+        if ($_GET['v2'])
+            apm_db_bind_by_name($stmt_list, ':v2', $_GET['v2']);
+        $oci_error = apm_db_execute($stmt_list);
+        print_r($oci_error);
+        $_row = array();
+        while ($_row = apm_db_fetch_assoc($stmt_list)) {
+            $_row['v2'] = $_row['v2'] ? $_row['v2'] : 'null';
+            //补全v1的信息
+            $sql = "select * from ".APM_DB_PREFIX."monitor_v1 where v1=:v1  ";
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+            $oci_error = apm_db_execute($stmt);
+            print_r($oci_error);
+            $_row_config = apm_db_fetch_assoc($stmt);
+            if (!$_row_config) {
+                $sql = "insert into ".APM_DB_PREFIX."monitor_v1 (v1,id) values (:v1,NULL)";
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                $oci_error = apm_db_execute($stmt);
+                print_r($oci_error);
+                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'v1_config', APM_VIP);
+            }
+
+            $_row_config = $this->all_config[$_row['V1'] . $_row['V2']];
+
+            //如果是不累计的,重置总量为上个小时的总量
+            if ($_row_config['DAY_COUNT_TYPE'] == 1 || $_row_config['DAY_COUNT_TYPE'] == 2 || $_row_config['DAY_COUNT_TYPE'] == 5 || $_row_config['DAY_COUNT_TYPE'] == 7) {
+                //echo "只计算最后一小时\n";
+                $sql2 = "select max(cal_date) cal_date from
+                ".APM_DB_PREFIX."monitor_hour where cal_date>=to_date(:cal_date,'yyyy-mm-dd')
+                and  cal_date<to_date(:cal_date,'yyyy-mm-dd')+1 and v1=:v1 and v2=:v2 ";
+                $stmt2 = apm_db_parse($conn_db, $sql2);
+                apm_db_bind_by_name($stmt2, ':v1', $_row['V1']);
+                apm_db_bind_by_name($stmt2, ':v2', $_row['V2']);
+                apm_db_bind_by_name($stmt2, ':cal_date', $_row['CAL_DATE']);
+                $oci_error2 = apm_db_execute($stmt2);
+                print_r($oci_error2);
+                $_row2 = apm_db_fetch_assoc($stmt2);
+                //print_r($_row2);
+                $sql = "select  t.v1, t.v2,  sum(fun_count) fun_count,avg(fun_count) fun_count_avg
+ 			from  ".APM_DB_PREFIX."monitor_hour t where cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')
+                    and v1=:v1 and v2=:v2  group by t.v1, t.v2";
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+                apm_db_bind_by_name($stmt, ':cal_date', $_row2['CAL_DATE']);
+                $oci_error = apm_db_execute($stmt);
+                print_r($oci_error);
+                $_row2 = apm_db_fetch_assoc($stmt);
+                $_row['FUN_COUNT'] = $_row2['FUN_COUNT'];
+                //v3个数
+                if ($_row_config['DAY_COUNT_TYPE'] == 7) {
+                    //echo "计算V3个数\n";
+                    $sql = "select  count(distinct(t.v3)) num
+ 			from  ".APM_DB_PREFIX."monitor_hour t where cal_date>=to_date(:cal_date,'yyyy-mm-dd')
+                    and v1=:v1 and v2=:v2";
+                    $stmt = apm_db_parse($conn_db, $sql);
+                    apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                    apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+                    apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                    $oci_error = apm_db_execute($stmt);
+                    print_r($oci_error);
+                    $_row2 = apm_db_fetch_assoc($stmt);
+                    $_row['FUN_COUNT'] = $_row2['NUM'];
+                    //echo " num:{$_row['FUN_COUNT']} \n";
+                }
+                //最后一小时的平均值
+                if ($_row_config['DAY_COUNT_TYPE'] == 5)
+                    $_row['FUN_COUNT'] = $_row2['FUN_COUNT_AVG'];
+            }
+            //当天的平均数
+            if ($_row_config['DAY_COUNT_TYPE'] == 6)
+                $_row['FUN_COUNT'] = $_row['FUN_COUNT_AVG'];
+            //print_r($_row);
+            //echo " num:{$_row['FUN_COUNT']} \n";
+            $sql = "update ".APM_DB_PREFIX."monitor_date set fun_count=:fun_count,oci_unique=".round(lcg_value() * 100000000)."
+              where v1=:v1 and v2=:v2 and cal_date=to_date(:cal_date,'yyyy-mm-dd') ";
+            $stmt2 = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt2, ':v1', $_row['V1']);
+            apm_db_bind_by_name($stmt2, ':v2', $_row['V2']);
+            apm_db_bind_by_name($stmt2, ':cal_date', $_row['CAL_DATE']);
+            apm_db_bind_by_name($stmt2, ':fun_count', $_row['FUN_COUNT']);
+            $oci_error = apm_db_execute($stmt2);
+            print_r($oci_error);
+            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_VIP);
+            $_row_count = apm_db_row_count($stmt2);
+            if (!$_row_count) {
+                $sql = "insert into ".APM_DB_PREFIX."monitor_date (cal_date,v1,v2,fun_count) values
+                    (to_date(:cal_date,'yyyy-mm-dd'),:v1,:v2,:fun_count) ";
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+                apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
+                $oci_error = apm_db_execute($stmt);
+                print_r($oci_error);
+                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_VIP);
+            }
+            $compare_group = array_filter(explode('|', '|' . $_row_config['COMPARE_GROUP']));
+            if (count($compare_group) > 0) {
+                foreach ($compare_group as $v) {
+                    $sql = "update ".APM_DB_PREFIX."monitor_date set fun_count=:fun_count,oci_unique=".round(lcg_value() * 100000000)."
+                                  where v1=:v1 and v2=:v2 and cal_date=to_date(:cal_date,'yyyy-mm-dd') ";
+                    $stmt2 = apm_db_parse($conn_db, $sql);
+                    apm_db_bind_by_name($stmt2, ':v1', $v);
+                    apm_db_bind_by_name($stmt2, ':v2', $_row['V1'] . '_' . $_row['V2']);
+                    apm_db_bind_by_name($stmt2, ':cal_date', $_row['CAL_DATE']);
+                    apm_db_bind_by_name($stmt2, ':fun_count', $_row['FUN_COUNT']);
+                    $oci_error = apm_db_execute($stmt2);
+                    print_r($oci_error);
+                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_VIP);
+                    $_row_count = apm_db_row_count($stmt2);
+                    if (!$_row_count) {
+                        $sql = "insert into ".APM_DB_PREFIX."monitor_date (cal_date,v1,v2,fun_count) values
+                    (to_date(:cal_date,'yyyy-mm-dd'),:v1,:v2,:fun_count) ";
+                        $stmt = apm_db_parse($conn_db, $sql);
+                        apm_db_bind_by_name($stmt, ':v1', $v);
+                        apm_db_bind_by_name($stmt, ':v2', $_row['V1'] . '_' . $_row['V2']);
+                        apm_db_bind_by_name($stmt, ':cal_date', $_row['CAL_DATE']);
+                        apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
+                        $oci_error = apm_db_execute($stmt);
+                        print_r($oci_error);
+                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_VIP);
+                    }
+                }
+            }
+
+            if (!$_row_config) {
+                $sql = "select count(*) c from ".APM_DB_PREFIX."monitor_config where v1=:v1 ";
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                $oci_error = apm_db_execute($stmt);
+                print_r($oci_error);
+                $_row2 = apm_db_fetch_assoc($stmt);
+                $sql = "select * from ".APM_DB_PREFIX."monitor_v1 where  v1=:v1 ";
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                $oci_error = apm_db_execute($stmt);
+                print_r($oci_error);
+                $_row3 = apm_db_fetch_assoc($stmt);
+
+                $sql = "insert into  ".APM_DB_PREFIX."monitor_config (v1,v2,orderby,id,day_count_type,hour_count_type,percent_count_type)
+                values (:v1,:v2,:orderby,NULL,:day_count_type,:hour_count_type,:percent_count_type) ";
+                $stmt = apm_db_parse($conn_db, $sql);
+                apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
+                apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
+                apm_db_bind_by_name($stmt, ':day_count_type', intval($_row3['DAY_COUNT_TYPE']));
+                apm_db_bind_by_name($stmt, ':hour_count_type', intval($_row3['HOUR_COUNT_TYPE']));
+                apm_db_bind_by_name($stmt, ':percent_count_type', intval($_row3['PERCENT_COUNT_TYPE']));
+
+                if ($_row['V2'] == '汇总')
+                    apm_db_bind_by_name($stmt, ':orderby', intval(0));
+                else
+                    apm_db_bind_by_name($stmt, ':orderby', max(1, $_row2['C'] + 1));
+                $oci_error = apm_db_execute($stmt);
+                print_r($oci_error);
+                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'config', APM_VIP);
+            }
+        }
+
+        //清除过期数据
+        if ($_GET['del'] && rand(1, 10) == 1) {
+            $sql = "delete from  ".APM_DB_PREFIX."monitor where cal_date<=sysdate-10 ";
+            $stmt_list = apm_db_parse($conn_db, $sql);
+            $oci_error = apm_db_execute($stmt_list);
+            print_r($oci_error);
+        }
+    }
+}
+
+?>

@@ -29,11 +29,6 @@ class page
         $this->num_1 = '';
         $this->num_3 = ' LIMIT ' . $this->limit_1 . ',' . $this->limit_2;
     }
-
-    function show($tp = 'm/page.standard.html')
-    {
-        include $tp;
-    }
 }
 
 ?>

@@ -8,25 +8,8 @@
 <script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
 <script type="text/javascript" src="project_res/commstyle/js/inspect2.js?v=20121122" ></script>
 <script type="text/javascript" src="project_res/commstyle/rili/Basic.js"></script>
-<script type="text/javascript" src="project_res/commstyle/rili/JCalendar-gb.js"></script>
-<script src="project_res/commstyle/Highcharts/js/highcharts.js"></script>
-<script>
-function loadjs(v3,s1,s2,div,act,pointInterval,line2)
-{
-	if(line2 === undefined)
-		line2='null';
-	if(div === undefined)
-		div='container_char';
-	if(act === undefined)
-		act='report_js';
-	if(pointInterval === undefined )
-		pointInterval=1000 *60;
-	$.get("?<?php echo http_build_query(array('act'=>NULL,'v3'=>$v['V2'])+$_REQUEST)?>&v3="+v3+'&line2='+line2+'&div='+div+'&s1='+s1+'&s2='+s2+'&act='+act+'&pointInterval='+pointInterval);
-}
-var xie="<h1 style='margin-top:70px;'>由于经常假死,图例显示不支持<font class='red'>IE系列</font>浏览器<br><br><a href='http://www.skycn.com/soft/48168.html' target='_blank'>点击下载谷歌浏览器</a></h1>";
-</script>
+<script type="text/javascript" src="project_res/commstyle/rili/JCalendar.js"></script>
 <link href="project_res/commstyle/rili/rili.css" rel="stylesheet" type="text/css"/>
-
 <script type="text/javascript">
     function edit_as_name(obj,id)
     {
@@ -62,23 +45,7 @@ var xie="<h1 style='margin-top:70px;'>由于经常假死,图例显示不支持<f
         $(obj).parent().bind('dblclick',function(data){edit_v2_group($(this)[0],ids)});
         $(obj).parent().html(obj.value);
     }
-
 </script>
-
-<style>
-.red {
-	color:#F00;
-}
-* {
-	font-family:微软雅黑 !important
-}
-.tabc td{
-    padding: 4px 2px;
-}
-.tabc th{
-    padding: 4px 2px;
-}
-</style>
 <script>window.onload = function(){	var j = new JCalendar();j.bind('s1','bottom');j.bind('s2','bottom');j.bind('ns1','bottom');j.bind('ns2','bottom');} </script>
 </head>
 <body>
@@ -155,129 +122,9 @@ var xie="<h1 style='margin-top:70px;'>由于经常假死,图例显示不支持<f
                 </div>
               </div>
               <!--/mnav-->
-              <?php   if( (($_GET['start_date'] &&  $_REQUEST['host'] && $_COOKIE['char']=='true')  || (!$_REQUEST['host'] && $_REQUEST['type'] && $this->v1_config[$_REQUEST['type']]['CHAR_TYPE'] && $_COOKIE['char']=='true') )){?>
-              <div id="char_div" class="tBd" style="margin-bottom:20px;">
-                <table class="tabc assess-table" border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <tbody>
-                    <tr >
-                      <th style="text-align:left">横线:对比模式 | 精确刻度:
-                        <select name="table_line_type" id="table_line_type" onchange="call_char()">
-                          <option value="report_js_day/1000*24*3600">精确到:天</option>
-                          <option value="report_js_hour/1000*3600" <?php if($this->v_config['HOUR_COUNT_TYPE']==1){?>selected="selected"<?php }?>>精确到:小时</option>
-                        </select>
-                        &nbsp;&nbsp;
-
-                        选择日期:
-                        <input type="text"  class="inpm" value="<?php echo $s1?>" id="ns1" name="s1"/>
-                        -
-                        <input type="text"  class="inpm" value="<?php echo $s2?>" id="ns2" name="s2"/>
-                        &nbsp;区间选项: <a href="javascript:void(0);" class="blue" onclick="$('#ns1').attr('value','<?php echo date('Y-m-d')?>');$('#ns2').attr('value','<?php echo date('Y-m-d')?>');call_char();">今天</a> <a href="javascript:void(0);" class="blue" onclick="$('#ns1').attr('value','<?php echo date('Y-m-d',strtotime('-7 day'))?>');$('#ns2').attr('value','<?php echo date('Y-m-d')?>');call_char();">最近7天</a> <a href="javascript:void();" class="blue" onclick="$('#ns1').attr('value','<?php echo date('Y-m-d',strtotime('-30 day'))?>');$('#ns2').attr('value','<?php echo date('Y-m-d')?>');call_char();">最近30天</a> &nbsp;
-                        当前曲线:
-                        <select name="table_line_v3" id="table_line_v3" onchange="call_char()">
-                          <option value="">选择</option>
-                          <?php  foreach($this->host as $k=>$v){  ?>
-                          <option value="<?php echo rawurlencode($v['V2'])?>" <?php if($v['V2']==$_GET['host']){?>selected="selected"<?php }?> ><?php echo $v['V2']?></option>
-                          <?php }?>
-                          <?php if($i<=20){?>
-                          <option value="all">=全部组合=</option>
-                          <?php }?>
-                          <?php if($i<=20){?>
-                          <option value="-/<?php echo $this->host[0]['V2']?>">=排除第一个组合=</option>
-                          <?php }?>
-                        </select>
-                        &nbsp;&nbsp;
-                        叠加曲线:
-                        <select name="table_line2" id="table_line2" onchange="call_char()">
-                          <option value="">选择</option>
-                          <?php  foreach($this->host as $k=>$v){  ?>
-                          <option value="<?php echo rawurlencode($v['V2'])?>"  ><?php echo $v['V2']?></option>
-                          <?php }?>
-                        </select>
-                        <span  ><a  class="blue" href="javascript:void(0)" onclick="javascript:call_char_henxian2();$('#char_div').hide();$('#char_div2').show();">纵向:分析模式</a></span> </th>
-                    </tr>
-                    <tr >
-                      <td>
-                        <div id="char_table_line2" style="width:98%; height:250px" >&nbsp;</div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <script type="text/javascript">
-//默认显示图表的情况
-<?php if($this->v1_config[$_REQUEST['type']]['CHAR_TYPE']==1){?>
-$('#table_line_v3').get(0).selectedIndex=<?php echo count($this->host)+1?>;
-<?php }?>
-<?php if($this->v1_config[$_REQUEST['type']]['CHAR_TYPE']==2){?>
-$('#table_line_v3').get(0).selectedIndex=<?php echo count($this->host)+2?>;
-<?php }?>
-function call_char()
-{
-	<?php if(strpos($_SERVER["HTTP_USER_AGENT"],'MSIE')!==false){?>
-		$('#char_table_line2').html(xie);
-		$('#char_div').hide();
-	<?php }else{?>
-	var table_line_act=$('#table_line_type').val().split('/');
-	loadjs($('#table_line_v3').val(),$('#ns1').val(),$('#ns2').val(),'char_table_line2',table_line_act[0],table_line_act[1],$('#table_line2').val());
-	<?php }?>
-}
-call_char();
-</script>
-              </div>
-              <div id="char_div2" class="tBd" style="margin-bottom:20px; display:none">
-                <table class="tabc assess-table" border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <tbody>
-                    <tr >
-                      <th style="text-align:left">横线:分析模式 | 精确刻度:
-                        <select name="table_line_type2" id="table_line_type2" onchange="call_char_henxian2()">
-                          <option value="report_js_hour_v3/1000*3600">精确到:小时</option>
-                          <option value="report_js_day_v3/1000*24*3600">精确到:天</option>
-                        </select>
-                        &nbsp;区间选项: <a href="javascript:void(0);" class="blue" onclick="document.getElementById('ns1').value='<?php echo date('Y-m-d')?>';document.getElementById('ns2').value='<?php echo date('Y-m-d')?>';call_char_henxian2();">今天</a> <a href="javascript:void(0);" class="blue" onclick="document.getElementById('ns1').value='<?php echo date('Y-m-d',strtotime('-7 day'))?>';document.getElementById('ns2').value='<?php echo date('Y-m-d')?>';call_char_henxian2();">最近7天</a> <a href="javascript:void(0);" class="blue" onclick="document.getElementById('ns1').value='<?php echo date('Y-m-d',strtotime('-30 day'))?>';document.getElementById('ns2').value='<?php echo date('Y-m-d')?>';call_char_henxian2();">最近30天</a> &nbsp;
-
-                        当前曲线:
-                        <select name="table_line_v32" id="table_line_v32" onchange="call_char_henxian2()">
-                          <option value="">选择</option>
-                          <?php $i=0; $func_count=$this->fun_count;ksort($func_count); foreach($func_count as $k=>$v){  $i++;?>
-                          <option value="<?php echo rawurlencode($k)?>" <?php if($i==1){?>selected="selected"<?php }?> ><?php echo $k?></option>
-                          <?php }?>
-                          <?php if($i<=20){?>
-                          <option value="all">=全部组合=</option>
-                          <?php }?>
-                        </select>
-                        &nbsp;&nbsp;
-                        叠加曲线:
-                        <select name="table_line22" id="table_line22" onchange="call_char_henxian2()">
-                          <option value="">选择</option>
-                          <?php $i=0; $func_count=$this->fun_count;ksort($func_count); foreach($func_count as $k=>$v){  $i++;?>
-                          <option value="<?php echo rawurlencode($k)?>" ><?php echo $k?></option>
-                          <?php }?>
-                        </select>
-                        <span ><a class="blue" href="javascript:void(0)" onclick="call_char();$('#char_div2').hide();$('#char_div').show();">横线:对比模式</a></span> </th>
-                    </tr>
-                    <tr >
-                      <td>
-                        <div id="char_table_line22" style="width:98%; height:250px" >&nbsp;</div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <script type="text/javascript">
-function call_char_henxian2()
-{
-	<?php if(strpos($_SERVER["HTTP_USER_AGENT"],'MSIE')!==false){?>
-		$('#char_table_line22').html(xie);
-		$('#char_div').hide();
-	<?php }else{?>
-	var table_line_act=$('#table_line_type2').val().split('/');
-	loadjs($('#table_line_v32').val(),$('#ns1').val(),$('#ns2').val(),'char_table_line22',table_line_act[0],table_line_act[1],$('#table_line22').val());
-	<?php }?>
-}
-</script>
-              </div>
-              <?php }?>
               <div class="tBd" id="table_1">
                 <?php if($this->v1_config[$_REQUEST['type']]['SHOW_TEMPLATE']==1){?>
-                <table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                <table id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
                   <thead>
                     <tr class = "tr-th2">
                       <th>&nbsp;</th>
@@ -493,8 +340,8 @@ function call_char_henxian2()
                       <tr class = "tr-th2">
                         <th>日期</th>
                         <?php  foreach($this->group as $k=>$i){
-      foreach($i as $v){
- ?><!----------onclick="edit_as_name(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');">--------->
+                               foreach($i as $v){
+                        ?>
                         <th  title='<?php echo $v["V2"]."\r\n";
                         foreach($v["API_INFO"]["CONTRACT"] as $cid=>$contractor)
                             echo $contractor["DETAIL_NAME"].":".$contractor["NOTE"]."\r\n";
@@ -565,7 +412,6 @@ function call_char_henxian2()
                                 echo 'border:1px solid green;';
                                 $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
                             }
-
                           ?>"
                           >
                           <span><a title="<?php echo $tips;?>" href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
@@ -581,8 +427,8 @@ function call_char_henxian2()
                        if($v['PERCENT_COUNT_TYPE']==2)
                         $all=$this->all_start_date_all[$tmp_date]; ?>
                           (<?php  printf('%.2f',$num/$all*100)?>%)
+                            </p>
                           <?php   }?>
-                        </p>
                         </td>
                         <?php }}?>
                       </tr>
@@ -593,18 +439,6 @@ function call_char_henxian2()
                 <?php }?>
               </div>
               <br />
-            <?php if($this->api_info){?>
-            <div class="m-nav">
-                <ul>
-                    <li title="点击查看" class="cur" ><a target="_blank" href="?act=doc_index&doc_id=30&group_name=2.%BD%D3%BF%DA%B7%FE%CE%F1&group_name_1=%CF%EE%C4%BF%CE%C4%B5%B5&group_name_2=A.%BC%DC%B9%B9&query_infos=<?php echo $this->api_info['LIST_ID']?>"><span>接口信息</span></a></li>
-                </ul>
-            </div>
-            <div class="tBd" style="margin-bottom:20px;">
-                <span class="noi" style="font-size:23px;color:#0000CC;">接口(<?php echo $this->api_info['LIST_ID'] ?>)：<?php echo $this->api_info['LIST_NAME'] ?> </span>
-                <br/><span class="noi" style="font-size:23px;color:#0000CC;">描述：<?php echo $this->api_info['DES'] ?></span>
-            </div>
-            <?php }?>
-            <br />
               <?php if($_REQUEST['start_date']){?>
               <div class="tHd">
                 <!--mnav-->
@@ -662,7 +496,6 @@ function call_char_henxian2()
                         <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
                       </td>
                       <?php }?>
-                      <td>&nbsp;</td>
                     </tr>
                     <?php }else{?>
                     <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
@@ -678,7 +511,6 @@ function call_char_henxian2()
                       <?php }else{?>
                       <td></td>
                       <?php }?>
-                      <td>&nbsp;</td>
                     </tr>
                     <?php }?>
                     <tr class = "tr-th2">
@@ -687,7 +519,7 @@ function call_char_henxian2()
                       <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
                       <th><?php echo date("H",$id)?></th>
                       <?php }?>
-                      <th>用时</th>
+                      <th>最耗时</th>
                       <th>总耗时</th>
                     <?php if(strstr($_GET['type'], '功能执行')){?>
                       <th>最大内存</th>
@@ -702,7 +534,6 @@ function call_char_henxian2()
                       <?php }else{?>
                       <th>总量</th>
                       <?php }?>
-                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -725,7 +556,7 @@ function call_char_henxian2()
                         <?php if($v[$ii]['FUN_COUNT']===null){?>
                         <span style="color:#AAA">0</span>
                         <?php }else{?>
-                          <p  style="<?php
+                          <p style="<?php
                             $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
                             $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
                             $cmp_num = ($num_y<$num_l&&$num_y!=0)?$num_y:$num_l;
@@ -760,8 +591,7 @@ function call_char_henxian2()
                                     echo 'border:1px solid green;';
                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
                             }
-                          ?>"
-                        >
+                          ?>">
                         <span><a title="<?php echo $tips ?>" data-eventtype="click" data-prompt-position="tr" data-prompt-width=<?php  if(strstr($_GET['type'], '功能执行')) echo 800; else echo 660; ?> data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo date('H:00:00',$id)?>&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" >
                             <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
                             if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
@@ -854,11 +684,6 @@ function call_char_henxian2()
                         <?php }?>
                       </td>
                       <?php }?>
-                      <td>
-                        <?php if($this->v_config['MIN_COUNT_TYPE']==0){?>
-                        <a href="#top" onclick="$('#table_line_v32').val('<?php echo rawurlencode($k)?>');$('#table_line22').val('');call_char_henxian2();$('#char_div').hide();$('#char_div2').show();" class="blue">曲线</a>
-                        <?php }?>
-                      </td>
                     </tr>
                     <?php $i++;}?>
                   </tbody>
@@ -897,7 +722,6 @@ function call_char_henxian2()
                         <td>&nbsp;</td>
                         <?php }?>
                       <td><?php echo array_sum($this->fun_count2)?></td>
-                      <td>&nbsp;</td>
                     </tr>
                     <tr class = "tr-th2">
                       <th>序号</th>
@@ -905,7 +729,7 @@ function call_char_henxian2()
                       <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
                       <th><?php echo date('H',$id)?></th>
                       <?php }?>
-                      <th>用时</th>
+                      <th>最耗时</th>
                       <th>总耗时</th>
                     <?php if(strstr($_GET['type'], '功能执行')){?>
                       <th>最大内存</th>
@@ -916,7 +740,6 @@ function call_char_henxian2()
                       <th>用户总CPU</th>
                     <?php }?>
                       <th>总量</th>
-                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1005,7 +828,6 @@ function call_char_henxian2()
                         <?php printf('%.2f',$v['FUN_COUNT']/$fun_count2_sum*100)?>%
                         <?php }?>
                       </td>
-                      <td><a href="?<?php echo http_build_query(array('v3'=>$k)+$_REQUEST)?>#all_v3" class="<?php if($_GET['v3']==$k){?>red<?php }else{?>blue<?php }?>">曲线</a></td>
                     </tr>
                     <?php $i++;}?>
                   </tbody>
@@ -1109,7 +931,7 @@ function call_char_henxian2()
                             <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
                             if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
                             } else {if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
-                        </a></span></p>
+                        </a></span>
                         <?php }?>
                       </td>
                       <?php  }?>

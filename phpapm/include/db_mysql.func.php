@@ -5,11 +5,10 @@
  * @since  2012-06-20 18:30:44
  * @throws 注意:无DB异常处理
  */
-function _mysqllogon($DB)
+function apm_db_logon($DB)
 {
     if (!$DB)
         return null;
-    $_SERVER['mysql_oci_sql_ociexecute'] = $_SERVER['oci_sql_ociexecute'];
     $apm_db_config = new apm_db_config;
 
     $dbconfig = $apm_db_config->dbconfig;
@@ -32,108 +31,9 @@ function _mysqllogon($DB)
         _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysql_error($conn_db), APM_URI, APM_VIP);
     //凡是使用Mysql的一律是utf-8
     mysql_query("SET NAMES 'utf8'");
+    mysql_query("SET character_set_client=binary");
 
     $_SERVER['last_mysql_link'][$conn_db] = $DB;
-    return $conn_db;
-}
-
-/**
- * @author
- * @since  2012-04-02 22:32:01
- * @throws 注意:无DB异常处理
- */
-function _mysqlparse(&$conn_db, $sql)
-{
-    $_SERVER['last_mysql_conn'] = $_SERVER['last_mysql_link'][$conn_db];
-    return array(
-        '$conn_db' => $conn_db,
-        '$sql' => $sql
-    );
-}
-
-/**
- * @desc   修改mysql的绑定字符
- * @author
- * @since  2012-04-02 22:29:42
- * @throws 注意:无DB异常处理
- */
-function _mysqlbindbyname($stmt, $key, $value, $int = false)
-{
-    settype($_SERVER['last_mysql_bindname'], 'Array');
-    if (!$int)
-        $_SERVER['last_mysql_bindname'] += array(
-            $key => $value === null ? 'null' : "'" . mysql_real_escape_string($value) . "'"
-        );
-    else
-        $_SERVER['last_mysql_bindname'] += array(
-            $key => $value === null ? '0' : (int)mysql_real_escape_string($value)
-        );
-}
-
-/**
- * @desc   执行SQL语句
- * @author
- * @since  2012-04-02 22:29:12
- * @throws 注意:无DB异常处理
- */
-function _mysqlexecute(&$stmt)
-{
-    $conn_db = $stmt['$conn_db'];
-    settype($_SERVER['last_mysql_bindname'], 'Array');
-    $sql = strtr($stmt['$sql'], $_SERVER['last_mysql_bindname'] + array(
-            'sysdate' => 'now()',
-            'SYSDATE' => 'now()'
-        ));
-
-    $t1 = microtime(true);
-    $stmt = mysql_query($sql, $conn_db);
-    $mysql_error = mysql_error($conn_db);
-
-    //apm start
-    apm_status_mysql($_SERVER['last_mysql_conn'], $sql, $t1, $mysql_error);
-
-    //清空上次的数据
-    $_SERVER['last_mysql_bindname'] = array();
-    return $mysql_error;
-}
-
-/**
- * @desc   WHAT?
- * @author
- * @since  2013-01-29 14:57:50
- * @throws 注意:无DB异常处理
- */
-function _mysqlclose(&$conn_db)
-{
-    if ($conn_db) {
-        mysql_close($conn_db);
-    }
-}
-
-/**
- * @desc   连接数据库
- * @author
- * @since  2012-06-20 18:30:44
- * @throws 注意:无DB异常处理
- */
-function apm_db_logon($DB)
-{
-    if (!$DB)
-        return null;
-    $apm_db_config = new apm_db_config;
-
-    $dbconfig = $apm_db_config->dbconfig;
-    $DBS = explode('|', $DB);
-    $DB = $DBS[time() % count($DBS)];
-    $dbconfiginterface = $dbconfig[$DB];
-    if (!$dbconfiginterface) {
-        return null;
-    }
-    $conn_db = ocinlogon($dbconfiginterface['user_name'], $dbconfiginterface['password'], $dbconfiginterface['TNS']);
-    if (!is_resource($conn_db)) {
-        return null;
-    }
-    $_SERVER['last_oci_link'][$conn_db] = $DB;
     return $conn_db;
 }
 
@@ -146,11 +46,13 @@ function apm_db_logon($DB)
  * @return resource $stmt
  * @throws 无DB异常处理
  */
-function apm_db_parse($conn_db, $sql)
+function apm_db_parse(& $conn_db, $sql)
 {
-    $_SERVER['last_db_conn'] = $_SERVER['last_oci_link'][$conn_db];
-    $_SERVER['last_oci_sql'] = $sql;
-    ociparse($conn_db, $sql);
+    $_SERVER['last_mysql_conn'] = $_SERVER['last_mysql_link'][$conn_db];
+    return array(
+        '$conn_db' => $conn_db,
+        '$sql' => $sql
+    );
 }
 
 /**
@@ -159,11 +61,18 @@ function apm_db_parse($conn_db, $sql)
  * @since  2012-11-25 17:33:09
  * @throws 注意:无DB异常处理
  */
-function apm_db_bind_by_name($stmt, $key, $value)
+function apm_db_bind_by_name($stmt, $key, $value, $int = false)
 {
-    settype($_SERVER['last_oci_bindname'], 'Array');
-    $_SERVER['last_oci_bindname'][$key] = $value;
-    ocibindbyname($stmt, $key, $value);
+    $key = $key == ':DES' ? ':des' : $key;
+    settype($_SERVER['last_mysql_bindname'], 'Array');
+    if (!$int)
+        $_SERVER['last_mysql_bindname'] += array(
+            $key => $value === null ? 'null' : "'" . mysql_real_escape_string($value) . "'"
+        );
+    else
+        $_SERVER['last_mysql_bindname'] += array(
+            $key => $value === null ? '0' : (int)mysql_real_escape_string($value)
+        );
 }
 
 /**
@@ -174,12 +83,31 @@ function apm_db_bind_by_name($stmt, $key, $value)
  * @return resource $error 错误信息
  * @throws 无DB异常处理
  */
-function apm_db_execute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
+function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
 {
-    $_SERVER['oci_sql_ociexecute'] ++;
-    $oci_error = ociexecute($stmt, $mode);
-    $_SERVER['last_oci_bindname'] = array();
-    return $oci_error;
+    $conn_db = $stmt['$conn_db'];
+    settype($_SERVER['last_mysql_bindname'], 'Array');
+    $sql = strtr($stmt['$sql'], $_SERVER['last_mysql_bindname']);
+    //start
+    $sql = preg_replace_callback(
+        '/to_date\(([^,\)]+),([^\)]+)\)([\s\d\+\-\/]*)/', '_oci_to_date', $sql);
+    $sql = preg_replace_callback(
+        '/trunc\(([^,\)]+)(\)|,([^\)]+)\))/', '_oci_truncate', $sql);
+    $sql = preg_replace_callback(
+        '/(sysdate|SYSDATE)([ \d\+\-\/]*)/', '_oci_sysdate', $sql);
+    //end
+
+    $t1 = microtime(true);
+    $stmt = mysql_query($sql, $conn_db);
+    $GLOBALS['lastSql'] = $sql;
+    $mysql_error = mysql_error($conn_db);
+
+    //apm start
+    apm_status_mysql($_SERVER['last_mysql_conn'], $sql, $t1, $mysql_error);
+
+    //清空上次的数据
+    $_SERVER['last_mysql_bindname'] = array();
+    return $mysql_error;
 }
 
 /**
@@ -191,6 +119,100 @@ function apm_db_execute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
 function apm_db_logoff(&$conn_db)
 {
     if ($conn_db) {
-        ocilogoff($conn_db);
+        mysql_close($conn_db);
     }
+}
+
+function apm_db_error($stmt = null)
+{
+    $conn_db = $stmt['$conn_db'];
+    return mysql_error($conn_db);
+}
+
+function apm_db_row_count($stmt = null)
+{
+    return mysql_affected_rows();
+}
+
+function apm_db_fetch_assoc($stmt = false)
+{
+    $_row = mysql_fetch_assoc($stmt);
+    $_row = !empty($_row) ? array_change_key_case($_row, CASE_UPPER) : $_row;
+    if (!empty($_row['FUN_COUNT'])) {
+        $_row['FUN_COUNT'] = preg_replace("/\.00$/", '', $_row['FUN_COUNT']);
+    }
+    return $_row;
+}
+
+function _oci_sysdate($matches)
+{
+    $delay = trim($matches[2]);
+    if (empty($delay)) {
+        $return = "NOW() ";
+    } else {
+        if (strpos($delay, '/') !== false) {
+            $delay = preg_replace_callback('/([\d]+)[\s\/]+([\d]+)/', '_oci_get_hour', $delay);
+            $return = "NOW() + INTERVAL $delay HOUR ";
+        } else {
+            $return = "NOW() + INTERVAL $delay DAY ";
+        }
+    }
+    return $return;
+}
+
+function _oci_to_date($matches)
+{
+    $date = $matches[1];
+    $format = $matches[2];
+    $delay = trim($matches[3]);
+    $return = '';
+    $format_mysql = preg_replace(array(
+        '/yyyy/',
+        '/mm/',
+        '/dd/',
+        '/hh24/',
+        '/mi/',
+        '/ss/',
+        "/(^\\\\'|\\\\'$)/",
+    ), array(
+        '%Y',
+        '%m',
+        '%d',
+        '%H',
+        '%i',
+        '%s',
+        "'",
+    ), $format);
+    if (empty($delay)) {
+        $return = "DATE_FORMAT($date, {$format_mysql}) ";
+    } else {
+        if (strpos($delay, '/') !== false) {
+            $delay = preg_replace_callback('/([\d]+)[\s\/]+([\d]+)/', '_oci_get_hour', $delay);
+            $return = "DATE_FORMAT($date, {$format_mysql}) + INTERVAL $delay HOUR ";
+        } else {
+            $return = "DATE_FORMAT($date, {$format_mysql}) + INTERVAL $delay DAY ";
+        }
+    }
+    return $return;
+}
+
+function _oci_get_hour($matches)
+{
+    return $matches[1] / $matches[2] * 24;
+}
+
+function _oci_truncate($matches)
+{
+    $date = $matches[1];
+    $format = trim($matches[3]);
+    $format_mysql = preg_replace(array(
+        '/hh24/',
+        "/(^\\\\'|\\\\'$)/",
+    ), array(
+        '%Y-%m-%d %H',
+        "'",
+    ), $format);
+    $format_mysql = $format_mysql ? $format_mysql : "'%Y-%m-%d'";
+    $return = "DATE_FORMAT($date, $format_mysql)";
+    return $return;
 }

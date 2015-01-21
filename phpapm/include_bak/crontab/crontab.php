@@ -114,7 +114,7 @@ class  m
 			ocibindbyname($stmt, ':model_id', $_GET['model_id']);
 			$ocierror = ociexecute($stmt);
 			$arr = $_row = array();
-			while ($_row = oci_fetch_assoc($stmt)) {
+			while ($_row = apm_db_fetch_assoc($stmt)) {
 				$arr[$_row['COMMIT_FILE']] = true;
 			}
 		}
@@ -143,7 +143,7 @@ class  m
 		ocibindbyname($stmt, ':model_id', $_GET['model_id']);
 		$ocierror = ociexecute($stmt);
 		$arr = $_row = array();
-        $_row = oci_fetch_assoc($stmt);
+        $_row = apm_db_fetch_assoc($stmt);
 		if ($_row) {
 			//仅同步tag目录的代码.webid3就是TAG目录
 			exec("rsync -vzrtopg --progress  --port 873   --exclude=.svn  --exclude=.settings   --exclude=crontab.php   /home/webid3/sh/{$_row['MODEL_NAME']}/ webid@10.1.20.42::disk/{$_row['MODEL_NAME']}");
@@ -219,7 +219,7 @@ class  m
 		$stmt = ociparse($conn_db, $sql);
 		ocibindbyname($stmt, ':model_id', $_GET['model_id']);
 		$ocierror = ociexecute($stmt);
-        $_row = oci_fetch_assoc($stmt);
+        $_row = apm_db_fetch_assoc($stmt);
 
 		//TAG目标文件夹
 		$model_path = str_replace("/webid/", "/webid3/", dirname($_row['MODEL_PATH']));

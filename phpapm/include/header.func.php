@@ -162,7 +162,7 @@ function _php_runtime()
     $APM_URI = APM_URI;
     //服务对象的IP统计
     if (!$_SERVER['HTTP_HOST'] || $_SERVER['REMOTE_ADDR'] == '127.0.0.1')
-        _status(1, APM_HOST . "(BUG错误)", "定时", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|" . var_export($_SERVER['argv'], true), APM_VIP, $diff_time, NULL, NULL, $add_array);
+        _status(1, APM_HOST . "(BUG错误)", "定时", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|" . var_export($_SERVER, true), APM_VIP, $diff_time, NULL, NULL, $add_array);
     else if (defined('IP_NEI'))
         _status(1, APM_HOST . "(BUG错误)", "内网接口", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|", APM_VIP, $diff_time, NULL, NULL, $add_array);
     else if ($is_html) {
@@ -214,7 +214,7 @@ function _myErrorHandler($no, $msg, $file, $line)
     } elseif (strpos($msg, 'msg_send') !== false) {
         _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n");
     } else {
-         _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n|" . var_export($_SERVER['argv'], true) . "\n{$debug_backtrace_str}");
+         _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n|" . var_export($_SERVER, true) . "\n{$debug_backtrace_str}");
     }
 }
 
@@ -342,13 +342,13 @@ function apm_status_mysql($db_alias, $sql, $start_time, $mysql_error) {
     //curd分类
     $sql_type = NULL;
     $v = _sql_table_txt($sql, $sql_type);
-    _status(1, APM_HOST . '(MySQL统计)', "{$db_alias}{$sql_type}", strtolower($v) . "@" . APM_URI, $sql, APM_VIP, $diff_time);
+    _status(1, APM_HOST . '(SQL统计)', "{$db_alias}{$sql_type}", strtolower($v) . "@" . APM_URI, $sql, APM_VIP, $diff_time);
 
     //耗时分类
     if ($diff_time < 1) {
-        _status(1, APM_HOST . '(MySQL统计)', '一秒内', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_VIP, $sql, $diff_time);
+        _status(1, APM_HOST . '(SQL统计)', '一秒内', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_VIP, $sql, $diff_time);
     } else {
-        _status(1, APM_HOST . '(MySQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_VIP, $sql, $diff_time);
+        _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_VIP, $sql, $diff_time);
     }
     if ($mysql_error)
         _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($mysql_error, true) . "|" . var_export($_GET, true) . "|" . $sql, APM_VIP, $diff_time);

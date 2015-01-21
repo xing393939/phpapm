@@ -16,14 +16,15 @@ if (!empty($_SERVER['argv']) && empty($_SERVER['HTTP_HOST'])) {
     }
 }
 
-include "../header.php";
+include dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . "header.php";
 
+header("Content-type: text/html; charset=utf-8");
 ini_set('display_errors', 'On');
-error_reporting(E_ERROR);
+error_reporting(E_ALL);
 
 $_GET['act'] = isset($_GET['act']) ? $_GET['act'] : "index";
 $_GET['act_method'] = isset($_GET['act_method']) ? $_GET['act_method'] : "_initialize";
-$file = APM_PATH . './crontab/' . $_GET['act'] . '.php';
+$file = APM_PATH . './crontab/' . APM_DB_TYPE . '/' . $_GET['act'] . '.php';
 
 if (file_exists($file)) {
     include $file;

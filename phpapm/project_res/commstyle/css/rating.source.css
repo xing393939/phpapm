@@ -1,15 +1,8 @@
-/*======author:  zhangxiaoling; email:  zhxl312@163.com; date:	2011-12-13 10:47=========*/
-#rating-header,#rating-header h1,.search span,
-.search .input,
-.search-btn,
-.i-man,
-.rm-item2,
-.i-triangle,
-.rn-item,
-.rn-item .cur,
-.time-range .tr-btn,
-.r-sstab li
-{ background:url(../img/rating.png?20120201) no-repeat;}
+.red {color:#F00;}
+* {font-family:'å¾®è½¯é›…é»‘' !important}
+.tabc td{padding: 4px 2px;}
+.tabc th{padding: 4px 2px;}
+#rating-header,#rating-header h1,.search span,.search .input,.search-btn,.i-man,.rm-item2,.i-triangle,.rn-item,.rn-item .cur,.time-range .tr-btn,.r-sstab li{background:url(../img/rating.png?20120201) no-repeat;}
 
 /*==rating-header==*/
 #rating-header{ margin-bottom:10px; padding:0 20px; background-position:0 -38px; height:37px; background-repeat:repeat-x; zoom:1; position:fixed; z-index:9999;width: 100%;}
@@ -79,7 +72,7 @@
 #container{ position:relative; z-index:0;padding-top: 37px;}
 /*==assess==*/
 body{overflow-x:auto; overflow-y:auto}
-.tBd{/*display:inline-table;*/overflow:visible }/*ÍâÎ§¿í¶È²»ÄÜ×ÔÊÊÓ¦ Õë¶ÔChrome¡¢FF*/
+.tBd{/*display:inline-table;*/overflow:visible }/*ï¿½ï¿½Î§ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ ï¿½ï¿½ï¿½Chromeï¿½ï¿½FF*/
 /*table{table-layout: auto}*/
 
 .assess-table{ border:1px solid #bacce1; }
@@ -144,7 +137,7 @@ body{overflow-x:auto; overflow-y:auto}
 	.footer-menu a{ color:#0066ff}
 /*==/footer==*/
 
-/*==×Ô¼ºÌí¼Ó£¬ÓÃÓÚ¿ØÖÆµ¯³ö²ãÖÐµ¥Ôª¸ñµÄÄÚ±ß¾à==*/
+/*==ï¿½Ô¼ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ôªï¿½ï¿½ï¿½ï¿½Ú±ß¾ï¿½==*/
 .prompt .assess td,.prompt .assess th{
 	 padding: 0px;
 	}

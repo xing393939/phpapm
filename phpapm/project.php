@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 
 $_GET['act'] = isset($_GET['act']) ? $_GET['act'] : "index";
 $_GET['act_method'] = isset($_GET['act_method']) ? $_GET['act_method'] : "_initialize";
-$file = APM_PATH . './project/' . $_GET['act'] . '.php';
+$file = APM_PATH . './project/' . APM_DB_TYPE . '/' . $_GET['act'] . '.php';
 
 if (file_exists($file)) {
     include $file;

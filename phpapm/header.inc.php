@@ -6,7 +6,6 @@ define('APM_VIP', strpos(PHP_OS, 'WIN') === false ? $u_name_arr[1] : $u_name_arr
 //select db func
 if (APM_DB_TYPE == 'mysql') {
     include APM_PATH . "./include/db_mysql.func.php";
-    include APM_PATH . "./include/oci2mysql.func.php";
 } elseif (APM_DB_TYPE == 'oci') {
     include APM_PATH . "./include/db_oci.func.php";
 } else {
@@ -14,7 +13,7 @@ if (APM_DB_TYPE == 'mysql') {
 }
 
 //select status type
-if (defined('APM_IPCS')) {
+if (strpos(PHP_OS, 'WIN') === false) {
     include APM_PATH . "./include/_status_ipcs.php";
     if (isset($_GET['act']) && $_GET['act'] == 'monitor' &&
         strpos($_SERVER['PHP_SELF'], 'crontab.php') !== false) {
