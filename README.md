@@ -17,6 +17,7 @@ linux平台：<br />
 > 8384000 > /proc/sys/kernel/msgmnb<br />
 > 41920 > /proc/sys/kernel/msgmax<br />
 > 30 > /proc/sys/kernel/msgmni<br />
+
 3，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，定时1分钟运行cron_1minute.sh，定时1小时运行cron_1hour.sh<br />
 
 ## Config
