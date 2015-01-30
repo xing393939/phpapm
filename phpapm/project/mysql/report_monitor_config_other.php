@@ -10,10 +10,6 @@ class report_monitor_config_other
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
-            exit();
-        }
-
         if (!isset($_GET['NO_COUNT']) && !isset($_GET['DATA_UNITS']) && !isset($_GET['API_ID'])) {
             header("location:{$_SERVER['HTTP_REFERER']}");
             die();

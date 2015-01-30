@@ -10,10 +10,6 @@ class report_monitor_v1_do
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         //删除v1
         if ($_POST['delete_v1']) {

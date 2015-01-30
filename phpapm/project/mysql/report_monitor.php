@@ -18,11 +18,7 @@ class report_monitor
         if ($_REQUEST['s2'] && strtotime($_REQUEST['s2']) < time())
             $s2 = $_REQUEST['s2'];
 
-        //
         $start_date = $_REQUEST["start_date"] ? $_REQUEST["start_date"] : date("Y-m-d");
-        //强制看今天的第一列
-        if ($_COOKIE['direct_date'] == 'true' && !$_REQUEST["start_date"])
-            $_REQUEST["start_date"] = $start_date;
         //时间乱传,不在范围之内
         if (strtotime($start_date) > strtotime($s2) || strtotime($start_date) < strtotime($s1))
             unset($start_date, $_REQUEST["start_date"]);
@@ -84,8 +80,6 @@ class report_monitor
             if ($_REQUEST['host'] == $_row['V2'])
                 $this->v_config = $_row;
         }
-        if ($_COOKIE['direct_date'] == 'true' && !$_REQUEST["host"])
-            $_REQUEST["host"] = $this->host[0]['V2'];
 
         //全部下级日统计数据
         $sql = "select t.*, cal_date CAL_DATE_F from
@@ -328,24 +322,6 @@ class report_monitor
         }
         //end today start yestoday
 
-        //获取v2 30天内数据
-        if ($_REQUEST['host'] && $_COOKIE['v2_month'] == 'true' && $_REQUEST['host'] != '汇总') {
-            $sql = "select v2,DATE_FORMAT(t.cal_date, '%m %d %H') as cal_date_f,sum(fun_count) fun_count,DATE_FORMAT(t.cal_date, '%m %d') as cal_date_d
-                                  from ".APM_DB_PREFIX."monitor_hour t
-                                  where cal_date>=to_date(:s1,'yyyy-mm-dd hh24:mi:ss') and cal_date<=to_date(:s2,'yyyy-mm-dd hh24:mi:ss')
-                                  and v1=:v1 and v2=:v2 group by v2,cal_date  order by cal_date desc";
-            $stmt = apm_db_parse($conn_db, $sql);
-            apm_db_bind_by_name($stmt, ':v1', $_REQUEST['type']);
-            apm_db_bind_by_name($stmt, ':v2', $_REQUEST['host']);
-            apm_db_bind_by_name($stmt, ':s1', $s1 . '00:00:00');
-            apm_db_bind_by_name($stmt, ':s2', $s2 . '23:59:59');
-            $oci_error = apm_db_execute($stmt);
-            $_row = array();
-            while ($_row = apm_db_fetch_assoc($stmt)) {
-                $this->fun_count_v2[$_row['CAL_DATE_F']] = $_row['FUN_COUNT'];
-                $this->fun_count_3[$_row['CAL_DATE_D']] += $_row['FUN_COUNT'];
-            }
-        }
         //加载文件
         if (!isset($_COOKIE['cmp_base'])) {
             $_COOKIE['cmp_base'] = 10000;

@@ -59,11 +59,11 @@
       <div class="i-col1">
         <!--i-col1-1-->
         <div id="new-i-col1-1" class="i-col1-1">
-          <div class="crumb">您当前的位置：数据指标
+          <div class="crumb">
               <span class="fr" style="padding-right:35px;">
               <label>高亮倍数</label><input style="width:20px" class="inpm" id="red_factor" value="<?php echo $_COOKIE['red_factor']?$_COOKIE['red_factor']:2 ?>">
               <label>基数</label><input style="width:40px" class="inpm" id="cmp_base" value="<?php echo $_COOKIE['cmp_base']?$_COOKIE['cmp_base']:10000 ?>">
-              <button class='ibtn' onclick="PPS.setCookie('cmp_base',document.getElementById('cmp_base').value,3600*24);PPS.setCookie('red_factor',document.getElementById('red_factor').value,3600*24);window.location.reload(); ">提交</button>&nbsp
+              <button class='ibtn' onclick="PPS.setCookie('cmp_base',document.getElementById('cmp_base').value,3600*24);PPS.setCookie('red_factor',document.getElementById('red_factor').value,3600*24);window.location.reload(); ">提交</button>&nbsp;
               <?php echo APM_VIP;?>
               </span></div>
           <!--main-->
@@ -72,7 +72,7 @@
             <div class="searchBx">
               <div class="sLok sd">
                 <form action="" method="get" id="f">
-                  <div class="sd_l"> <span>搜索：</span>
+                  <div class="sd_l">
                     <input name="act" value="<?php echo $_REQUEST['act']?>"  type="hidden"/>
                     <input name="type" value="<?php echo $_REQUEST['type']?>"  type="hidden" />
                     <input name="host" value="<?php echo $_REQUEST['host']?>"  type="hidden"/>
@@ -82,28 +82,10 @@
                     <span>截至:</span>
                     <input type="text" style="width:100px;" class="inpm" value="<?php echo $s2?>" id="s2" name="s2"/>
                     <input type="submit" value="查询" class="ibtn">
-                    <a class="blue" href="?act=report_monitor&type=<?php echo rawurlencode($_REQUEST['type'])?>&host=<?php echo rawurlencode($_REQUEST['host'])?>&start_date=<?php echo date('Y-m-d',strtotime('-1 day'))?>">昨天</a> <a class="blue"  href="?act=report_monitor&type=<?php echo rawurlencode($_REQUEST['type'])?>&host=<?php echo rawurlencode($_REQUEST['host'])?>&start_date=<?php echo date('Y-m-d',strtotime('today'))?>">今天</a>&nbsp;&nbsp;
+                    &nbsp;&nbsp;
                     <div class="rh-right" style="display:inline-table;" >
-                      <label>
-                          <input name="char_month" id="direct_date" type="checkbox" value="1" <?php if($_COOKIE['direct_date']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('direct_date',this.checked);window.location.reload(); " />
-                          <span>直接看当天数据</span>
-                      </label>
-                      &nbsp;&nbsp;
-                      <label>
-                         <input name="v2_month" id="v2_month" type="checkbox" value="1" <?php if($_COOKIE['v2_month']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('v2_month',this.checked);window.location.reload(); " />
-                          <span>显示V2对比数据</span>
-                      </label>
-                        <?php
-                     if (empty($_COOKIE['admin_user'])) {
-                     ?>
-                        <a class="blue" data-eventtype="click" data-prompt-width="300" style="cursor:pointer;text-decoration:underline;" data-prompt="./project.php?act=login&v1=<?php echo rawurlencode($_GET['type']);?>">登录</a>
-                        <?php
-                     } else {
-                     ?>
-                        <a class="blue" href="?act=report_monitor_config&v1=<?php echo rawurlencode($_REQUEST['type'])?>" >配置中心</a>
-                        <?php
-                     }
-                     ?>
+                        <a class="blue" href="?act=report_monitor_config&v1=<?php echo rawurlencode($_REQUEST['type'])?>" >配置中心</a> |
+                        <a class="blue" href="./project.php?act=logout">退出</a>
                     </div>
                   </div>
                 </form>
@@ -126,9 +108,9 @@
                 <?php if($this->v1_config[$_REQUEST['type']]['SHOW_TEMPLATE']==1){?>
                 <table id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
                   <thead>
-                    <tr class = "tr-th2">
+                    <tr class="tr-th2">
                       <th>&nbsp;</th>
-                      <th><a href="?act=report_check_do&v1=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue">验收7天内数据</a></th>
+                      <th>&nbsp;</th>
                       <th colspan="10"  >&nbsp;</th>
                     </tr>
                     <tr class = "tr-th2">
@@ -282,14 +264,10 @@
                 <div id="tab_class_1" <?php if($_REQUEST['start_date']){?>style="display:none"<?php }?>>
                   <table id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
                     <thead>
-                      <tr class = "tr-th2">
-                        <th><a href="?act=report_check_do&v1=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue">验收7天内数据</a></th>
+                      <tr class="tr-th2">
+                        <th>&nbsp;</th>
                         <th colspan="<?php echo $cospan?>" style="text-align:right;">
                             <span><a class="blue" href="?act=report_sort&v1=<?php echo rawurlencode($_REQUEST['type'])?>">按照名称排序</a>&nbsp;&nbsp;</span>
-                          <label><span>隐藏空白日期</span>
-                            <input name="char" id="char" type="checkbox" value="" <?php if($_COOKIE['no_emptyday']=='true'){?>checked="checked"<?php }?> onclick="PPS.setCookie('no_emptyday',this.checked);window.location.reload()" />
-                          </label>
-                          &nbsp;
                         </th>
                       </tr>
                       <!----------------------分组----------------------------->
@@ -360,8 +338,6 @@
                       <?php  for($i=strtotime($s2);$i>=strtotime($s1);$i-=3600*24){
                         $tmp_yestoday = date("Y-m-d", $i-3600*24);
                         $tmp_date=date("Y-m-d",$i);
-                        if(!$this->all_start_date[$tmp_date] && $_COOKIE['no_emptyday']=='true')
-                        continue;
                       ?>
                       <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
                         <td class="b-r" style="text-align:left; width:70px; <?php if((date('w',strtotime($tmp_date))+7)%6==1){?>color:#CC0<?php }?>"><?php echo $tmp_date?>
@@ -703,7 +679,7 @@
                         <?php } else{?>
                         <th colspan='2'>监控项目</th>
                         <?php }?>
-                      <th colspan='2'><a href="javascript:void(0)" onclick="$('#nums_2').hide();$('#nums_1').show();"class="blue">数字模式</a></th>
+                      <th colspan='2'><a href="javascript:void(0)" onclick="$('#nums_2').hide();$('#nums_1').show();" class="blue">数字模式</a></th>
                     </tr>
                     <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
                       <td>汇总</td>
@@ -855,111 +831,7 @@
                 <?php }?>
               </div>
               <?php }?>
-				<br />
-			   <!--v230天数据-->
-			  <?php if($_REQUEST['host']&&$_COOKIE['v2_month'] == 'true'&&$_REQUEST['host']!='汇总'){?>
-              <div class="tHd" id="table_3">
-                <!--mnav-->
-                <div class="m-nav">
-                  <ul>
-                    <li class="cur"><a href="#"><span><?php echo $this->host[$_REQUEST['host']]['AS_NAME1']; ?></span></a></li>
-                  </ul>
-                </div>
-                <!--/mnav-->
-              </div>
-              <div class="tBd">
-			  <table  id="nums_1" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <thead>
-                    <tr class = "tr-th2">
-                      <th>日期</th>
-                      <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
-                      <th><?php echo date("H",$id)?></th>
-                      <?php }?>
-                      <th>总量</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php  for($i=strtotime($s2);$i>=strtotime($s1);$i-=3600*24){
-                        $tmp_date=date("Y-m-d",$i); if(!$this->all_start_date[$tmp_date] && $_COOKIE['no_emptyday']=='true') continue; ?>
-                      <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
-                        <td class="b-r" style="text-align:left; width:100px; <?php if((date('w',strtotime($tmp_date))+7)%6 == 1){?>color:#CC0<?php }?>"><?php echo $tmp_date?>
-                          <?php if($this->v1_config[$_REQUEST['type']]['START_CLOCK']){?>
-                          (<?php echo intval($this->v1_config[$_REQUEST['type']]['START_CLOCK'])?>点+24)
-                          <?php }?>
-                          <?php if(date('w',strtotime($tmp_date))==6){?>
-                          六
-                          <?php }?>
-                          <?php if(date('w',strtotime($tmp_date))==0){?>
-                          天
-                          <?php }?>
-                        </td>
-                        <?php  for($id=strtotime($tmp_date);$id<strtotime($tmp_date." +24 hour");$id+=3600){
-                        $ii=date('m d H',$id); $num=$this->fun_count_v2[$ii];
-                        $yi = date('m d H', $id-3600*24); $num_y=isset($this->fun_count_v2[$yi])?$this->fun_count_v2[$yi]:0;//上一天同一小时数据
-                        $li = date('m d H', $id-3600); $num_l=isset($this->fun_count_v2[$li])?$this->fun_count_v2[$li]:0;//当天上一小时数据
-						?>
-                      <td class="b-r">
-                        <?php if($this->fun_count_v2[$ii]===null){?>
-                        <span style="color:#AAA">0</span>
-                        <?php }else{?>
-                          <p  style="<?php
-                            $tips = $num;
-                            $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
-                            $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
-                            $cmp_num = ($num_y<$num_l&&$num_y!=0)?$num_y:$num_l;
-                            if($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num*2)){
-                                 echo 'border:2px solid red;';
-                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
-                            }
-
-                            elseif($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num)){
-                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
-                                echo 'border:1px solid red;';
-                            }
-                            elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num*2)){
-                                 echo 'border:2px solid green;';
-                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
-                            }
-
-                            elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num)){
-                                 $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
-                                echo 'border:1px solid green;';
-                            }
-                          ?>"
-                                  >
-                        <span><a class="blue" title="<?php echo $tips ?>">
-                            <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
-                            if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
-                            } else {if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
-                        </a></span>
-                        <?php }?>
-                      </td>
-                      <?php  }?>
-
-					   <?php  for($id=strtotime($tmp_date);$id<strtotime($tmp_date." +24 hour");$id+=3600*24){ $ii=date('m d',$id);
-						$num_c=$this->fun_count_3[$ii];
-						?>
-                      <td class="b-r" title="<?php echo $num_c;?>">
-
-                        <?php if($this->fun_count_3[$ii]===null){?>
-                        <span style="color:#AAA">0</span>
-                        <?php }else{?>
-
-                        <span><a class="blue">
-                            <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
-                            if($num_c>1024*1024){ echo round($num_c/1024/1024,1).'T';}elseif($num_c>1024){ echo round($num/1024,1).'G'; }else{ echo round($num_c,1).'M';}
-                            } else{ if($num_c>10000*10000){ echo round($num_c/10000/10000,1).'亿';}elseif($num_c>10000){ echo round($num_c/10000,1).'万'; }else{ echo $num_c;}}?>
-                        </a></span>
-                        <?php }?>
-                      </td>
-                      <?php  }?>
-                      </tr>
-                      <?php }?>
-                  </tbody>
-                </table>
-			<?php }?>
 			</div>
-			<!--v2 30天内数据结束-->
             </div>
             <!--/main-->
             <!--/内容结束!-->
@@ -970,7 +842,6 @@
       </div>
       <!--/new-i-cols-->
     </div>
-  </div>
   <!--/container-->
   <?php include "_footer.html";?>
 </div>

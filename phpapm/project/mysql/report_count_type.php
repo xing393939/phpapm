@@ -10,10 +10,6 @@ class report_count_type
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         foreach ($_POST['uncount'] as $k => $v) {
             list($v1, $v2) = (explode('#@', $v));

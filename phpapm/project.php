@@ -10,6 +10,13 @@ $_GET['act'] = isset($_GET['act']) ? $_GET['act'] : "index";
 $_GET['act_method'] = isset($_GET['act_method']) ? $_GET['act_method'] : "_initialize";
 $file = APM_PATH . './project/' . APM_DB_TYPE . '/' . $_GET['act'] . '.php';
 
+//检查登录
+if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
+    if (!in_array($_GET['act'], array('index', 'login'))) {
+        exit('404');
+    }
+}
+
 if (file_exists($file)) {
     include $file;
     if (class_exists($_GET['act'])) {

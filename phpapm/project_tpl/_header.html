@@ -203,6 +203,10 @@
 </div>
 
 <div class="rh-right clearfix" style="padding-right:20px">
-<?php include "_menu.html"?>
+<?php
+if (!empty($_COOKIE['admin_user'])) {
+    include "_menu.html";
+}
+?>
 </div>
 </div>

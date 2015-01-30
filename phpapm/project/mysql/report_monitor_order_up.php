@@ -10,10 +10,6 @@ class report_monitor_order_up
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         if (!$_REQUEST['orderby'])
             $this->report_monitor_order();

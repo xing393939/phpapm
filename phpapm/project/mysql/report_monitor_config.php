@@ -10,10 +10,6 @@ class report_monitor_config
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         $sql = "select t.* from ".APM_DB_PREFIX."monitor_v1 t where v1=:v1 ";

@@ -10,10 +10,6 @@ class report_sort
 {
     function _initialize()
     {
-        if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USER)) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         $sql = "select * from ".APM_DB_PREFIX."monitor_config t
                 where v1=:v1 order by v2_group, ifnull(as_name, v2) asc";
