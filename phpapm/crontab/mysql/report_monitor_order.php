@@ -11,10 +11,6 @@ class report_monitor_order
     function _initialize()
     {
         #每小时执行一次
-        if (date('i') != 30) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         $sql = "select * from ".APM_DB_PREFIX."monitor_config order by v1, orderby,v2 ";
         $stmt = apm_db_parse($conn_db, $sql);

@@ -14,10 +14,6 @@ class oci_explain
         exit();
 
         #每小时执行一次
-        if (date('i') != 30) {
-            exit();
-        }
-
         if (is_writable('/dev/shm/')) {
             $change = false;
             $basefile = '/dev/shm/sql_' . APM_HOST;

@@ -8,26 +8,6 @@ if (strpos(APM_URI, 'crontab.php') !== false || strpos(APM_URI, 'header.php') !=
 else
     define('APM_PROJECT', null);
 
-//服务器是否已经到达极限的标志.
-if (is_file('/proc/loadavg') && filemtime('/proc/loadavg') > time() - 120 && ($cache_dieoff = array_shift(explode(" ", trim(file_get_contents('/proc/loadavg'))))) > 30 && $cache_dieoff) {
-    _status(1, APM_HOST . "(WEB日志分析)", "挂机", APM_VIP . "LOAD", APM_URI . '|' . $cache_dieoff);
-    define('APM_OVERLOAD', true);
-}
-if (is_file('/dev/shm/cache_tcp') && filemtime('/dev/shm/cache_tcp') > time() - 120 && ($cache_dieoff = count(file('/dev/shm/cache_tcp'))) > 500 && $cache_dieoff) {
-    _status(1, APM_HOST . "(WEB日志分析)", "挂机", APM_VIP . "TCP", APM_URI . '|' . $cache_dieoff);
-    if (!defined('APM_OVERLOAD'))
-        define('APM_OVERLOAD', true);
-}
-#最少需要2G的剩余内存
-if (is_file('/dev/shm/cache_mem') && filemtime('/dev/shm/cache_mem') > time() - 120 && ($cache_dieoff = trim(file_get_contents('/dev/shm/cache_mem'))) < 1 && $cache_dieoff) {
-    _status(1, APM_HOST . "(WEB日志分析)", "挂机", APM_VIP . "Mem", APM_URI . '|' . $cache_dieoff);
-    if (!defined('APM_OVERLOAD'))
-        define('APM_OVERLOAD', true);
-}
-
-if (!defined('APM_OVERLOAD'))
-    define('APM_OVERLOAD', false);
-
 //对内服务IP
 if (!empty($_SERVER['REMOTE_ADDR'])
     && (strpos($_SERVER['REMOTE_ADDR'], '192.168.') === 0
@@ -36,45 +16,6 @@ if (!empty($_SERVER['REMOTE_ADDR'])
         )
     ) {
     define('IP_NEI', $_SERVER['REMOTE_ADDR']);
-}
-
-/**
- * @desc   检测系统负载过大,防止雪崩保护,返回true,意味系统要崩溃了
- * @author
- * @since  2013-07-07 15:27:33
- * @throws 注意:无DB异常处理
- */
-function _sys_overload()
-{
-    define('_sysload_df', true);
-    return APM_OVERLOAD;
-}
-
-/**
- * @desc   检测系统负载过大,防止雪崩保护
- * @author
- * @since  2013-07-07 15:27:33
- * @throws 注意:无DB异常处理
- */
-function _db_overload($DB)
-{
-    define('_dbload_df_' . $DB, true);
-    return defined("db_overload_" . $DB);
-}
-
-/**
- * @desc   WHAT?
- * @author
- * @since  2013-07-07 16:09:36
- * @throws 注意:无DB异常处理
- */
-function _curl_overload($chinfo)
-{
-    $url_path = explode('?', $chinfo['url']);
-    unset($_SERVER['last_curl_info'][$url_path[0]]);
-    if ($chinfo['http_code'] != '200' && $chinfo['http_code'][0] != '3')
-        return true;
-    return false;
 }
 
 register_shutdown_function('_php_runtime');
@@ -126,29 +67,6 @@ function _php_runtime()
             _status(1, APM_HOST . '(BUG错误)', '超时', _debugtime($diff_time), APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}):" . APM_VIP, $diff_time);
         }
     }
-
-    //本次执行,各项过载保护检测
-    //WEB服务器,只对接口请求有效,定时任务不做限制.
-    $_sysload_df = NULL;
-    if ($_SERVER['HTTP_HOST'] && !defined('_sysload_df'))
-        $_sysload_df = '[没有过载保护]';
-
-    //DB负载过载保护检测
-    $_dbload_df = NULL;
-    settype($_SERVER['last_oci_link'], 'array');
-    settype($_SERVER['last_mysql_link'], 'array');
-    foreach (array_unique(array_values($_SERVER['last_oci_link'])) as $db_overload) {
-        if (!defined('_dbload_df_' . $db_overload))
-            $_dbload_df .= "[{$db_overload}没有OIC_DB保护]";
-    }
-    foreach (array_unique(array_values($_SERVER['last_mysql_link'])) as $db_overload) {
-        if (!defined('_dbload_df_' . $db_overload))
-            $_dbload_df .= "[{$db_overload}没有Mysql_DB保护]";
-    }
-    //接口获取保护
-    $_curl_df = NULL;
-    if (!empty($_SERVER['last_curl_info']))
-        $_curl_df = "[没有检测接口(" . count($_SERVER['last_curl_info']) . "个)]";
 
     //内存消耗统计
     $add_array = array();

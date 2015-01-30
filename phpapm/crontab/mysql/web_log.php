@@ -11,10 +11,6 @@ class web_log
     function _initialize()
     {
         #每小时执行一次
-        if (date('i') != 30) {
-            exit();
-        }
-
         exec("rm -f  /home/webid/logs/" . date('Y_m_d', strtotime('-7 day')) . "*.log");
         $qps_stats = 0;
         if (APM_LOG_PATH) {

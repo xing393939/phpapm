@@ -11,7 +11,7 @@ class P1D_ClickStats
     function _initialize()
     {
         #每小时执行一次，每天6点执行
-        if (date('i') != 30 && date('H') != 6) {
+        if (date('H') != 6) {
             exit();
         }
 

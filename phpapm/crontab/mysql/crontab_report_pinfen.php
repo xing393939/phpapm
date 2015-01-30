@@ -11,10 +11,6 @@ class crontab_report_pinfen
     function _initialize()
     {
         #每小时执行一次
-        if (date('i') != 30) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         //获取V1级别的评分要求
         $_row_infos = array();

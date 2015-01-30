@@ -10,14 +10,7 @@ class monitor_config
 {
     function _initialize()
     {
-        $url = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-        $stream = stream_context_create(array(
-                'http' => array(
-                    'timeout' => 30,
-                )
-            )
-        );
-        echo file_get_contents("$url", false, $stream);
+
     }
 }
 

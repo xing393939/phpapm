@@ -11,10 +11,6 @@ class monitor_check
     function _initialize()
     {
         #每小时执行一次
-        if (date('i') != 30) {
-            exit();
-        }
-
         //清空之前xss文件,重新检测
         $dirs = glob('/dev/shm/xss_' . APM_HOST . '/*');
         foreach ($dirs as $k => $v)

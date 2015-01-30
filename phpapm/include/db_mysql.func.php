@@ -11,29 +11,27 @@ function apm_db_logon($DB)
         return null;
     $apm_db_config = new apm_db_config;
 
-    $dbconfig = $apm_db_config->dbconfig;
+    $dbConfig = $apm_db_config->dbconfig;
     $DBS = explode('|', $DB);
     $DB = $DBS[time() % count($DBS)];
-    $dbconfiginterface = $dbconfig[$DB];
-    if (!$dbconfiginterface) {
+    $dbConfigInterface = $dbConfig[$DB];
+    if (!$dbConfigInterface) {
         _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_VIP);
         return null;
     }
     $tt1 = microtime(true);
-    $conn_db = mysql_connect($dbconfiginterface['TNS'], $dbconfiginterface['user_name'], $dbconfiginterface['password'], true);
+    $conn_db = mysqli_connect($dbConfigInterface['TNS'], $dbConfigInterface['user_name'], $dbConfigInterface['password'], $dbConfigInterface['db']);
     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
-    if (!is_resource($conn_db)) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysql_error($conn_db), APM_URI, APM_VIP, $diff_time);
+    if (mysqli_connect_errno($conn_db)) {
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysqli_connect_error(), APM_URI, APM_VIP, $diff_time);
         return null;
     }
-    $bool = mysql_select_db($dbconfiginterface['db'], $conn_db);
-    if (!$bool)
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysql_error($conn_db), APM_URI, APM_VIP);
     //凡是使用Mysql的一律是utf-8
-    mysql_query("SET NAMES 'utf8'");
-    mysql_query("SET character_set_client=binary");
-
-    $_SERVER['last_mysql_link'][$conn_db] = $DB;
+    mysqli_query($conn_db, "SET NAMES 'utf8'");
+    mysqli_query($conn_db, "SET character_set_client=binary");
+    $conn_db_key = hash('md5', serialize($conn_db));
+    $_SERVER['last_mysql_link'][$conn_db_key] = $DB;
+    $_SERVER['last_mysql_link'][$DB] = $conn_db;
     return $conn_db;
 }
 
@@ -48,7 +46,8 @@ function apm_db_logon($DB)
  */
 function apm_db_parse(& $conn_db, $sql)
 {
-    $_SERVER['last_mysql_conn'] = $_SERVER['last_mysql_link'][$conn_db];
+    $conn_db_key = hash('md5', serialize($conn_db));
+    $_SERVER['last_mysql_conn'] = $_SERVER['last_mysql_link'][$conn_db_key];
     return array(
         '$conn_db' => $conn_db,
         '$sql' => $sql
@@ -67,11 +66,11 @@ function apm_db_bind_by_name($stmt, $key, $value, $int = false)
     settype($_SERVER['last_mysql_bindname'], 'Array');
     if (!$int)
         $_SERVER['last_mysql_bindname'] += array(
-            $key => $value === null ? 'null' : "'" . mysql_real_escape_string($value) . "'"
+            $key => $value === null ? 'null' : "'" . mysqli_real_escape_string($stmt['$conn_db'], $value) . "'"
         );
     else
         $_SERVER['last_mysql_bindname'] += array(
-            $key => $value === null ? '0' : (int)mysql_real_escape_string($value)
+            $key => $value === null ? '0' : intval($value)
         );
 }
 
@@ -98,9 +97,9 @@ function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
     //end
 
     $t1 = microtime(true);
-    $stmt = mysql_query($sql, $conn_db);
+    $stmt = mysqli_query($conn_db, $sql);
     $GLOBALS['lastSql'] = $sql;
-    $mysql_error = mysql_error($conn_db);
+    $mysql_error = mysqli_error($conn_db);
 
     //apm start
     apm_status_mysql($_SERVER['last_mysql_conn'], $sql, $t1, $mysql_error);
@@ -119,24 +118,24 @@ function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
 function apm_db_logoff(&$conn_db)
 {
     if ($conn_db) {
-        mysql_close($conn_db);
+        mysqli_close($conn_db);
     }
 }
 
 function apm_db_error($stmt = null)
 {
     $conn_db = $stmt['$conn_db'];
-    return mysql_error($conn_db);
+    return mysqli_error($conn_db);
 }
 
 function apm_db_row_count($stmt = null)
 {
-    return mysql_affected_rows();
+    return mysqli_affected_rows($_SERVER['last_mysql_link'][$_SERVER['last_mysql_conn']]);
 }
 
 function apm_db_fetch_assoc($stmt = false)
 {
-    $_row = mysql_fetch_assoc($stmt);
+    $_row = mysqli_fetch_assoc($stmt);
     $_row = !empty($_row) ? array_change_key_case($_row, CASE_UPPER) : $_row;
     if (!empty($_row['FUN_COUNT'])) {
         $_row['FUN_COUNT'] = preg_replace("/\.00$/", '', $_row['FUN_COUNT']);

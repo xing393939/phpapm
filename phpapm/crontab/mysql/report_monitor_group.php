@@ -11,10 +11,6 @@ class report_monitor_group
     function _initialize()
     {
         #每小时执行一次
-        if (date('i') != 30) {
-            exit();
-        }
-
         $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         //1.汇总的生成
@@ -48,7 +44,7 @@ class report_monitor_group
         $oci_error = apm_db_execute($stmt);
 
         //资源.Sql
-        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='资源.Oracle' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(SQL统计)_超时' or v2 like '%(SQL统计)_一秒内')";
+        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='资源.SQL' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(SQL统计)_超时' or v2 like '%(SQL统计)_一秒内')";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
