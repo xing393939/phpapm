@@ -18,7 +18,10 @@ linux平台：<br />
 > echo 41920 > /proc/sys/kernel/msgmax<br />
 > echo 30 > /proc/sys/kernel/msgmni<br />
 
-3，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，定时1分钟运行cron_1minute.sh，定时1小时运行cron_1hour.sh<br />
+3，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，如下：<br />
+定时1分钟运行cron_1minute.sh，定时1小时运行cron_1hour.sh<br />
+> /path/www/site/cron_1minute.sh 1<br />
+> /path/www/site/cron_1hour.sh 1<br />
 
 ## Config
 配置文件：header.php<br />
