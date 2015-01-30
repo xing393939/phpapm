@@ -14,9 +14,9 @@ windows平台：运行phpapm/crontab_perminute.bat(需要编辑bat文件修改�
 linux平台：<br />
 1，安装php扩展sysvmsg，参考[教程](http://www.banghui.org/2527.html)；<br />
 2，增加消息队列的容量：<br />
-> 8384000 > /proc/sys/kernel/msgmnb<br />
-> 41920 > /proc/sys/kernel/msgmax<br />
-> 30 > /proc/sys/kernel/msgmni<br />
+> echo 8384000 > /proc/sys/kernel/msgmnb<br />
+> echo 41920 > /proc/sys/kernel/msgmax<br />
+> echo 30 > /proc/sys/kernel/msgmni<br />
 
 3，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，定时1分钟运行cron_1minute.sh，定时1小时运行cron_1hour.sh<br />
 
