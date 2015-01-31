@@ -30,18 +30,18 @@ linux平台：<br />
 管理员帐号：APM_ADMIN_USER<br />
 
 ## Usage
-查看数据可访问http://path_to_dir/phpapm/project.php
+查看数据可访问http://path_to_dir/phpapm/project.php<br />
 一，监控Mysql：系统默认只监控定时任务的Sql查询，若要监控自己项目的Sql查询，请在自己项目的公共数据库查询类加上监控代码，如下：
-> $t1 = microtime(true);
-> $stmt = mysql_query($sql, $conn_db);
-> apm_status_mysql('MY_APP', $sql, $t1, mysql_error($conn_db));
-> /* 其中第一第三行是新加的代码 */
+> $t1 = microtime(true);<br />
+> $stmt = mysql_query($sql, $conn_db);<br />
+> apm_status_mysql('MY_APP', $sql, $t1, mysql_error($conn_db));<br />
+> /* 其中第一第三行是新加的代码 */<br />
 
 二，监控memcache，示例如下：
-> $t1 = microtime(true);
-> $bool = $this->memcacheObj->get($key);
-> $diff_time = sprintf('%.5f', microtime(true) - $t1);
-> _status(1, APM_HOST . '(Memcache)', "IP(get)", APM_URI, var_export((bool)$bool, true), APM_VIP, $diff_time);
-> _status(1, APM_HOST . '(Memcache)', _debugtime($diff_time), var_export((bool)$bool, true), "IP(get)" . APM_VIP, APM_URI, $diff_time);
-> /* 其中第一第三第四第五行是新加的代码 */
+> $t1 = microtime(true);<br />
+> $bool = $this->memcacheObj->get($key);<br />
+> $diff_time = sprintf('%.5f', microtime(true) - $t1);<br />
+> _status(1, APM_HOST . '(Memcache)', "IP(get)", APM_URI, var_export((bool)$bool, true), APM_VIP, $diff_time);<br />
+> _status(1, APM_HOST . '(Memcache)', _debugtime($diff_time), var_export((bool)$bool, true), "IP(get)" . APM_VIP, APM_URI, $diff_time);<br />
+> /* 其中第一第三第四第五行是新加的代码 */<br />
 
