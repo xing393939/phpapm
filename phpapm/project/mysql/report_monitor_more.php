@@ -13,7 +13,8 @@ class report_monitor_more
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         $this->pageObj = new page(10000, 100);
         if ($_REQUEST['fun_host'] == '汇总') {
-            $sql = "select FUN_COUNT,v3 v4  from ".APM_DB_PREFIX."monitor_hour t where v1=:v1 and v2=:v2  and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc  ";
+            $sql = "select FUN_COUNT,v3 v4  from ".APM_DB_PREFIX."monitor_hour t
+            where v1=:v1 and v2=:v2 and cal_date=:cal_date order by FUN_COUNT desc";
             $stmt = apm_db_parse($conn_db, "{$this->pageObj->num_1} {$sql} {$this->pageObj->num_3}");
             apm_db_bind_by_name($stmt, ':v1', $_REQUEST['fun_type']);
             apm_db_bind_by_name($stmt, ':v2', $_REQUEST['fun_act']);
@@ -28,9 +29,11 @@ class report_monitor_more
             }
         } else {
             if ($_REQUEST['fun_act'])
-                $sql = "select * from ".APM_DB_PREFIX."monitor where v1=:v1 and v2=:v2 and  v3=:v3 and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc ";
+                $sql = "select * from ".APM_DB_PREFIX."monitor
+                where v1=:v1 and v2=:v2 and v3=:v3 and cal_date=:cal_date order by FUN_COUNT desc ";
             else
-                $sql = "select * from ".APM_DB_PREFIX."monitor where v1=:v1 and v2=:v2 and v3 is null and cal_date=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') order by FUN_COUNT desc ";
+                $sql = "select * from ".APM_DB_PREFIX."monitor
+                where v1=:v1 and v2=:v2 and v3 is null and cal_date=:cal_date order by FUN_COUNT desc ";
             $stmt = apm_db_parse($conn_db, "{$this->pageObj->num_1} {$sql} {$this->pageObj->num_3}");
             apm_db_bind_by_name($stmt, ':v1', $_REQUEST['fun_type']);
             apm_db_bind_by_name($stmt, ':v2', $_REQUEST['fun_host']);

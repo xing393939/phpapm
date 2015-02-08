@@ -55,10 +55,10 @@ function _php_runtime()
         $is_html = (bool)strpos(array_pop($get_included_files_2), '.html');
 
     $e = error_get_last();
-    if (strpos($e['message'], 'Call to undefined') !== false && $_SERVER['REMOTE_ADDR'] <> '180.168.136.230')
-        return _status(1, APM_HOST . "(BUG错误)", '致命错误', "未定义函数", APM_URI, "userIP:{$_SERVER['REMOTE_ADDR']}@referfer:{$_SERVER['HTTP_REFERER']}|" . var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . var_export($_COOKIE, true) . '|' . APM_VIP, $diff_time);
+    if (strpos($e['message'], 'Call to undefined') !== false)
+        return _status(1, APM_HOST . "(BUG错误)", '致命错误', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_VIP, $diff_time);
     else if ($e['type'] == E_ERROR)
-        return _status(1, APM_HOST . "(BUG错误)", 'PHP错误', APM_URI, "userIP:{$_SERVER['REMOTE_ADDR']}@referfer:{$_SERVER['HTTP_REFERER']}|" . var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . var_export($_COOKIE, true), APM_VIP, $diff_time);
+        return _status(1, APM_HOST . "(BUG错误)", 'PHP错误', APM_URI, var_export($e, true), APM_VIP, $diff_time);
 
     if ($_SERVER['HTTP_HOST'] && $_SERVER['REMOTE_ADDR'] != '127.0.0.1' && !APM_PROJECT) {
         if ($diff_time < 1) {
@@ -126,7 +126,7 @@ function _myErrorHandler($no, $msg, $file, $line)
 
     $debug_backtrace_str = var_export(debug_backtrace(), true);
     if (strpos($msg, 'oci') === 0 || strpos($msg, 'mysql_') === 0) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", APM_URI, "(file:{$file} | line:{$line}){$msg}");
     } elseif (strpos($msg, 'Memcache') === 0) {
         _status(1, APM_HOST . '(BUG错误)', "Memcache错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
     } elseif (strpos($msg, 'msg_send') !== false) {
@@ -269,5 +269,5 @@ function apm_status_mysql($db_alias, $sql, $start_time, $mysql_error) {
         _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_VIP, $sql, $diff_time);
     }
     if ($mysql_error)
-        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($mysql_error, true) . "|" . var_export($_GET, true) . "|" . $sql, APM_VIP, $diff_time);
+        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($mysql_error, true) . "|" . $sql, APM_VIP, $diff_time);
 }

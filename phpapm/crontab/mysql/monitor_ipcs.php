@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @desc   处理页面访问队列
+ * @desc   取队列并入库
  * @author xing39393939@gmail.com
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
@@ -10,6 +10,7 @@ class monitor_ipcs
 {
     function _initialize()
     {
+        echo "<pre>";
         $xxi = 0;
         $this->_ipcs();
         $conn_db = apm_db_logon(APM_DB_ALIAS);
@@ -18,10 +19,9 @@ class monitor_ipcs
         $get_included_files = basename(array_shift(get_included_files()));
 
         $tt1 = microtime(true);
-        echo "<pre> 准备压缩数据:\n";
-        $monitor_count = $files = $monitor = $monitor_min = array();
+        echo "准备压缩数据:\n";
+        $monitor_count = $monitor = $monitor_min = array();
         $IPCS = explode('|', APM_IPCS);
-        shuffle($IPCS);
         $ic = 0;
         print_r($IPCS);
         $config_data = array();
@@ -46,8 +46,6 @@ class monitor_ipcs
                         $msg_array['v3'] = substr($msg_array['v3'], 0, strpos($msg_array['v3'], ' in')) . ' in....';
                 }
 
-                foreach ((array)$msg_array['includes'] as $file)
-                    $files[$msg_array['vhost']][$file] = $file;
                 //查看命中了哪些监控
                 $config_data[$msg_array['v1']][$msg_array['v2']]++;
                 //日志数据,不会被删除
@@ -78,7 +76,7 @@ class monitor_ipcs
 
                 $monitor_count[md5(date('Y-m-d H', strtotime($msg_array['time'])) . $msg_array['v1'] . $msg_array['v2'] . $msg_array['v3'] . $msg_array['v4'] . $msg_array['v5'])] = 1;
 
-                if ($ic++ > 10 * 10000)
+                if ($ic++ > 15 * 10000)
                     break;
             }
         }
@@ -109,13 +107,18 @@ class monitor_ipcs
                                     "\n" => null,
                                     "\r" => null
                                 ));
-                                if ($v['uptype'] == 'replace')
-                                    //memory_max=,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total
-                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count,oci_unique=".round(lcg_value() * 100000000).",v6=:v6, total_diff_time=:total_diff_time,
-									memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total where md5=:md5 ";
-                                else
-                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=fun_count+:fun_count,oci_unique=".round(lcg_value() * 100000000).",v6=:v6, total_diff_time=:total_diff_time,
-								    memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total where md5=:md5 ";
+                                $sql = "update ".APM_DB_PREFIX."monitor set
+                                        fun_count=".($v['uptype'] == 'replace' ? ':fun_count' : 'fun_count+:fun_count').",
+                                        oci_unique=".round(lcg_value() * 100000000).",
+                                        v6=:v6,
+                                        total_diff_time=:total_diff_time,
+                                        memory_max=:memory_max,
+                                        memory_total=:memory_total,
+                                        cpu_user_time_max=:cpu_user_time_max,
+                                        cpu_user_time_total=:cpu_user_time_total,
+                                        cpu_sys_time_max=:cpu_sys_time_max,
+                                        cpu_sys_time_total=:cpu_sys_time_total
+                                        where md5=:md5";
                                 $stmt = apm_db_parse($conn_db, $sql);
                                 apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                 apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
@@ -153,8 +156,13 @@ class monitor_ipcs
                                 if (!$_row_count) {
                                     $xxi++;
                                     echo "{$xxi}:[$time . $type . $host . $act . $key . $hostip]\n";
-                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total,md5)
-                                    values(NULL,:v1,:v2,:v3,:v4,:v5,:fun_count,to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'),:v6,:total_diff_time,:memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total,:md5)";
+                                    $sql = "insert into ".APM_DB_PREFIX."monitor
+                                            (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,
+                                            memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,
+                                            cpu_sys_time_max,cpu_sys_time_total,md5) values
+                                            (NULL,:v1,:v2,:v3,:v4,:v5,:fun_count,:cal_date,:v6,:total_diff_time,
+                                            :memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,
+                                            :cpu_sys_time_max,:cpu_sys_time_total,:md5)";
                                     $stmt = apm_db_parse($conn_db, $sql);
                                     apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                     apm_db_bind_by_name($stmt, ':cal_date', $time);
@@ -210,57 +218,15 @@ class monitor_ipcs
         if (!file_exists($dir1 = '/dev/shm/xss_' . APM_HOST . '/'))
             mkdir($dir1);
 
-        include APM_PATH . "./include/project.func.php";
-        $project_function = new project_function;
-        $check_files = array();
-        if (date('H') > 8 && date('H') <= 19)
-            $time_area = '白天';
-        else
-            $time_area = '晚上';
-        //文件记录
-        foreach ($files as $module_name => $_files) {
-            foreach (array_unique($_files) as $file) {
-                if (!is_file($file))
-                    continue;
-                //文件修改时间
-                $new_file = $dir . md5($file);
-                //
-                if (is_file($new_file) && (filectime($new_file) < filectime($file))) {
-                    echo "代码改动\n";
-                    _status(1, $module_name . "(代码改动)", "文件改动-{$time_area}", $file, "", APM_VIP, 0);
-                    touch($new_file, filectime($file));
-                } elseif (!is_file($new_file)) {
-                    _status(1, $module_name . "(代码改动)", "新增文件-{$time_area}", $file, "", APM_VIP, 0);
-                    touch($new_file, filectime($file));
-                }
-                //安全校验
-                $new_file = $dir1 . md5($file);
-                if (is_file($new_file) && (filectime($new_file) < filectime($file)))
-                    $check_files[$file] = $module_name;
-                elseif (!is_file($new_file))
-                    $check_files[$file] = $module_name;
-            }
-        }
-        foreach ($check_files as $file => $module_name) {
-            $token = token_get_all(file_get_contents($file));
-            //代码所有人统计
-            if (strpos($file, '/phpCas/') === false || strpos($file, '/PHPMailer/') === false) {
-                $project_function->_function_author($token, $module_name, $file);
-                $project_function->_function_count($token, $module_name, $file);
-                $project_function->_xss($token, $module_name, $file);
-                $project_function->_sign($token, $module_name, $file);
-                $project_function->_disable_function($token, $module_name, $file);
-            }
-            touch($dir1 . md5($file), filectime($file));
-        }
         die("\n" . date("Y-m-d H:i:s") . ',file:' . __FILE__ . ',line:' . __LINE__ . "\n");
     }
 
     function _ipcs()
    	{
-   		//监控当前系统的队列个数
+   		//监控每个消息队列的内存占用(单位是M)，不能超过sys.kernel.msgmnb
    		$out = NULL;
    		exec('ipcs', $out);
+        print_r($out);
    		foreach ($out as $k => $v) {
    			if (strpos($v, '0x') === false) {
    				unset($out[$k]);
@@ -272,7 +238,7 @@ class monitor_ipcs
    		}
    		$_num = $_name = null;
         $ipcs_out = array();
-   		foreach ($out as $k => $v) {
+   		foreach ($out as $v) {
    			if (count($v) != 6)
    				continue;
    			$i = 0;
@@ -288,9 +254,8 @@ class monitor_ipcs
    				'name' => $_name
    			);
    		}
-   		foreach ($ipcs_out as $k => $v)
+   		foreach ($ipcs_out as $v)
    			_status($v['num'], APM_HOST . '(WEB日志分析)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_VIP);
    	}
 }
-
 ?>

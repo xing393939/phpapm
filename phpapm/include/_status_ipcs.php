@@ -18,48 +18,48 @@ if (!function_exists('msg_get_queue')) {
  */
 function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff_time = 0, $up_type = null, $time = null, $add_array = array())
 {
-    if (strpos(PHP_OS, 'WIN') === false) {
-        if (!$time)
-            $START_TIME_DATE = date('Y-m-d H:i:s', START_TIME);
-        else
-            $START_TIME_DATE = date('Y-m-d H:i:s',$time);
+    if (strpos(PHP_OS, 'WIN') !== false) {
+        return false;
+    }
 
-        $IPCS = explode('|', APM_IPCS);
-        $includes = array();
-        if ($v2 == $v3)
+    if (!$time)
+        $START_TIME_DATE = date('Y-m-d H:i:s', START_TIME);
+    else
+        $START_TIME_DATE = date('Y-m-d H:i:s',$time);
+
+    if ($v2 == $v3)
+        $v3 = APM_VIP;
+    $IPCS = explode('|', APM_IPCS);
+    $ipcs_key = $IPCS[rand(0, count($IPCS) - 1)];
+    $seg = msg_get_queue($ipcs_key, 0600);
+    if ($seg) {
+        if ($v3 == NULL)
             $v3 = APM_VIP;
-        $ipcs_key = $IPCS[rand(0, count($IPCS) - 1)];
-        $seg = msg_get_queue($ipcs_key, 0600);
-        if ($seg) {
-            if ($v3 == NULL)
-                $v3 = APM_VIP;
-            if ($v5 == APM_VIP)
-                $v5 = NULL;
-            list($_up_type) = explode('/', $up_type);
-            settype($add_array, 'array');
-            $array = array(
-                    'vhost' => APM_HOST,
-                    'includes' => $includes,
-                    'num' => $num,
-                    #计算值
-                    'v1' => $v1,
-                    #大分类
-                    'v2' => $v2,
-                    #小分类
-                    'v3' => $v3,
-                    #主要统计类型
-                    'v4' => $v4,
-                    #具体的弹窗描述
-                    'v5' => $v5,
-                    #连接地址
-                    'diff_time' => $diff_time,
-                    'time' => $START_TIME_DATE,
-                    'uptype' => $_up_type
-                ) + $add_array;
-            $bool = msg_send($seg, 1, $array, true, false);
-            if (!$bool) {
-                error_log("队列错误:" . str_pad(dechex($ipcs_key), 8, '0', STR_PAD_LEFT));
-            }
+        if ($v5 == APM_VIP)
+            $v5 = NULL;
+        list($_up_type) = explode('/', $up_type);
+        settype($add_array, 'array');
+        $array = array(
+                'vhost' => APM_HOST,
+                'num' => $num,
+                #计算值
+                'v1' => $v1,
+                #大分类
+                'v2' => $v2,
+                #小分类
+                'v3' => $v3,
+                #主要统计类型
+                'v4' => $v4,
+                #具体的弹窗描述
+                'v5' => $v5,
+                #连接地址
+                'diff_time' => $diff_time,
+                'time' => $START_TIME_DATE,
+                'uptype' => $_up_type
+            ) + $add_array;
+        $bool = msg_send($seg, 1, $array, true, false);
+        if (!$bool) {
+            error_log("队列错误:" . str_pad(dechex($ipcs_key), 8, '0', STR_PAD_LEFT));
         }
     }
 }

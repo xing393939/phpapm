@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @desc   定时测试脚本.测试各个接口是否正常
+ * @desc   检查有问题的sql
  * @author xing39393939@gmail.com
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理

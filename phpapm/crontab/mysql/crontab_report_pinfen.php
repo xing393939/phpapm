@@ -37,15 +37,15 @@ class crontab_report_pinfen
         foreach ($_row_infos as $_row_info) {
             if ($_row_info['v2']) {
                 if ($_row_info['just_rule'] == '>') {
-                    $sql = "select   case  when fun_count > :base_num then  - round((fun_count - :base_num) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1  and v2 = :v2  and cal_date = trunc(sysdate) ";
+                    $sql = "select case when fun_count > :base_num then - round((fun_count - :base_num) / :pinfen_step) else  0 end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1  and v2 = :v2  and cal_date = CURDATE()";
                 } else {
-                    $sql = "select t.fun_count, case  when fun_count < :base_num then  - round((:base_num - fun_count) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1   and v2 = :v2  and cal_date = trunc(sysdate) ";
+                    $sql = "select t.fun_count, case when fun_count < :base_num then - round((:base_num - fun_count) / :pinfen_step) else 0 end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1 and v2 = :v2  and cal_date = CURDATE()";
                 }
             } else {
                 if ($_row_info['just_rule'] == '>') {
-                    $sql = "select  case  when sum(fun_count) > :base_num then  - round((  sum(fun_count) - :base_num) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1    and cal_date = trunc(sysdate) ";
+                    $sql = "select case when sum(fun_count) > :base_num then - round((sum(fun_count) - :base_num) / :pinfen_step) else 0 end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1 and cal_date = CURDATE()";
                 } else {
-                    $sql = "select  case  when  sum(fun_count) < :base_num then  - round((:base_num -  sum(fun_count) ) / :pinfen_step)  else  0  end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1     and cal_date = trunc(sysdate) ";
+                    $sql = "select case when sum(fun_count) < :base_num then - round((:base_num - sum(fun_count) ) / :pinfen_step) else 0 end as num from ".APM_DB_PREFIX."monitor_date t where v1 = :v1 and cal_date = CURDATE()";
                 }
 
             }
