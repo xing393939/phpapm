@@ -7,7 +7,7 @@ PHP > 5<br />
 Mysql > 5<br />
 ## Setup
 一，将phpapm加入到你现有PHP项目中<br />
-二，将phpapm/common/phpapm.sql的5张表导入到Mysql中<br />
+二，将phpapm/include/phpapm.sql的5张表导入到Mysql中<br />
 三，配置header.php<br />
 四，在PHP项目中公共文件中引用header.php<br />
 五，加入定时任务：<br />
@@ -15,13 +15,16 @@ windows平台：运行phpapm/crontab_perminute.bat(需要编辑bat文件修改�
 linux平台：<br />
 1，安装php扩展sysvmsg，参考[教程](http://www.banghui.org/2527.html)；<br />
 2，增加消息队列的容量：<br />
-> echo 8384000 > /proc/sys/kernel/msgmnb<br />
-> echo 41920 > /proc/sys/kernel/msgmax<br />
-> echo 30 > /proc/sys/kernel/msgmni<br />
-
+```javascript
+echo 8384000 > /proc/sys/kernel/msgmnb
+echo 41920 > /proc/sys/kernel/msgmax
+echo 30 > /proc/sys/kernel/msgmni
+```
 3，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，如下：<br />
-> */1 * * * * /path/www/site/cron_1minute.sh 1<br />
-> 30  * * * * /path/www/site/cron_1hour.sh 1<br />
+```javascript
+*/1 * * * * /path/www/site/cron_1minute.sh 1
+30  * * * * /path/www/site/cron_1hour.sh 1
+```
 
 ## Config
 配置文件：header.php<br />
