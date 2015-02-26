@@ -31,7 +31,7 @@ linux平台：<br />
 
 ## Usage
 查看数据可访问http://path_to_dir/phpapm/project.php<br /><br />
-一，监控sql：系统默认只监控定时任务的Sql查询，若要监控自己项目的Sql查询，请在自己项目的公共数据库查询类加上监控代码，如下：
+一，监控sql请求：系统默认只监控定时任务的Sql查询，若要监控自己项目的Sql查询，请在自己项目的公共数据库查询类加上监控代码，如下：
 ```javascript
 $t1 = microtime(true);
 $stmt = mysql_query($sql, $conn_db);
@@ -39,19 +39,20 @@ apm_status_sql('MY_APP', $sql, $t1, mysql_error($conn_db));
 /* 其中第一第三行是新加的代码 */
 ```
 
-二，监控memcache，示例如下：
+二，监控资源/api请求，示例如下：
+```javascript
 $t1 = microtime(true);
 $bool = $this->memcacheObj->get($key);
 apm_status_api('memcache', '10.0.1.20(get)', $t1, $bool);
 /* 其中第一第三行是新加的代码 */
 ```
 
-三，监控其他资源调用，参考监控memcache即可<br />
 四，监控业务数据：使用_status函数在程序处理业务的地方加上监控代码即可，您可以监控每天用户的登录退出次数，各终端访问首页的占比，每天用户的充值情况等等Everything！如下：<br />
-> if (checkUserLogin()) {<br />
->     _status(1, '访问首页登录用户的占比', "登录用户", 'v3', 'v4');<br />
-> } else {<br />
->     _status(1, '访问首页登录用户的占比', "未登录用户", 'v3', 'v4');<br />
-> }<br />
-> /*简单几行代码，监控后台即会展现对应的每天每小时的数据变化，比起直接使用sql查询更简单直观*/<br />
-
+```javascript
+if (checkUserLogin()) {
+    _status(1, '访问首页登录用户的占比', "登录用户", 'v3', 'v4');
+} else {
+    _status(1, '访问首页登录用户的占比', "未登录用户", 'v3', 'v4');
+}
+/*简单几行代码，监控后台即会展现对应的每天每小时的数据变化，比起直接使用sql查询更简单直观*/
+```
