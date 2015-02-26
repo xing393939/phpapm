@@ -29,9 +29,7 @@ function apm_db_logon($DB)
     //凡是使用Mysql的一律是utf-8
     mysqli_query($conn_db, "SET NAMES 'utf8'");
     mysqli_query($conn_db, "SET character_set_client=binary");
-    $conn_db_key = hash('md5', serialize($conn_db));
-    $_SERVER['last_mysql_link'][$conn_db_key] = $DB;
-    $_SERVER['last_mysql_link'][$DB] = $conn_db;
+    $conn_db->DB_ALIAS = $DB;
     return $conn_db;
 }
 
@@ -46,8 +44,7 @@ function apm_db_logon($DB)
  */
 function apm_db_parse(& $conn_db, $sql)
 {
-    $conn_db_key = hash('md5', serialize($conn_db));
-    $_SERVER['last_mysql_conn'] = $_SERVER['last_mysql_link'][$conn_db_key];
+    $_SERVER['last_mysql_conn'] = $conn_db;
     return array(
         '$conn_db' => $conn_db,
         '$sql' => $sql
@@ -89,8 +86,6 @@ function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
     $sql = strtr($stmt['$sql'], $_SERVER['last_mysql_bindname']);
     //start
     $sql = preg_replace_callback(
-        '/to_date\(([^,\)]+),([^\)]+)\)([\s\d\+\-\/]*)/', '_oci_to_date', $sql);
-    $sql = preg_replace_callback(
         '/trunc\(([^,\)]+)(\)|,([^\)]+)\))/', '_oci_truncate', $sql);
     $sql = preg_replace_callback(
         '/(sysdate|SYSDATE)([ \d\+\-\/]*)/', '_oci_sysdate', $sql);
@@ -102,7 +97,7 @@ function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
     $mysql_error = mysqli_error($conn_db);
 
     //apm start
-    apm_status_mysql($_SERVER['last_mysql_conn'], $sql, $t1, $mysql_error);
+    apm_status_sql($conn_db->DB_ALIAS, $sql, $t1, $mysql_error);
 
     //清空上次的数据
     $_SERVER['last_mysql_bindname'] = array();
@@ -130,7 +125,7 @@ function apm_db_error($stmt = null)
 
 function apm_db_row_count($stmt = null)
 {
-    return mysqli_affected_rows($_SERVER['last_mysql_link'][$_SERVER['last_mysql_conn']]);
+    return mysqli_affected_rows($_SERVER['last_mysql_conn']);
 }
 
 function apm_db_fetch_assoc($stmt = false)
@@ -154,42 +149,6 @@ function _oci_sysdate($matches)
             $return = "NOW() + INTERVAL $delay HOUR ";
         } else {
             $return = "NOW() + INTERVAL $delay DAY ";
-        }
-    }
-    return $return;
-}
-
-function _oci_to_date($matches)
-{
-    $date = $matches[1];
-    $format = $matches[2];
-    $delay = trim($matches[3]);
-    $return = '';
-    $format_mysql = preg_replace(array(
-        '/yyyy/',
-        '/mm/',
-        '/dd/',
-        '/hh24/',
-        '/mi/',
-        '/ss/',
-        "/(^\\\\'|\\\\'$)/",
-    ), array(
-        '%Y',
-        '%m',
-        '%d',
-        '%H',
-        '%i',
-        '%s',
-        "'",
-    ), $format);
-    if (empty($delay)) {
-        $return = "DATE_FORMAT($date, {$format_mysql}) ";
-    } else {
-        if (strpos($delay, '/') !== false) {
-            $delay = preg_replace_callback('/([\d]+)[\s\/]+([\d]+)/', '_oci_get_hour', $delay);
-            $return = "DATE_FORMAT($date, {$format_mysql}) + INTERVAL $delay HOUR ";
-        } else {
-            $return = "DATE_FORMAT($date, {$format_mysql}) + INTERVAL $delay DAY ";
         }
     }
     return $return;

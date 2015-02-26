@@ -106,7 +106,7 @@ function apm_db_execute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
     $oci_error = apm_db_error($stmt);
 
     //apm start
-    apm_status_mysql($_SERVER['last_db_conn'], $last_oci_sql, $t1, $oci_error);
+    apm_status_sql($_SERVER['last_db_conn'], $last_oci_sql, $t1, $oci_error);
 
     $_SERVER['last_oci_bindname'] = array();
     return $oci_error;

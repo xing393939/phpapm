@@ -55,10 +55,10 @@ function _php_runtime()
         $is_html = (bool)strpos(array_pop($get_included_files_2), '.html');
 
     $e = error_get_last();
-    if (strpos($e['message'], 'Call to undefined') !== false && $_SERVER['REMOTE_ADDR'] <> '180.168.136.230')
-        return _status(1, APM_HOST . "(BUG错误)", '致命错误', "未定义函数", APM_URI, "userIP:{$_SERVER['REMOTE_ADDR']}@referfer:{$_SERVER['HTTP_REFERER']}|" . var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . var_export($_COOKIE, true) . '|' . APM_VIP, $diff_time);
+    if (strpos($e['message'], 'Call to undefined') !== false)
+        return _status(1, APM_HOST . "(BUG错误)", '致命错误', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_VIP, $diff_time);
     else if ($e['type'] == E_ERROR)
-        return _status(1, APM_HOST . "(BUG错误)", 'PHP错误', APM_URI, "userIP:{$_SERVER['REMOTE_ADDR']}@referfer:{$_SERVER['HTTP_REFERER']}|" . var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . var_export($_COOKIE, true), APM_VIP, $diff_time);
+        return _status(1, APM_HOST . "(BUG错误)", 'PHP错误', APM_URI, var_export($e, true), APM_VIP, $diff_time);
 
     if ($_SERVER['HTTP_HOST'] && $_SERVER['REMOTE_ADDR'] != '127.0.0.1' && !APM_PROJECT) {
         if ($diff_time < 1) {
@@ -126,7 +126,7 @@ function _myErrorHandler($no, $msg, $file, $line)
 
     $debug_backtrace_str = var_export(debug_backtrace(), true);
     if (strpos($msg, 'oci') === 0 || strpos($msg, 'mysql_') === 0) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", APM_URI, "(file:{$file} | line:{$line}){$msg}");
     } elseif (strpos($msg, 'Memcache') === 0) {
         _status(1, APM_HOST . '(BUG错误)', "Memcache错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
     } elseif (strpos($msg, 'msg_send') !== false) {
@@ -223,27 +223,13 @@ function _sql_table_txt($sql, &$sql_type)
     return trim($v);
 }
 
-/**
- * @desc   WHAT?
- * @author
- * @since  2012-06-16 12:11:22
- * @throws 注意:无DB异常处理
- */
-function _p($pageID, $is_page = true, $pagefirst = null)
-{
-    static $page_tp, $page_first;
-    if ($is_page) {
-        if ($pageID < 2) {
-            return $page_first;
-        } else
-            return str_replace('{p}', $pageID, $page_tp);
-    } else {
-        $page_tp = $pageID;
-        $page_first = $pagefirst;
-    }
-}
-
-function apm_status_mysql($db_alias, $sql, $start_time, $mysql_error) {
+/*
+统计sql请求，需嵌入二行代码
+$t1 = microtime(true);
+... your sql query ...
+apm_status_sql($db_alias, $sql, $t1, $sql_error);
+*/
+function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
     $diff_time = sprintf('%.5f', microtime(true) - $start_time);
 
     //pretty sql
@@ -268,6 +254,23 @@ function apm_status_mysql($db_alias, $sql, $start_time, $mysql_error) {
     } else {
         _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_VIP, $sql, $diff_time);
     }
-    if ($mysql_error)
-        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($mysql_error, true) . "|" . var_export($_GET, true) . "|" . $sql, APM_VIP, $diff_time);
+    if ($sql_error)
+        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($sql_error, true) . "|" . $sql, APM_VIP, $diff_time);
+}
+
+/*
+统计资源/api请求，支持以下四种Memcache、api、Sphinx、Couchbase
+$t1 = microtime(true);
+... your api query ...
+apm_status_api('memcache', '10.0.1.20(get)', $t1, $resource);
+*/
+function apm_status_api($type, $v2, $start_time, $resource) {
+    $diff_time = sprintf('%.5f', microtime(true) - $start_time);
+
+    _status(1, APM_HOST . "({$type})", $v2, APM_URI, var_export((bool) $resource, true), APM_VIP, $diff_time);
+    if ($diff_time < 1) {
+        _status(1, APM_HOST . "({$type})", '一秒内', _debugtime($diff_time), $v2, APM_URI, $diff_time);
+    } else {
+        _status(1, APM_HOST . "({$type})", '超时', _debugtime($diff_time), $v2, APM_URI, $diff_time);
+    }
 }

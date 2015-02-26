@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @desc   压缩队列
+ * @desc   压缩队列，单个队列的队列数不能超过15W
  * @author xing39393939@gmail.com
  * @since  2013-03-06 22:06:23
  * @throws 注意:无DB异常处理
@@ -10,12 +10,7 @@ class monitor_fix
 {
     function _initialize()
     {
-        $IPCS = array();
-        $_IPCS = explode('|', APM_IPCS);
-        foreach ($_IPCS as $k => $v)
-            if ($k % $_GET['total'] == $_GET['mod'])
-                $IPCS[] = $v;
-        print_r($IPCS);
+        $IPCS = explode('|', APM_IPCS);
         foreach ($IPCS as $ipcs) {
             $ic = $cs = 0;
             $seg = msg_get_queue($ipcs, 0600);
@@ -50,6 +45,7 @@ class monitor_fix
                     }
                 }
             }
+            echo "队列：$ipcs 从{$ic}个压缩到{$cs}<br />\n";
             _status((($ic - $cs) / $ic) * 100, APM_HOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, APM_VIP, 0, 'replace');
             unset($monitor);
         }

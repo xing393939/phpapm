@@ -37,23 +37,6 @@ function edit_as_name_do(obj,id)
 	$(obj).parent().html(obj.value);
 }
 
-function edit_stats_flag(obj,id){
-    var txt = $(obj).html();
-    if (txt.indexOf('<input')>-1)
-    {
-        return;
-    }
-    $(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_stats_flag_do(this,'+id+')" id="stats_flag_id_'+id+'" name="stats_flag" value="'+txt+'">');
-    $('#stats_flag_id_'+id)[0].select();
-}
-
-function edit_stats_flag_do(obj,id)
-{
-    $.post("?act=report_monitor_stats_flag&sign=<?php echo SIGN_KEY?>",{stats_flag : obj.value, id : id});
-    $(obj).parent().bind('click',function(data){edit_as_name($(this)[0],id)});
-    $(obj).parent().html(obj.value);
-}
-
 function edit_v2_group(obj,id)
 {
 	var txt = $(obj).html();
@@ -310,7 +293,6 @@ function call()
                         <th>小时数据</th>
                         <th>V3</th>
                         <th>V4</th>
-                        <th>来自统计数据标志</th>
                         <th>接口id</th>
                         <th  width="120">操作</th>
                       </tr>
@@ -342,7 +324,6 @@ function call()
 
                       <td class="b-r"><?php echo $vv['V3_LINK']?></td>
                       <td class="b-r"><?php echo $vv['V4_LINK']?></td>
-                      <td class="b-r" id="v2_stats_flag_<?php echo md5($vv['V1'].$vv['V2'])?>" onclick="edit_stats_flag(this,<?php echo intval($vv['ID'])?>);$(this).attr('onclick','');"><?php echo $vv['V2_CONFIG_OTHER']['stats_flag'] ?></td>
                       <td class="b-r" id="v2_api_id_<?php echo md5($vv['V1'].$vv['V2'])?>"><?php echo $vv['V2_CONFIG_OTHER']['api_id'] ?></td>
                       <td class="b-r">
                           <?php if(!$vv['V2_CONFIG_OTHER']['NO_COUNT']){ ?>

@@ -14,14 +14,16 @@ class nbi_num
         $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         //剩下没解决的
-        $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t where t.v1 like '%(项目满意分)'  and t.cal_date = trunc(sysdate)";
+        $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t
+                where t.v1 like '%(项目满意分)' and t.cal_date = CURDATE()";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
         $_row = array();
         $_row = apm_db_fetch_assoc($stmt);
         $_row['C'] = sprintf('%02d', $_row['C']);
 
-        $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t where t.v1 like '%(项目文档满意分)'  and t.cal_date = trunc(sysdate)";
+        $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t
+                where t.v1 like '%(项目文档满意分)' and t.cal_date = CURDATE()";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
         $_row2 = apm_db_fetch_assoc($stmt);
@@ -40,7 +42,8 @@ class nbi_num
             $_row = unserialize($_row2['PINFEN_RULE']);
             if ($_row2['PINFEN_RULE_NAME'] && $_row['pinfen_name'] && $_row['koufen_name'] && $_row['base_num'] && $_row['just_rule'] && $_row['pinfen_step'] && $_row['rule_num']) {
                 $ki++;
-                $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t where t.v1 =:v1  and t.cal_date = trunc(sysdate)";
+                $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t
+                        where t.v1 =:v1 and t.cal_date = CURDATE()";
                 $stmt = apm_db_parse($conn_db, $sql);
                 ocibindbyname($stmt, ':v1', $_row['pinfen_name']);
                 apm_db_execute($stmt);
@@ -62,7 +65,7 @@ class nbi_num
         $s1 = date('Y-m-d');
         $sql = "select t.*, cal_date CAL_DATE_F from
                 ".APM_DB_PREFIX."monitor_date t where
-                cal_date>=to_date(:s1,'yyyy-mm-dd') and v1 like '%(WEB日志分析)' and v2<>'汇总' ";
+                cal_date>=:s1 and v1 like '%(WEB日志分析)' and v2<>'汇总'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_bind_by_name($stmt, ':s1', $s1);
         $oci_error = apm_db_execute($stmt);

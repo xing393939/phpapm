@@ -84,7 +84,7 @@ class report_monitor
         //全部下级日统计数据
         $sql = "select t.*, cal_date CAL_DATE_F from
             ".APM_DB_PREFIX."monitor_date t where
-            cal_date>=to_date(:s1,'yyyy-mm-dd') and cal_date<=to_date(:s2,'yyyy-mm-dd')  and v1=:v1 and v2<>'汇总' ";
+            cal_date>=:s1 and cal_date<=:s2 and v1=:v1 and v2<>'汇总'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_bind_by_name($stmt, ':v1', $_REQUEST['type']);
         apm_db_bind_by_name($stmt, ':s1', $s1);
@@ -186,13 +186,13 @@ class report_monitor
         if ($this->v1_config[$_REQUEST['type']]['START_CLOCK']) {
             $sql = "select v1,v2,sum(fun_count) fun_count, t.cal_date as cal_date_f
                     	from  ".APM_DB_PREFIX."monitor_hour t
-                        where cal_date>=to_date(:s1,'yyyy-mm-dd')+:diff/24 and cal_date<=to_date(:s2,'yyyy-mm-dd')+:diff/24
+                        where cal_date>=:s1 and cal_date<=:s2
                         and v1=:v1
                         group by v1,v2,t.cal_date";
             $stmt = apm_db_parse($conn_db, $sql);
-            apm_db_bind_by_name($stmt, ':diff', $this->v1_config[$_REQUEST['type']]['START_CLOCK']);
-            apm_db_bind_by_name($stmt, ':s1', $s1);
-            apm_db_bind_by_name($stmt, ':s2', $s2);
+            $diffHour = $this->v1_config[$_REQUEST['type']]['START_CLOCK'];
+            apm_db_bind_by_name($stmt, ':s1', date('Y-m-d', strtotime($s1) + $diffHour * 3600));
+            apm_db_bind_by_name($stmt, ':s2', date('Y-m-d', strtotime($s2) + $diffHour * 3600));
             apm_db_bind_by_name($stmt, ':v1', $_REQUEST['type']);
             $oci_error = apm_db_execute($stmt);
             $_row = array();
@@ -219,11 +219,13 @@ class report_monitor
             $sql = "  select v2 as v3,sum(fun_count) fun_count,round(avg(fun_count),2) fun_count_avg,DATE_FORMAT(t.cal_date, '%d %H') as cal_date_f,
                 max(t.diff_time) diff_time, sum(t.total_diff_time) total_diff_time,max(t.memory_max) memory_max, sum(t.memory_total) memory_total,
                 max(t.cpu_user_time_max) cpu_user_time_max, sum(t.cpu_user_time_total) cpu_user_time_total,max(t.cpu_sys_time_max) cpu_sys_time_max, sum(t.cpu_sys_time_total) cpu_sys_time_total
-                from  ".APM_DB_PREFIX."monitor_hour t where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
+                from  ".APM_DB_PREFIX."monitor_hour t
+                where cal_date>=:cal_date1 and cal_date<:cal_date2
                 and v1=:v1  and v2<>'汇总'
                 group by v1,v2,cal_date_f";
             $stmt2 = apm_db_parse($conn_db, $sql);
-            apm_db_bind_by_name($stmt2, ':cal_date', $start_date1);
+            apm_db_bind_by_name($stmt2, ':cal_date1', date('Y-m-d H:i:s', strtotime($start_date1) - 86400));
+            apm_db_bind_by_name($stmt2, ':cal_date2', date('Y-m-d H:i:s', strtotime($start_date1) + 86400));
             apm_db_bind_by_name($stmt2, ':v1', $_REQUEST['type']);
             $oci_error = apm_db_execute($stmt2);
             print_r($oci_error);
@@ -269,12 +271,14 @@ class report_monitor
             }
 
             //当日数据
-            $sql = "{$this->pageObj->num_1} select v3,sum(fun_count) fun_count from  ".APM_DB_PREFIX."monitor_hour
-                    where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss') and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
+            $sql = "{$this->pageObj->num_1} select v3,sum(fun_count) fun_count
+                    from  ".APM_DB_PREFIX."monitor_hour
+                    where cal_date>=:cal_date1 and cal_date<:cal_date2
                     and v1=:v1 and v2=:v2
                     group by v1,v2,v3  {$this->pageObj->num_3} ";
             $stmt2 = apm_db_parse($conn_db, $sql);
-            apm_db_bind_by_name($stmt2, ':cal_date', $start_date1);
+            apm_db_bind_by_name($stmt2, ':cal_date1', $start_date1);
+            apm_db_bind_by_name($stmt2, ':cal_date2', date('Y-m-d H:i:s', strtotime($start_date1) + 86400));
             apm_db_bind_by_name($stmt2, ':v1', $_REQUEST['type']);
             apm_db_bind_by_name($stmt2, ':v2', $_REQUEST['host']);
             apm_db_bind_by_name($stmt2, ':num_1', intval($this->pageObj->limit_1));
@@ -285,10 +289,11 @@ class report_monitor
             while ($_row2 = apm_db_fetch_assoc($stmt2)) {
                 $sql = "select t.*,DATE_FORMAT(t.cal_date, '%d %H') as cal_date_f
                        from ".APM_DB_PREFIX."monitor_hour t
-                       where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
+                       where cal_date>=:cal_date1 and cal_date<:cal_date2
                        and v1=:v1 and v2=:v2 and v3=:v3   order by fun_count desc";
                 $stmt = apm_db_parse($conn_db, $sql);
-                apm_db_bind_by_name($stmt, ':cal_date', $start_date1);
+                apm_db_bind_by_name($stmt, ':cal_date1', date('Y-m-d H:i:s', strtotime($start_date1) - 86400));
+                apm_db_bind_by_name($stmt, ':cal_date2', date('Y-m-d H:i:s', strtotime($start_date1) + 86400));
                 apm_db_bind_by_name($stmt, ':v1', $_REQUEST['type']);
                 apm_db_bind_by_name($stmt, ':v2', $_REQUEST['host']);
                 apm_db_bind_by_name($stmt, ':v3', $_row2['V3']);
@@ -335,4 +340,23 @@ class report_monitor
     }
 }
 
+/**
+ * @desc   WHAT?
+ * @author
+ * @since  2012-06-16 12:11:22
+ * @throws 注意:无DB异常处理
+ */
+function _p($pageID, $is_page = true, $pagefirst = null)
+{
+    static $page_tp, $page_first;
+    if ($is_page) {
+        if ($pageID < 2) {
+            return $page_first;
+        } else
+            return str_replace('{p}', $pageID, $page_tp);
+    } else {
+        $page_tp = $pageID;
+        $page_first = $pagefirst;
+    }
+}
 ?>

@@ -356,4 +356,23 @@ class report_monitor
     }
 }
 
+/**
+ * @desc   WHAT?
+ * @author
+ * @since  2012-06-16 12:11:22
+ * @throws 注意:无DB异常处理
+ */
+function _p($pageID, $is_page = true, $pagefirst = null)
+{
+    static $page_tp, $page_first;
+    if ($is_page) {
+        if ($pageID < 2) {
+            return $page_first;
+        } else
+            return str_replace('{p}', $pageID, $page_tp);
+    } else {
+        $page_tp = $pageID;
+        $page_first = $pagefirst;
+    }
+}
 ?>

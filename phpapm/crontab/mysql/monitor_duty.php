@@ -41,16 +41,16 @@ class monitor_duty
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(BUG错误)'
               and v2 = 'SQL错误'
-              and t.cal_date = trunc(sysdate)) php_num,
+              and t.cal_date = CURDATE()) php_num,
            (select sum(fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(BUG错误)'
               and v2 = 'PHP错误'
-              and t.cal_date = trunc(sysdate)) sql_num,
+              and t.cal_date = CURDATE()) sql_num,
            (select sum(t.fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
-              and t.cal_date = trunc(sysdate)) web_num  from dual ";
+              and t.cal_date = CURDATE()) web_num from dual";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -119,7 +119,7 @@ class monitor_duty
         $sql = "select sum(fun_count) sql_num
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(SQL统计)'
-                              and t.cal_date = trunc(sysdate)";
+                              and t.cal_date = CURDATE()";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -137,11 +137,11 @@ class monitor_duty
         $sql = "select (select sum(fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(Memcache)'
-              and t.cal_date = trunc(sysdate)) mem_num,
+              and t.cal_date = CURDATE()) mem_num,
            (select sum(t.fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
-              and t.cal_date = trunc(sysdate)) web_num from dual ";
+              and t.cal_date = CURDATE()) web_num from dual";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -206,11 +206,11 @@ class monitor_duty
         $sql = "select (select sum(fun_count)
                      from ".APM_DB_PREFIX."monitor_date t
                     where v1 like '%(BUG错误)' and (v2 ='超时')
-                      and t.cal_date = trunc(sysdate)) sql_num,
+                      and t.cal_date = CURDATE()) sql_num,
                   (select sum(t.fun_count)
                      from ".APM_DB_PREFIX."monitor_date t
                     where v1 like '%(BUG错误)'
-                      and t.cal_date = trunc(sysdate)) web_num
+                      and t.cal_date = CURDATE()) web_num
              from dual ";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
@@ -265,11 +265,11 @@ class monitor_duty
         $sql = "select (select sum(fun_count)
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)' and v2 like '5%'
-                              and t.cal_date = trunc(sysdate)) err_num,
+                              and t.cal_date = CURDATE()) err_num,
                            (select sum(t.fun_count)
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)'
-                              and t.cal_date = trunc(sysdate)) web_num from dual ";
+                              and t.cal_date = CURDATE()) web_num from dual ";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -278,7 +278,7 @@ class monitor_duty
         $sql = "select sum(fun_count) err_t_num
                                      from ".APM_DB_PREFIX."monitor_date t
                                     where v1 like '%(WEB日志分析)' and v2 = '499'
-                                      and t.cal_date = trunc(sysdate)";
+                                      and t.cal_date = CURDATE()";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
         $_row_t = apm_db_fetch_assoc($stmt);
@@ -295,7 +295,7 @@ class monitor_duty
         $sql = "select sum(fun_count) fun_count
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(包含文件)' and V2='10s到∞个'
-                              and t.cal_date = trunc(sysdate) ";
+                              and t.cal_date = CURDATE()";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
