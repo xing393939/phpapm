@@ -32,10 +32,12 @@ linux平台：<br />
 ## Usage
 查看数据可访问http://path_to_dir/phpapm/project.php<br /><br />
 一，监控Mysql：系统默认只监控定时任务的Sql查询，若要监控自己项目的Sql查询，请在自己项目的公共数据库查询类加上监控代码，如下：
-> $t1 = microtime(true);<br />
-> $stmt = mysql_query($sql, $conn_db);<br />
-> apm_status_mysql('MY_APP', $sql, $t1, mysql_error($conn_db));<br />
-> /* 其中第一第三行是新加的代码 */<br />
+```javascript
+$t1 = microtime(true);
+$stmt = mysql_query($sql, $conn_db);
+apm_status_mysql('MY_APP', $sql, $t1, mysql_error($conn_db));
+/* 其中第一第三行是新加的代码 */
+```
 
 二，监控memcache，示例如下：
 > $t1 = microtime(true);<br />
