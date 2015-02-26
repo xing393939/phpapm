@@ -31,21 +31,20 @@ linux平台：<br />
 
 ## Usage
 查看数据可访问http://path_to_dir/phpapm/project.php<br /><br />
-一，监控Mysql：系统默认只监控定时任务的Sql查询，若要监控自己项目的Sql查询，请在自己项目的公共数据库查询类加上监控代码，如下：
+一，监控sql：系统默认只监控定时任务的Sql查询，若要监控自己项目的Sql查询，请在自己项目的公共数据库查询类加上监控代码，如下：
 ```javascript
 $t1 = microtime(true);
 $stmt = mysql_query($sql, $conn_db);
-apm_status_mysql('MY_APP', $sql, $t1, mysql_error($conn_db));
+apm_status_sql('MY_APP', $sql, $t1, mysql_error($conn_db));
 /* 其中第一第三行是新加的代码 */
 ```
 
 二，监控memcache，示例如下：
-> $t1 = microtime(true);<br />
-> $bool = $this->memcacheObj->get($key);<br />
-> $diff_time = sprintf('%.5f', microtime(true) - $t1);<br />
-> _status(1, APM_HOST . '(Memcache)', "IP(get)", APM_URI, var_export((bool)$bool, true), APM_VIP, $diff_time);<br />
-> _status(1, APM_HOST . '(Memcache)', _debugtime($diff_time), var_export((bool)$bool, true), "IP(get)" . APM_VIP, APM_URI, $diff_time);<br />
-> /* 其中第一第三第四第五行是新加的代码 */<br />
+$t1 = microtime(true);
+$bool = $this->memcacheObj->get($key);
+apm_status_api('memcache', '10.0.1.20(get)', $t1, $bool);
+/* 其中第一第三行是新加的代码 */
+```
 
 三，监控其他资源调用，参考监控memcache即可<br />
 四，监控业务数据：使用_status函数在程序处理业务的地方加上监控代码即可，您可以监控每天用户的登录退出次数，各终端访问首页的占比，每天用户的充值情况等等Everything！如下：<br />
