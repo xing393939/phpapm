@@ -50,10 +50,6 @@ function _php_runtime()
             _status($get_included_files_count, APM_HOST . "(PHPAPM)", "包含文件", $diff_time_str, APM_URI, var_export($get_included_files_2, true));
     }
 
-    $is_html = (bool)strpos(array_pop($get_included_files_2), '.html');
-    if (!$is_html)
-        $is_html = (bool)strpos(array_pop($get_included_files_2), '.html');
-
     $e = error_get_last();
     if (strpos($e['message'], 'Call to undefined') !== false)
         return _status(1, APM_HOST . "(BUG错误)", '致命错误', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_VIP, $diff_time);
@@ -77,16 +73,13 @@ function _php_runtime()
         if (function_exists('memory_get_peak_usage'))
             $add_array['memory'] = memory_get_peak_usage() / 1024 / 1024 / 1024;
     }
-    $APM_URI = APM_URI;
     //服务对象的IP统计
-    if (!$_SERVER['HTTP_HOST'] || $_SERVER['REMOTE_ADDR'] == '127.0.0.1')
-        _status(1, APM_HOST . "(BUG错误)", "定时", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|" . var_export($_SERVER, true), APM_VIP, $diff_time, NULL, NULL, $add_array);
-    else if (defined('IP_NEI'))
-        _status(1, APM_HOST . "(BUG错误)", "内网接口", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|", APM_VIP, $diff_time, NULL, NULL, $add_array);
-    else if ($is_html) {
-        _status(1, APM_HOST . "(BUG错误)", "页面操作", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|", APM_VIP, $diff_time, NULL, NULL, $add_array);
+    if (!$_SERVER['HTTP_HOST'] || $_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
+        _status(1, APM_HOST . "(BUG错误)", "定时", APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|" . var_export($_SERVER, true), APM_VIP, $diff_time, NULL, NULL, $add_array);
+    } else if (defined('IP_NEI')) {
+        _status(1, APM_HOST . "(BUG错误)", "内网接口", APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|", APM_VIP, $diff_time, NULL, NULL, $add_array);
     } else {
-        _status(1, APM_HOST . "(BUG错误)", "其他功能", $APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|", APM_VIP, $diff_time, NULL, NULL, $add_array);
+        _status(1, APM_HOST . "(BUG错误)", "其他功能", APM_URI, IP_NEI . "(HOST:{$_SERVER['HTTP_HOST']}){$_SERVER['last_curl_info_num']}次|", APM_VIP, $diff_time, NULL, NULL, $add_array);
     }
 }
 
@@ -259,13 +252,14 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
 }
 
 /*
-统计资源/api请求，支持以下四种Memcache、api、Sphinx、Couchbase
+统计资源/api请求，支持以下四种Memcache、Api、Sphinx、Couchbase
 $t1 = microtime(true);
 ... your api query ...
 apm_status_api('memcache', '10.0.1.20(get)', $t1, $resource);
 */
 function apm_status_api($type, $v2, $start_time, $resource) {
     $diff_time = sprintf('%.5f', microtime(true) - $start_time);
+    $type = ucfirst(strtolower($type));
 
     _status(1, APM_HOST . "({$type})", $v2, APM_URI, var_export((bool) $resource, true), APM_VIP, $diff_time);
     if ($diff_time < 1) {

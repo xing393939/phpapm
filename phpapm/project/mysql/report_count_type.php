@@ -85,9 +85,10 @@ class report_count_type
         if ($_REQUEST['v2']) {
             $where = 'and v2=:v2';
         }
-        $sql = "delete from ".APM_DB_PREFIX."monitor where v1=:v1 {$where} and  cal_date>sysdate-10/24 ";
+        $sql = "delete from ".APM_DB_PREFIX."monitor where v1=:v1 {$where} and cal_date>:cal_date_10h";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        apm_db_bind_by_name($stmt, ':cal_date_10h', date('Y-m-d H:i:s', time() - 36000));
         if ($_REQUEST['v2']) {
             apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }
@@ -100,17 +101,19 @@ class report_count_type
         }
         $oci_error = apm_db_execute($stmt);
 
-        $sql = "delete from ".APM_DB_PREFIX."monitor_date where v1=:v1 {$where} and cal_date>sysdate-10 ";
+        $sql = "delete from ".APM_DB_PREFIX."monitor_date where v1=:v1 {$where} and cal_date>:cal_date_10d";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        apm_db_bind_by_name($stmt, ':cal_date_10d', date('Y-m-d H:i:s', time() - 864000));
         if ($_REQUEST['v2']) {
             apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }
         $oci_error = apm_db_execute($stmt);
 
-        $sql = "delete from ".APM_DB_PREFIX."monitor_hour where v1=:v1 {$where}  and cal_date>sysdate-10";
+        $sql = "delete from ".APM_DB_PREFIX."monitor_hour where v1=:v1 {$where} and cal_date>:cal_date_10d";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_bind_by_name($stmt, ':v1', $_REQUEST['v1']);
+        apm_db_bind_by_name($stmt, ':cal_date_10d', date('Y-m-d H:i:s', time() - 864000));
         if ($_REQUEST['v2']) {
             apm_db_bind_by_name($stmt, ':v2', $_REQUEST['v2']);
         }

@@ -14,7 +14,7 @@ class report_monitor_group
         $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         //1.汇总的生成
-        $sql = "update ".APM_DB_PREFIX."monitor_config t set COMPARE_GROUP='1.汇总' where (v1 like '%(BUG错误)%' and (v2 = 'PHP错误' or v2 = 'SQL错误' or v2 = '一秒内' or v2 = '超时')) or (v1 like '%(Couchbase)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(SQL统计)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(Memcache)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(Sphinx)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(网址抓取)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(WEB日志分析)%' and (v2 = 'QPS' or v2 = 'TCP连接' or v2 = '400' or v2 = '403' or v2 = '499' or v2 = '500' or v2 = '502'))";
+        $sql = "update ".APM_DB_PREFIX."monitor_config t set COMPARE_GROUP='1.汇总' where (v1 like '%(BUG错误)%' and (v2 = 'PHP错误' or v2 = 'SQL错误' or v2 = '一秒内' or v2 = '超时')) or (v1 like '%(Couchbase)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(SQL统计)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(Memcache)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(Sphinx)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(Api)%' and (v2 = '超时' or v2 = '一秒内')) or (v1 like '%(WEB日志分析)%' and (v2 = 'QPS' or v2 = 'TCP连接' or v2 = '400' or v2 = '403' or v2 = '499' or v2 = '500' or v2 = '502'))";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
@@ -54,7 +54,7 @@ class report_monitor_group
         $oci_error = apm_db_execute($stmt);
 
         //资源.接口网址
-        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='资源.接口网址' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(网址抓取)_超时' or v2 like '%(网址抓取)_一秒内')";
+        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='资源.接口网址' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(Api)_超时' or v2 like '%(Api)_一秒内')";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
@@ -80,7 +80,7 @@ class report_monitor_group
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
-        $sql = "update  ".APM_DB_PREFIX."monitor_v1 t set GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='API接口',as_name=null  where v1 like '%(网址抓取)%'  or v1 like '%(FTP)%'  ";
+        $sql = "update  ".APM_DB_PREFIX."monitor_v1 t set GROUP_NAME_1='数据指标', GROUP_NAME_2='2.资源', GROUP_NAME='API接口',as_name=null  where v1 like '%(Api)%'  or v1 like '%(FTP)%'  ";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
@@ -221,7 +221,7 @@ class report_monitor_group
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
 
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='功能执行'  where  (t.V2 = '其他功能' or t.V2 = '页面操作' or t.v2='内网接口' or t.V2 = '定时') and v1 like '%(BUG错误)'";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='功能执行'  where  (t.V2 = '其他功能' or t.v2='内网接口' or t.V2 = '定时') and v1 like '%(BUG错误)'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
 

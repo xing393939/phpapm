@@ -19,12 +19,14 @@ class monitor_duty
         while ($_row_all = apm_db_fetch_assoc($stmt)) {
             $v1_all[$_row_all['V1']] = $_row_all['V1'];
         }
-        $sql = "select t.lookup, trunc(t.cal_date) cal_date, v1
+        $sql = "select t.lookup, t.cal_date, v1
                from ".APM_DB_PREFIX."monitor_date t
-               where t.cal_date >= trunc(sysdate - 7)
-               and t.cal_date < trunc(sysdate - 6) and t.lookup is null
-               group by trunc(t.cal_date), t.lookup, v1 ";
+               where t.cal_date >= :cal_date1
+               and t.cal_date < :cal_date2 and t.lookup is null
+               group by t.cal_date, t.lookup, v1 ";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date1', date('Y-m-d', time() - 7 * 86400));
+        apm_db_bind_by_name($stmt, ':cal_date2', date('Y-m-d', time() - 6 * 86400));
         apm_db_execute($stmt);
         $_row = array();
         while ($_row = apm_db_fetch_assoc($stmt)) {
@@ -50,7 +52,7 @@ class monitor_duty
            (select sum(t.fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
-              and t.cal_date = CURDATE()) web_num from dual";
+              and t.cal_date = CURDATE()) web_num";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -69,17 +71,18 @@ class monitor_duty
         $sql = "select (select sum(fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(SQL统计)'
-            and t.cal_date = trunc(sysdate - 2/24)) sql_num,
+            and t.cal_date = :cal_date_2h) sql_num,
            (select sum(t.fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
-              and t.cal_date = trunc(sysdate - 2/24)) web_num,
+              and t.cal_date = :cal_date_2h) web_num,
             (select sum(t.fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
-              and t.cal_date = trunc(sysdate - 1)) y_web_num
-           from dual  ";
+              and t.cal_date = :cal_date_1d) y_web_num";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_2h', date('Y-m-d', time() - 7200));
+        apm_db_bind_by_name($stmt, ':cal_date_1d', date('Y-m-d', time() - 86400));
         $oci_error = apm_db_execute($stmt);
         $_row = array();
         $_row = apm_db_fetch_assoc($stmt);
@@ -141,7 +144,7 @@ class monitor_duty
            (select sum(t.fun_count)
              from ".APM_DB_PREFIX."monitor_date t
             where v1 like '%(WEB日志分析)'
-              and t.cal_date = CURDATE()) web_num from dual";
+              and t.cal_date = CURDATE()) web_num";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -161,8 +164,9 @@ class monitor_duty
                from ".APM_DB_PREFIX."monitor_hour t
               where v1 like '%(BUG错误)'
                 and v2 = '验收责任未到位'
-                and t.cal_date = trunc(sysdate-1/24,'hh24') ";
+                and t.cal_date = :cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d H:00:00', time() - 3600));
         $oci_error = apm_db_execute($stmt);
         $_row = array();
         $_row = apm_db_fetch_assoc($stmt);
@@ -174,8 +178,9 @@ class monitor_duty
         $sql = "select sum(fun_count) TCP
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)' and V2='TCP连接'
-                              and t.cal_date = trunc(sysdate-1/24)";
+                              and t.cal_date = :cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d', time() - 3600));
         $oci_error = apm_db_execute($stmt);
         $_row = array();
         $_row = apm_db_fetch_assoc($stmt);
@@ -191,8 +196,9 @@ class monitor_duty
 
         //扣分项
         //机器重启当天,每小时扣200分
-        $sql = "select fun_count from ".APM_DB_PREFIX."monitor_date t where v1 like'%(WEB日志分析)' and v2='运行天数' and t.cal_date = trunc(sysdate - 1/24 )";
+        $sql = "select fun_count from ".APM_DB_PREFIX."monitor_date t where v1 like'%(WEB日志分析)' and v2='运行天数' and t.cal_date = :cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d', time() - 3600));
         $oci_error = apm_db_execute($stmt);
         $_row = array();
         $manyi = 0;
@@ -210,8 +216,7 @@ class monitor_duty
                   (select sum(t.fun_count)
                      from ".APM_DB_PREFIX."monitor_date t
                     where v1 like '%(BUG错误)'
-                      and t.cal_date = CURDATE()) web_num
-             from dual ";
+                      and t.cal_date = CURDATE()) web_num";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -225,8 +230,9 @@ class monitor_duty
         _status($manyi, APM_HOST . "(项目满意分)", "扣分:执行超时", "执行超时", "OVER_NUM:{$_row['SQL_NUM']}", APM_VIP, 0, 'replace');
 
         //问题sql扫描
-        $sql = "select fun_count from ".APM_DB_PREFIX."monitor_date t where v1 like'%(问题SQL)' and v2='全表扫描' and t.cal_date = trunc(sysdate-1/24)";
+        $sql = "select fun_count from ".APM_DB_PREFIX."monitor_date t where v1 like'%(问题SQL)' and v2='全表扫描' and t.cal_date = :cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d', time() - 3600));
         $oci_error = apm_db_execute($stmt);
         $_row = array();
         $manyi = 0;
@@ -242,8 +248,9 @@ class monitor_duty
         $sql = "select avg(fun_count) CPU
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)' and V2='CPU'
-                              and t.cal_date = trunc(sysdate-1/24)";
+                              and t.cal_date = :cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d', time() - 3600));
         $oci_error = apm_db_execute($stmt);
         $_row = array();
         $_row = apm_db_fetch_assoc($stmt);
@@ -251,8 +258,9 @@ class monitor_duty
         $sql = "select avg(fun_count) LOAD_COUNT
                                      from ".APM_DB_PREFIX."monitor_date t
                                     where v1 like '%(WEB日志分析)' and V2='Load'
-                                      and t.cal_date = trunc(sysdate-1/24)";
+                                      and t.cal_date = :cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d', time() - 3600));
         $oci_error = apm_db_execute($stmt);
         $_row_load = apm_db_fetch_assoc($stmt);
         $manyi = 0;
@@ -269,7 +277,7 @@ class monitor_duty
                            (select sum(t.fun_count)
                              from ".APM_DB_PREFIX."monitor_date t
                             where v1 like '%(WEB日志分析)'
-                              and t.cal_date = CURDATE()) web_num from dual ";
+                              and t.cal_date = CURDATE()) web_num";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
         $_row = array();
@@ -310,8 +318,9 @@ class monitor_duty
         $sql = "select sum(fun_count) COCK
                                      from ".APM_DB_PREFIX."monitor_hour t
                                     where v1 like '%(BUG错误)' and V2='上传木马入侵'
-                                      and t.cal_date= trunc(sysdate-1/24,'hh24')";
+                                      and t.cal_date=:cal_date_1h";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d H:00:00', time() - 3600));
         apm_db_execute($stmt);
         $_row_cock = apm_db_fetch_assoc($stmt);
         $manyi = $manyi - $_row_cock['COCK'] * 50;
@@ -321,8 +330,9 @@ class monitor_duty
         $sql = "select fun_count,v3,DATE_FORMAT(cal_date,'%Y-%m-%d %H') cal_date
                                      from ".APM_DB_PREFIX."monitor_hour t
                                     where v1 like '%(BUG错误)' and V2='PHP错误'
-                                      and t.cal_date>= trunc(sysdate-1,'hh24') order by cal_date desc";
+                                      and t.cal_date>=:cal_date_1h order by cal_date desc";
         $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_bind_by_name($stmt, ':cal_date_1h', date('Y-m-d H:00:00', time() - 3600));
         apm_db_execute($stmt);
         $_row_php = array();
         $manyi = 0;

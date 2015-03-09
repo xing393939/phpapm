@@ -84,12 +84,6 @@ function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
     $conn_db = $stmt['$conn_db'];
     settype($_SERVER['last_mysql_bindname'], 'Array');
     $sql = strtr($stmt['$sql'], $_SERVER['last_mysql_bindname']);
-    //start
-    $sql = preg_replace_callback(
-        '/trunc\(([^,\)]+)(\)|,([^\)]+)\))/', '_oci_truncate', $sql);
-    $sql = preg_replace_callback(
-        '/(sysdate|SYSDATE)([ \d\+\-\/]*)/', '_oci_sysdate', $sql);
-    //end
 
     $t1 = microtime(true);
     $stmt = mysqli_query($conn_db, $sql);
@@ -136,41 +130,4 @@ function apm_db_fetch_assoc($stmt = false)
         $_row['FUN_COUNT'] = preg_replace("/\.00$/", '', $_row['FUN_COUNT']);
     }
     return $_row;
-}
-
-function _oci_sysdate($matches)
-{
-    $delay = trim($matches[2]);
-    if (empty($delay)) {
-        $return = "NOW() ";
-    } else {
-        if (strpos($delay, '/') !== false) {
-            $delay = preg_replace_callback('/([\d]+)[\s\/]+([\d]+)/', '_oci_get_hour', $delay);
-            $return = "NOW() + INTERVAL $delay HOUR ";
-        } else {
-            $return = "NOW() + INTERVAL $delay DAY ";
-        }
-    }
-    return $return;
-}
-
-function _oci_get_hour($matches)
-{
-    return $matches[1] / $matches[2] * 24;
-}
-
-function _oci_truncate($matches)
-{
-    $date = $matches[1];
-    $format = trim($matches[3]);
-    $format_mysql = preg_replace(array(
-        '/hh24/',
-        "/(^\\\\'|\\\\'$)/",
-    ), array(
-        '%Y-%m-%d %H',
-        "'",
-    ), $format);
-    $format_mysql = $format_mysql ? $format_mysql : "'%Y-%m-%d'";
-    $return = "DATE_FORMAT($date, $format_mysql)";
-    return $return;
 }

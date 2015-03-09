@@ -45,7 +45,7 @@ class nbi_num
                 $sql = "select sum(t.fun_count) c from ".APM_DB_PREFIX."monitor_date t
                         where t.v1 =:v1 and t.cal_date = CURDATE()";
                 $stmt = apm_db_parse($conn_db, $sql);
-                ocibindbyname($stmt, ':v1', $_row['pinfen_name']);
+                apm_db_bind_by_name($stmt, ':v1', $_row['pinfen_name']);
                 apm_db_execute($stmt);
                 $_row3 = apm_db_fetch_assoc($stmt);
                 $_row3['C'] = sprintf('%02d', $_row3['C']);
