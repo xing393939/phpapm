@@ -428,7 +428,7 @@
                 <!--/mnav-->
               </div>
               <div class="tBd" id="table_2">
-                <table  id="nums_1" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                <table id="nums_1" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
                   <thead>
                     <tr class = "tr-th2">
                       <th>&nbsp;</th>
@@ -664,7 +664,7 @@
                     <?php $i++;}?>
                   </tbody>
                 </table>
-                <table  id="nums_2" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%" style="display:none">
+                <table id="nums_2" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%" style="display:none">
                   <thead>
                     <tr class = "tr-th2">
                       <th>&nbsp;</th>
@@ -723,11 +723,11 @@
                     <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
                       <td class="b-r"><?php echo $i+1+$this->pageObj->limit_1;?></td>
                       <td class="b-r" style="text-align:left; width:130px;">
-                        <?php if(!$v['url']){?>
-                        <?php echo $k?>
-                        <?php }else{?>
-                        <a href="<?php echo $v['url']?>" target="_blank" class="blue"><?php echo $k?></a>
-                        <?php }?>
+                          <?php if(!$v['url']){?>
+                          <?php echo htmlspecialchars($v['AS_NAME1'])?>
+                          <?php }else{?>
+                          <a href="<?php echo $v['url']?>" target="_blank" class="blue"><?php echo htmlspecialchars($v['AS_NAME1'])?></a>
+                          <?php }?>
                       </td>
                       <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1.' +24 hour');$id+=3600){ $ii=date('d H',$id);?>
                       <td class="b-r">
@@ -811,7 +811,9 @@
                 <?php  if($this->pageObj->total>1 && count($this->fun_count)>=300){?>
                 <!--分页-->
                 <br />
-                <div class="page  fr"><span>第<?php echo $this->pageObj->currentPage?>/<?php echo $this->pageObj->pages?>页：</span>
+                <div class="page fr">
+                  <span><a href="?act=report_monitor_v1_do&v1=<?php echo $_GET['type']; ?>&v2=<?php echo $_GET['host']; ?>&start_date=<?php echo $_GET['start_date']; ?>">删除pv=1的v3记录</a></span>
+                  <span>第<?php echo $this->pageObj->currentPage?>/<?php echo $this->pageObj->pages?>页：</span>
                   <?php  _p("?".http_build_query(array('pageID'=>NULL)+$_GET)."&pageID={p}",false,"?".http_build_query(array('pageID'=>NULL)+$_GET));  ?>
                   <?php if($this->pageObj->currentPage>1){?>
                   <a href="<?php echo _p(1)?>" title='第1页' >|&lt;</a> <a href="<?php echo _p($this->pageObj->currentPage-1)?>" title='第<?php echo $this->pageObj->currentPage-1?>页' >&lt;&lt;</a>

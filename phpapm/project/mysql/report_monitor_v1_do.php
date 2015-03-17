@@ -14,12 +14,21 @@ class report_monitor_v1_do
         //删除v1
         if ($_POST['delete_v1']) {
             $this->_report_monitor_delete($conn_db);
+        //删除v1、v2、v3的pv=1的
+        } elseif (!empty($_GET['v1']) && !empty($_GET['v2']) && !empty($_GET['start_date'])) {
+            $sql = "delete from ".APM_DB_PREFIX."monitor_hour where v1=:v1 and v2=:v2 and cal_date>=:cal_date1 and cal_date<:cal_date2 and fun_count<2";
+            $stmt = apm_db_parse($conn_db, $sql);
+            apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
+            apm_db_bind_by_name($stmt, ':v2', trim($_GET['v2']));
+            apm_db_bind_by_name($stmt, ':cal_date1', $_GET['start_date']);
+            apm_db_bind_by_name($stmt, ':cal_date2', date('Y-m-d', strtotime($_GET['start_date']) + 86400));
+            $oci_error = apm_db_execute($stmt);
+
         } else {
             $sql = "select * from ".APM_DB_PREFIX."monitor_v1 t where v1=:v1 ";
             $stmt = apm_db_parse($conn_db, $sql);
             apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
             $oci_error = apm_db_execute($stmt);
-            $_row = array();
             $_row = apm_db_fetch_assoc($stmt);
 
             $sql = "update ".APM_DB_PREFIX."monitor_v1 set as_name=:as_name,count_type=:count_type,char_type=:char_type,
