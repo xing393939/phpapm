@@ -25,7 +25,6 @@ class report_sort
             apm_db_bind_by_name($stmt2, ':id', $_row['ID']);
             apm_db_bind_by_name($stmt2, ':orderby', $i);
             $oci_error_2 = apm_db_execute($stmt2);
-            $_row2 = array();
         }
         header("location: {$_SERVER['HTTP_REFERER']}");
     }

@@ -15,40 +15,37 @@ class sysload
         }
         $replace_date = date('H') . ':' . floor(date('i') / 10) * 10;
         exec("uptime", $uptime); //获取系统负载
-        exec('cat /proc/sys/kernel/hostname', $hostname); //获取服务器
-        print_r($hostname);
-        $_POST['hostname'] = $hostname[0];
 
         //系统负载
         preg_match('#load average: ([0-9|.]+),#iUs', $uptime[0], $out);
         print_r($out);
-        _status(round($out[1], 2), APM_HOST . '(WEB日志分析)', 'Load', $_POST['hostname'], $replace_date, APM_VIP, 0, 'replace');
+        _status(round($out[1], 2), APM_HOST . '(WEB日志分析)', 'Load', APM_VIP, $replace_date, APM_VIP, 0, 'replace');
 
         //IO压力
         $io = NULL;
         $io = exec("top -b -n 1 | awk 'NR==3 {print $6}' | awk -F '%' '{print $1}'"); //mem
         echo "IO\n";
         print_r($io);
-        _status($io, APM_HOST . '(WEB日志分析)', 'IO', $_POST['hostname'], date('Y-m-d H'), APM_VIP, 0, 'replace');
+        _status($io, APM_HOST . '(WEB日志分析)', 'IO', APM_VIP, date('Y-m-d H'), APM_VIP, 0, 'replace');
 
         //运行时间
         preg_match('#up ([0-9]+) day#iUs', $uptime[0], $out);
         echo "运行时间\n";
         print_r($out);
-        _status($out[1], APM_HOST . '(WEB日志分析)', '运行天数', $_POST['hostname'], date('Y-m-d H'), APM_VIP, 0, 'replace');
+        _status($out[1], APM_HOST . '(WEB日志分析)', '运行天数', APM_VIP, date('Y-m-d H'), APM_VIP, 0, 'replace');
 
         //监控内存剩余
         exec("cat /proc/meminfo | head -2 | tail -1", $mem); //mem
         print_r($mem);
         preg_match('#.*([0-9]+) KB#iUs', $mem[0], $out);
-        _status(round($out[1] / 1024, 2), APM_HOST . '(WEB日志分析)', 'Mem内存剩余', $_POST['hostname'], $replace_date, APM_VIP, 0, 'replace');
+        _status(round($out[1] / 1024, 2), APM_HOST . '(WEB日志分析)', 'Mem内存剩余', APM_VIP, $replace_date, APM_VIP, 0, 'replace');
 
         //CPU监控
         exec("top -b -n 1 | awk 'NR==3 {print $5}'", $cpu); //cpuinfo
         print_r($cpu);
         $_POST['cpu'] = str_replace('%id,', '', $cpu[0]);
         $_POST['cpu'] = 100 - $_POST['cpu'];
-        _status($_POST['cpu'], APM_HOST . '(WEB日志分析)', 'CPU', $_POST['hostname'], $_POST['cpu'] . '%-' . $replace_date, APM_VIP, 0, 'replace');
+        _status($_POST['cpu'], APM_HOST . '(WEB日志分析)', 'CPU', APM_VIP, $_POST['cpu'] . '%-' . $replace_date, APM_VIP, 0, 'replace');
 
         //磁盘
         exec("df -h | awk 'NR>1{print $6,$5}'", $disk); //disk
@@ -61,7 +58,7 @@ class sysload
             $mnt_name = $tmp[0];
             $num = $tmp[1];
             $num = str_replace('%', '', $num);
-            _status($num, APM_HOST . '(WEB日志分析)', '磁盘', $_POST['hostname'] . '-' . $mnt_name, $row . '-' . $replace_date, APM_VIP, 0, 'replace');
+            _status($num, APM_HOST . '(WEB日志分析)', '磁盘', APM_VIP . '-' . $mnt_name, $row . '-' . $replace_date, APM_VIP, 0, 'replace');
         }
 
         //web_link连接数

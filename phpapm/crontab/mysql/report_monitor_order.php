@@ -8,6 +8,8 @@
  */
 class report_monitor_order
 {
+    var $all;
+
     function _initialize()
     {
         #每小时执行一次

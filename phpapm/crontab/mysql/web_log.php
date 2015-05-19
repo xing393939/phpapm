@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @desc   统计web日志
  * @author xing39393939@gmail.com
@@ -10,6 +9,9 @@ class web_log
 {
     function _initialize()
     {
+        if (strpos(PHP_OS, 'WIN') !== false) {
+            exit();
+        }
         #每小时执行一次
         exec("rm -f  /home/webid/logs/" . date('Y_m_d', strtotime('-7 day')) . "*.log");
         $qps_stats = 0;
@@ -18,43 +20,21 @@ class web_log
             if ($_GET['gz']) {
                 for ($i = strtotime(date('Y-m-d H:00:00', strtotime('-1 hours'))); $i < strtotime(date('Y-m-d H:00:00', strtotime('-0 hours'))); $i += 600) {
                     $gz_dir = $_GET['gz'] . '/' . date('Y-m-d', $i) . '/' . APM_HOST;
-                    $logfilename = date('Y_m_d_H_i', $i) . APM_HOST . '_access.log';
+                    $log_file_name = date('Y_m_d_H_i', $i) . APM_HOST . '_access.log';
                     $i_linux = substr(strval($i), 0, -1);
                     $tt1 = microtime(true);
-                    echo "tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$logfilename}\n";
-                    exec("tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$logfilename}");
+                    echo "tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$log_file_name}\n";
+                    exec("tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$log_file_name}");
                     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
                     _status(1, APM_HOST . '(BUG错误)', '文件读写', APM_VIP . APM_PROJECT, "{$gz_dir}*{$i_linux}*@file:" . APM_URI . "/{$_GET['act']}", APM_VIP, $diff_time);
-                    $qps_stats = max($qps_stats, $this->_web_log("/home/webid/logs/{$logfilename}"));
+                    $qps_stats = max($qps_stats, $this->_web_log("/home/webid/logs/{$log_file_name}"));
                 }
             } else {
-                $logfilename = APM_HOST . date('_Y_m_d_H', strtotime('-1 hours')) . '_access.log';
-                copy(APM_LOG_PATH . $logfilename, "/home/webid/logs/{$logfilename}");
-                $qps_stats = $this->_web_log("/home/webid/logs/{$logfilename}");
+                $log_file_name = APM_HOST . date('_Y_m_d_H', strtotime('-1 hours')) . '_access.log';
+                copy(APM_LOG_PATH . $log_file_name, "/home/webid/logs/{$log_file_name}");
+                $qps_stats = $this->_web_log("/home/webid/logs/{$log_file_name}");
             }
             _status($qps_stats, APM_HOST . '(WEB日志分析)', 'QPS', 'QPS', null, APM_VIP, 0, NULL, strtotime('-1 hours'));
-        }
-
-        //js脚本错误记录.
-        if (APM_ERR_LOG_PATH && method_exists($this, '_err_weblog')) {
-            //web日志
-            if ($_GET['gz']) {
-                for ($i = strtotime(date('Y-m-d H:00:00', strtotime('-1 hours'))); $i < strtotime(date('Y-m-d H:00:00', strtotime('-0 hours'))); $i += 600) {
-                    $gz_dir = $_GET['gz'] . '/' . date('Y-m-d', $i) . '/' . APM_ERR_LOG_PATH;
-                    $logfilename = date('Y_m_d_H_i', $i) . APM_ERR_LOG_PATH . '_access.log';
-                    $i_linux = substr(strval($i), 0, -1);
-                    $tt1 = microtime(true);
-                    echo "tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$logfilename}\n";
-                    exec("tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$logfilename}");
-                    $diff_time = sprintf('%.5f', microtime(true) - $tt1);
-                    _status(1, APM_HOST . '(BUG错误)', '文件读写', APM_VIP . APM_PROJECT, "{$gz_dir}*{$i_linux}*@file:" . APM_URI . "/{$_GET['act']}", APM_VIP, $diff_time);
-                    $this->_err_weblog("/home/webid/logs/{$logfilename}");
-                }
-            } else {
-                $logfilename = date('Y_m_d_H', strtotime('-1 hours')) . '_access.log';
-                copy(APM_ERR_LOG_PATH . $logfilename, "/home/webid/logs/{$logfilename}");
-                $this->_err_weblog(APM_ERR_LOG_PATH . $logfilename);
-            }
         }
 
         //php错误日志
@@ -81,6 +61,7 @@ class web_log
         $status_arr = array(200, 206, 301, 302, 304, 400, 403, 404, 405, 408, 413, 417, 499, 500, 501, 502, 504);
         $count_arr = array();
         $count_sum = 0;
+        $error_ips_str = "";
         foreach ($status_arr as $key => $status_code) {
             $cmd = "cat " . $log_file . " | grep '\" " . $status_code . " ' | wc -l";
             echo $cmd . "\n";

@@ -1,22 +1,10 @@
 <?php
-$conn_db = apm_db_logon(APM_DB_ALIAS);
-define('PROJECT_SQL',true);
-$sql = "select t.*,ifnull(as_name,v1) as_name1 from ".APM_DB_PREFIX."monitor_v1 t
-order by GROUP_NAME_1,GROUP_NAME_2,group_name,as_name1";
-$stmt = apm_db_parse($conn_db, $sql);
-$ocierror = apm_db_execute($stmt);
-$v1_config_group = $_row = array();
-while ($_row = apm_db_fetch_assoc($stmt))
-{
-if(!$v1_config_group[$_row['GROUP_NAME_1']][$_row['GROUP_NAME_2']][$_row['GROUP_NAME']])
-$v1_config_group[$_row['GROUP_NAME_1']][$_row['GROUP_NAME_2']][$_row['GROUP_NAME']]=$_row['V1'];
-}
-if(is_object($this) && is_array($this->v1_config))
-{
-$top_config=current($this->v1_config);
-}else
-$top_config=array();
-$ki=0;foreach($v1_config_group as $k=>$v){ $ki++;?>
+$top_config = current((array) $this->v1_config);
+global $v1_config_group;
+$ki = 0;
+foreach ($v1_config_group as $k => $v) {
+    $ki++;
+?>
 <div class="xiala rating-menu" id="user-infor">
     <span data-type="simulate-select-hover"
         data-select-config="offsetParent=.xiala&dropLayer=.xiala-layer&select=cur&&minWidth=192&align=right&adjustX=2"
@@ -46,4 +34,4 @@ $ki=0;foreach($v1_config_group as $k=>$v){ $ki++;?>
     </div>
     <!--/xiala-layer-->
 </div>
-<?php }?>    
+<?php } ?>

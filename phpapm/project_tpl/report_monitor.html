@@ -434,9 +434,6 @@
                       <th>&nbsp;</th>
                       <th>&nbsp;</th>
                       <th colspan='24'>24小时状态
-                        <?php if($_REQUEST['start_date'] && strtotime($_REQUEST['start_date'])>time()-3600*24*9 ){?>
-                        (<a href="?act=monitor_config&hour=<?php echo $_REQUEST['start_date']?>&v1=<?php echo rawurlencode($_REQUEST['type'])?>&v2=<?php echo rawurlencode($_REQUEST['host'])?>" class="blue" target="_blank">重刷<?php echo $_REQUEST['start_date']?>数据</a>)
-                        <?php }?>
                       </th>
                         <?php if(strstr($_GET['type'], '功能执行')){?>
                         <th colspan='8'>监控项目</th>
@@ -670,9 +667,6 @@
                       <th>&nbsp;</th>
                       <th>&nbsp;</th>
                       <th colspan='24'>24小时状态
-                        <?php if($_REQUEST['start_date']){?>
-                        (<a href="?act=monitor_config&hour=<?php echo $_REQUEST['start_date']?>&v1=<?php echo rawurlencode($_REQUEST['type'])?>&v2=<?php echo rawurlencode($_REQUEST['host'])?>" class="blue" target="_blank">重刷<?php echo $_REQUEST['start_date']?>数据</a>)
-                        <?php }?>
                       </th>
                         <?php if(strstr($_GET['type'], '功能执行')){?>
                         <th colspan='8'>监控项目</th>
