@@ -15,7 +15,6 @@ class monitor
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         if (!$conn_db)
             exit('no db');
-        $get_included_files = basename(array_shift(get_included_files()));
 
         $tt1 = microtime(true);
         echo "<pre> 准备压缩数据:\n";
@@ -134,7 +133,7 @@ class monitor
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error)
-                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', "{$get_included_files}/{$_GET['act']}", var_export(array(
+                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
                                             'cal_date' => $time,
                                             'v1' => $type,
                                             'v2' => $host,
@@ -179,7 +178,7 @@ class monitor
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
                                     if ($oci_error)
-                                        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', "{$get_included_files}/{$_GET['act']}", var_export(array(
+                                        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
                                                 'cal_date' => $time,
                                                 'time' => date('Y-m-d H:i:s'),
                                                 'md5' => md5($time . $type . $host . $act . $key . $hostip),

@@ -110,7 +110,7 @@ function _myErrorHandler($no, $msg, $file, $line)
         return;
     if (strpos($msg, 'ftp_mkdir()') === 0)
         return;
-    if (strpos($_GET['act'], 'monitor') === 0 && strpos($msg, 'msg_send') !== false)
+    if (isset($_GET['act']) && strpos($_GET['act'], 'monitor') === 0 && strpos($msg, 'msg_send') !== false)
         return;
     if (strpos($msg, 'UTF-8 sequence') !== false)
         return;

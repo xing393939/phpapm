@@ -107,8 +107,7 @@ class monitor_config
                         $oci_error = apm_db_execute($stmt);
                         print_r($oci_error);
                         if ($oci_error) {
-                            $get_included_files = basename(array_shift(get_included_files()));
-                            _status(1, APM_HOST . "(BUG错误)", 'SQL错误', $get_included_files . '/' . $_GET['act'], var_export($oci_error, true) . "|" . var_export($_row, true));
+                            _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
                         } else {
                             _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_VIP);
                         }
@@ -159,8 +158,7 @@ class monitor_config
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error) {
-                                    $get_included_files = basename(array_shift(get_included_files()));
-                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', $get_included_files . '/' . $_GET['act'], var_export($oci_error, true) . "|" . var_export($_row, true));
+                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
                                 } else {
                                     _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_VIP);
                                 }

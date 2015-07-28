@@ -48,7 +48,6 @@ function apm_db_parse($conn_db, $sql)
         $out = array();
         preg_match('# in(\s+)?\(#is', $sql, $out);
         if (!$out) {
-            $get_included_files = $_SERVER['PHP_SELF'];
             $basefile = '/dev/shm/sql_' . APM_HOST;
             if (is_writable($basefile))
                 $sqls = unserialize(file_get_contents($basefile));
@@ -62,7 +61,7 @@ function apm_db_parse($conn_db, $sql)
                     'db' => $_SERVER['last_db_conn'],
                     'type' => 'oci',
                     'vhost' => APM_HOST,
-                    'act' => "{$get_included_files}/{$_REQUEST['act']}"
+                    'act' => APM_URI
                 );
                 file_put_contents($basefile, serialize($sqls));
             }

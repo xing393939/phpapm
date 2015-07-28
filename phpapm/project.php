@@ -19,7 +19,6 @@ if (empty($_COOKIE['admin_user']) || $_COOKIE['admin_user'] != md5(APM_ADMIN_USE
 
 //右侧菜单栏 start
 $conn_db = apm_db_logon(APM_DB_ALIAS);
-define('PROJECT_SQL', true);
 $sql = "select t.*,as_name as_name1 from " . APM_DB_PREFIX . "monitor_v1 t
         order by GROUP_NAME_1,GROUP_NAME_2,group_name,as_name1";
 $stmt = apm_db_parse($conn_db, $sql);
