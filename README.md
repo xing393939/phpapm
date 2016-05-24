@@ -20,10 +20,10 @@ echo 8384000 > /proc/sys/kernel/msgmnb
 echo 41920 > /proc/sys/kernel/msgmax
 echo 30 > /proc/sys/kernel/msgmni
 ```
-3，赋给cron_1hour.sh、cron_1minute.sh可执行权限再创建crontab，如下：<br />
+3，创建crontab，如下：<br />
 ```javascript
-*/1 * * * * /path/www/site/cron_1minute.sh 1
-30  * * * * /path/www/site/cron_1hour.sh 1
+*/1 * * * * /bin/sh -x /path/www/site/cron_1minute.sh 1
+30  * * * * /bin/sh -x /path/www/site/cron_1hour.sh 1
 ```
 
 ## Config
