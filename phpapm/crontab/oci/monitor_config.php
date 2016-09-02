@@ -85,7 +85,7 @@ class monitor_config
                     apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                     $oci_error = apm_db_execute($stmt);
                     print_r($oci_error);
-                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_VIP);
+                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
                     $ocirowcount = apm_db_row_count($stmt);
                     if ($ocirowcount < 1) {
                         $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time, total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
@@ -109,7 +109,7 @@ class monitor_config
                         if ($oci_error) {
                             _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
                         } else {
-                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_VIP);
+                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_HOSTNAME);
                         }
                     }
 
@@ -136,7 +136,7 @@ class monitor_config
                             apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                             $oci_error = apm_db_execute($stmt);
                             print_r($oci_error);
-                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_VIP);
+                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
                             $ocirowcount = apm_db_row_count($stmt);
                             if ($ocirowcount < 1) {
                                 $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
@@ -160,7 +160,7 @@ class monitor_config
                                 if ($oci_error) {
                                     _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
                                 } else {
-                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_VIP);
+                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_HOSTNAME);
                                 }
                             }
                         }
@@ -199,7 +199,7 @@ class monitor_config
                 apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
                 $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
-                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'v1_config', APM_VIP);
+                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'v1_config', APM_HOSTNAME);
             }
 
             $_row_config = $this->all_config[$_row['V1'] . $_row['V2']];
@@ -263,7 +263,7 @@ class monitor_config
             apm_db_bind_by_name($stmt2, ':fun_count', $_row['FUN_COUNT']);
             $oci_error = apm_db_execute($stmt2);
             print_r($oci_error);
-            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_VIP);
+            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_HOSTNAME);
             $_row_count = apm_db_row_count($stmt2);
             if (!$_row_count) {
                 $sql = "insert into ".APM_DB_PREFIX."monitor_date (cal_date,v1,v2,fun_count) values
@@ -275,7 +275,7 @@ class monitor_config
                 apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                 $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
-                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_VIP);
+                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_HOSTNAME);
             }
             $compare_group = array_filter(explode('|', '|' . $_row_config['COMPARE_GROUP']));
             if (count($compare_group) > 0) {
@@ -289,7 +289,7 @@ class monitor_config
                     apm_db_bind_by_name($stmt2, ':fun_count', $_row['FUN_COUNT']);
                     $oci_error = apm_db_execute($stmt2);
                     print_r($oci_error);
-                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_VIP);
+                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_HOSTNAME);
                     $_row_count = apm_db_row_count($stmt2);
                     if (!$_row_count) {
                         $sql = "insert into ".APM_DB_PREFIX."monitor_date (cal_date,v1,v2,fun_count) values
@@ -301,7 +301,7 @@ class monitor_config
                         apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                         $oci_error = apm_db_execute($stmt);
                         print_r($oci_error);
-                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_VIP);
+                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_HOSTNAME);
                     }
                 }
             }
@@ -335,7 +335,7 @@ class monitor_config
                     apm_db_bind_by_name($stmt, ':orderby', max(1, $_row2['C'] + 1));
                 $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
-                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'config', APM_VIP);
+                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'config', APM_HOSTNAME);
             }
         }
 

@@ -1,27 +1,13 @@
 <?php
 define('APM_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
-$u_name_arr = explode(' ', php_uname());
-define('APM_VIP', strpos(PHP_OS, 'WIN') === false ? $u_name_arr[1] : $u_name_arr[2]);
+define('APM_HOSTNAME', php_uname('n'));
 
 //select db func
-if (APM_DB_TYPE == 'mysql') {
-    include APM_PATH . "./include/db_mysql.func.php";
-} elseif (APM_DB_TYPE == 'oci') {
-    include APM_PATH . "./include/db_oci.func.php";
-} else {
-    exit('config error');
-}
+include APM_PATH . "./include/db_" . APM_DB_TYPE . ".func.php";
 
 //select status type
-if (strpos(PHP_OS, 'WIN') === false) {
-    include APM_PATH . "./include/_status_ipcs.php";
-    if (isset($_GET['act']) && $_GET['act'] == 'monitor' &&
-        strpos($_SERVER['PHP_SELF'], 'crontab.php') !== false) {
-        $_GET['act'] = 'monitor_ipcs';
-    }
-} else {
-    include APM_PATH . "./include/_status.php";
-}
+include APM_PATH . "./include/_status_" . APM_QUEUE_TYPE . ".php";
+
 include APM_PATH . "./include/header.func.php";
 
 class apm_db_config

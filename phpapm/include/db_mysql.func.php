@@ -16,14 +16,14 @@ function apm_db_logon($DB)
     $DB = $DBS[time() % count($DBS)];
     $dbConfigInterface = $dbConfig[$DB];
     if (!$dbConfigInterface) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_VIP);
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_HOSTNAME);
         return null;
     }
     $tt1 = microtime(true);
     $conn_db = mysqli_connect($dbConfigInterface['TNS'], $dbConfigInterface['user_name'], $dbConfigInterface['password'], $dbConfigInterface['db']);
     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
     if (mysqli_connect_errno($conn_db)) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysqli_connect_error(), APM_URI, APM_VIP, $diff_time);
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysqli_connect_error(), APM_URI, APM_HOSTNAME, $diff_time);
         return null;
     }
     //凡是使用Mysql的一律是utf-8
@@ -79,7 +79,7 @@ function apm_db_bind_by_name($stmt, $key, $value, $int = false)
  * @return resource $error 错误信息
  * @throws 无DB异常处理
  */
-function apm_db_execute(& $stmt, $mode = OCI_COMMIT_ON_SUCCESS)
+function apm_db_execute(& $stmt, $mode = 32)
 {
     $conn_db = $stmt['$conn_db'];
     settype($_SERVER['last_mysql_bindname'], 'Array');

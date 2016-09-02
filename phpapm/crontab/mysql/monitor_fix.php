@@ -10,7 +10,7 @@ class monitor_fix
 {
     function _initialize()
     {
-        $IPCS = explode('|', APM_IPCS);
+        $IPCS = explode('|', APM_IPC_NAMES);
         foreach ($IPCS as $ipcs) {
             $ic = $cs = 0;
             $seg = msg_get_queue($ipcs, 0600);
@@ -46,7 +46,7 @@ class monitor_fix
                 }
             }
             echo "队列：$ipcs 从{$ic}个压缩到{$cs}<br />\n";
-            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, APM_VIP, 0, 'replace');
+            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, APM_HOSTNAME, 0, 'replace');
             unset($monitor);
         }
     }

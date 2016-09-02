@@ -16,26 +16,26 @@ if (!function_exists('msg_get_queue')) {
  * @since  2012-06-22 20:14:54
  * @throws 注意:无DB异常处理
  */
-function _status($num, $v1, $v2, $v3 = APM_VIP, $v4 = null, $v5 = APM_VIP, $diff_time = 0, $up_type = null, $time = null, $add_array = array())
+function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTNAME, $diff_time = 0, $up_type = null, $time = null, $add_array = array())
 {
     if (strpos(PHP_OS, 'WIN') !== false) {
         return false;
     }
 
     if (!$time)
-        $START_TIME_DATE = date('Y-m-d H:i:s', START_TIME);
+        $START_TIME_DATE = date('Y-m-d H:i:s', APM_START_TIME);
     else
         $START_TIME_DATE = date('Y-m-d H:i:s',$time);
 
     if ($v2 == $v3)
-        $v3 = APM_VIP;
-    $IPCS = explode('|', APM_IPCS);
+        $v3 = APM_HOSTNAME;
+    $IPCS = explode('|', APM_IPC_NAMES);
     $ipcs_key = $IPCS[rand(0, count($IPCS) - 1)];
     $seg = msg_get_queue($ipcs_key, 0600);
     if ($seg) {
         if ($v3 == NULL)
-            $v3 = APM_VIP;
-        if ($v5 == APM_VIP)
+            $v3 = APM_HOSTNAME;
+        if ($v5 == APM_HOSTNAME)
             $v5 = NULL;
         list($_up_type) = explode('/', $up_type);
         settype($add_array, 'array');

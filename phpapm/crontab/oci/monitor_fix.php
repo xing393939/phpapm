@@ -11,7 +11,7 @@ class monitor_fix
     function _initialize()
     {
         $IPCS = array();
-        $_IPCS = explode('|', APM_IPCS);
+        $_IPCS = explode('|', APM_IPC_NAMES);
         foreach ($_IPCS as $k => $v)
             if ($k % $_GET['total'] == $_GET['mod'])
                 $IPCS[] = $v;
@@ -50,7 +50,7 @@ class monitor_fix
                     }
                 }
             }
-            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, APM_VIP, 0, 'replace');
+            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(WEB日志分析)', '队列', '压缩比例', $ipcs, APM_HOSTNAME, 0, 'replace');
             unset($monitor);
         }
     }

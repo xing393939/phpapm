@@ -1,9 +1,5 @@
---
--- 表的结构 `phpapm_monitor`
---
-
-CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
-  `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `phpapm_monitor` (
+  `ID` bigint(15) unsigned NOT NULL AUTO_INCREMENT,
   `V1` varchar(100) DEFAULT NULL,
   `V2` varchar(100) DEFAULT NULL,
   `V3` varchar(200) DEFAULT NULL,
@@ -14,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
   `V6` decimal(12,6) DEFAULT NULL,
   `MD5` char(32) DEFAULT NULL COMMENT '唯一标志',
   `ADD_TIME` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `TOTAL_DIFF_TIME` decimal(18,2) DEFAULT NULL COMMENT '花费总耗时',
+  `TOTAL_DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '花费总耗时',
   `MEMORY_MAX` decimal(12,6) DEFAULT NULL COMMENT '内存单次最大消耗',
   `MEMORY_TOTAL` decimal(12,6) DEFAULT NULL COMMENT '内存消耗.总',
   `CPU_USER_TIME_MAX` decimal(12,6) DEFAULT NULL COMMENT '用户消耗CPU,单次最大',
@@ -24,15 +20,10 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `MD5` (`MD5`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='所有监控' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB AUTO_INCREMENT=53375 DEFAULT CHARSET=utf8 COMMENT='所有监控';
 
--- --------------------------------------------------------
-
---
--- 表的结构 `phpapm_monitor_config`
---
-
-CREATE TABLE IF NOT EXISTS `phpapm_monitor_config` (
+CREATE TABLE `phpapm_monitor_config` (
+  `ID` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `V1` varchar(100) DEFAULT NULL,
   `V2` varchar(100) DEFAULT NULL,
   `COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '日综合数据的统计方式',
@@ -42,7 +33,6 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_config` (
   `PHONE` varchar(100) DEFAULT NULL COMMENT '手机号码,\r\n分号隔开',
   `PHONE_ORDER` decimal(10,0) DEFAULT NULL COMMENT '手机通知条件大于',
   `PHONE_ORDER_LESS` decimal(10,0) DEFAULT NULL COMMENT '手机通知条件小于',
-  `ID` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `AS_NAME` varchar(100) DEFAULT NULL COMMENT '页\r\n面上面显示的别名',
   `DAY_COUNT_TYPE` varchar(10) NOT NULL DEFAULT '0' COMMENT '日数据的统计方式:',
   `HOUR_COUNT_TYPE` varchar(10) NOT NULL DEFAULT '0' COMMENT '小时数据的统计方式:',
@@ -56,15 +46,9 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_config` (
   `VIRTUAL_COLUMNS` decimal(2,0) DEFAULT NULL,
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='配置显示方式' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COMMENT='配置显示方式';
 
--- --------------------------------------------------------
-
---
--- 表的结构 `phpapm_monitor_date`
---
-
-CREATE TABLE IF NOT EXISTS `phpapm_monitor_date` (
+CREATE TABLE `phpapm_monitor_date` (
   `CAL_DATE` date NOT NULL,
   `V1` varchar(100) NOT NULL,
   `V2` varchar(100) NOT NULL,
@@ -74,21 +58,15 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_date` (
   PRIMARY KEY (`CAL_DATE`,`V1`,`V2`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='日统计报表';
 
--- --------------------------------------------------------
-
---
--- 表的结构 `phpapm_monitor_hour`
---
-
-CREATE TABLE IF NOT EXISTS `phpapm_monitor_hour` (
-  `CAL_DATE` datetime DEFAULT NULL,
+CREATE TABLE `phpapm_monitor_hour` (
+  `CAL_DATE` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `V1` varchar(100) NOT NULL,
   `V2` varchar(100) NOT NULL,
-  `V3` varchar(200) DEFAULT NULL,
+  `V3` varchar(200) NOT NULL DEFAULT '',
   `FUN_COUNT` int(11) unsigned DEFAULT '0',
   `DIFF_TIME` decimal(12,6) DEFAULT NULL,
   `ADD_TIME` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `TOTAL_DIFF_TIME` decimal(18,2) DEFAULT NULL COMMENT '花费总耗时',
+  `TOTAL_DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '花费总耗时',
   `MEMORY_MAX` decimal(12,6) DEFAULT NULL COMMENT '内存单次最大消耗',
   `MEMORY_TOTAL` decimal(12,6) DEFAULT NULL COMMENT '内存消耗.总',
   `CPU_USER_TIME_MAX` decimal(12,6) DEFAULT NULL COMMENT '用户消耗CPU,单次最大',
@@ -96,28 +74,17 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_hour` (
   `CPU_SYS_TIME_MAX` decimal(12,6) DEFAULT NULL COMMENT '系统消耗CPU,单次最大',
   `CPU_SYS_TIME_TOTAL` decimal(12,6) DEFAULT NULL COMMENT '系统消耗CPU,总',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
-  UNIQUE KEY `V1` (`V1`,`V2`,`V3`,`CAL_DATE`)
+  PRIMARY KEY (`CAL_DATE`,`V1`,`V2`,`V3`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- --------------------------------------------------------
+CREATE TABLE `phpapm_monitor_queue` (
+  `ID` bigint(15) unsigned NOT NULL AUTO_INCREMENT,
+  `QUEUE` text NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=1366 DEFAULT CHARSET=utf8;
 
---
--- 表的结构 `phpapm_monitor_queue`
---
-
-CREATE TABLE IF NOT EXISTS `phpapm_monitor_queue` (
-  `id` bigint(15) unsigned NOT NULL AUTO_INCREMENT,
-  `queue` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `phpapm_monitor_v1`
---
-
-CREATE TABLE IF NOT EXISTS `phpapm_monitor_v1` (
+CREATE TABLE `phpapm_monitor_v1` (
+  `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `V1` varchar(100) NOT NULL COMMENT '\r\n名称',
   `AS_NAME` varchar(100) DEFAULT NULL COMMENT '页面上\r\n面显示的别名',
   `COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '日综合数据的统计方式',
@@ -126,7 +93,6 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_v1` (
   `START_CLOCK` decimal(2,0) NOT NULL DEFAULT '0' COMMENT '日数据默认开始小时时间',
   `SHOW_TEMPLATE` decimal(2,0) NOT NULL DEFAULT '0' COMMENT '采用的显示模板',
   `SHOW_ALL` decimal(2,0) NOT NULL DEFAULT '1' COMMENT '显示汇总',
-  `ID` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `DAY_COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '日数据的统计方式:',
   `HOUR_COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '小时数据的统计方式:',
   `MIN_COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '分钟数据的统计方式:',
@@ -140,4 +106,4 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_v1` (
   `PINFEN_RULE_NAME` varchar(40) DEFAULT NULL COMMENT '顶部菜单显示的评分标准名称',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='配置V1的各项基本信息' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='配置V1的各项基本信息';

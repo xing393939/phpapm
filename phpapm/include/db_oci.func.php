@@ -16,7 +16,7 @@ function apm_db_logon($DB)
     $DB = $DBS[time() % count($DBS)];
     $dbconfiginterface = $dbconfig[$DB];
     if (!$dbconfiginterface) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_VIP);
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_HOSTNAME);
         return null;
     }
     $tt1 = microtime(true);
@@ -24,7 +24,7 @@ function apm_db_logon($DB)
     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
     if (!is_resource($conn_db)) {
         $err = apm_db_error();
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . $err['message'], APM_URI, APM_VIP, $diff_time);
+        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . $err['message'], APM_URI, APM_HOSTNAME, $diff_time);
         return null;
     }
     $_SERVER['last_oci_link'][$conn_db] = $DB;
@@ -44,7 +44,7 @@ function apm_db_parse($conn_db, $sql)
 {
     $_SERVER['last_db_conn'] = $_SERVER['last_oci_link'][$conn_db];
     //SQL性能分析准备,定时任务的SQL不参与分析
-    if (is_writable('/dev/shm/') && $_SERVER['last_oci_sql'] <> $sql && !((!$_SERVER['HTTP_HOST'] || $_SERVER['REMOTE_ADDR'] == '127.0.0.1'))) {
+    if (is_writable('/dev/shm/') && $_SERVER['last_oci_sql'] <> $sql && APM_REQUEST_TYPE != 'CLI') {
         $out = array();
         preg_match('# in(\s+)?\(#is', $sql, $out);
         if (!$out) {

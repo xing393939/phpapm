@@ -1,0 +1,63 @@
+<thead>
+  <tr class="tr-th2">
+    <th>&nbsp;</th>
+    <th colspan="<?php echo $cospan; ?>" style="text-align:right;">
+        <span><a class="blue" href="?act=report_sort&v1=<?php echo rawurlencode($_REQUEST['type'])?>">按照名称排序</a>&nbsp;&nbsp;</span>
+    </th>
+  </tr>
+  <!----------------------分组----------------------------->
+  <?php if ($is_group) { ?>
+  <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+    <td>汇总</td>
+    <?php foreach($this->group as $k=>$v) {
+    $num = $this->group_count[$k]['count'];
+    ?>
+    <td title="<?php echo intval($num);?>" colspan="<?php echo count($v)?>">
+      <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+    </td>
+    <?php } ?>
+  </tr>
+  <tr class = "tr-th2">
+    <th>分组</th>
+    <?php foreach($this->group as $k=>$v) { ?>
+    <?php
+    $group_ids = '';
+    foreach($v as $row){
+        $group_ids.="_".$row['ID'];
+    }
+    ?>
+    <th class="b-r" colspan="<?php echo count($v)?>" id="v2_group_<?php echo md5($k)?>" ondblclick="edit_v2_group(this,'<?php echo $group_ids?>');$(this).attr('ondblclick','');"><?php echo $k?></th>
+    <?php } ?>
+  </tr>
+  <?php } ?>
+  <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1) { ?>
+  <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+    <td>汇总</td>
+    <?php foreach($this->group as $k=>$i) {
+    foreach($i as $v) {
+    $num=$this->all_start_date_count[$v['V2']]['total'];
+    ?>
+    <td title="<?php echo intval($num);?>">
+      <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+    </td>
+    <?php }} ?>
+  </tr>
+  <?php }else{ ?>
+  <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
+    <td>平均</td>
+    <?php foreach($this->group as $k=>$vv) {
+        foreach($vv as $v) {
+    ?>
+    <td><?php echo $this->all_start_date_count[$v['V2']]['total_avg']?></td>
+    <?php }} ?>
+  </tr>
+  <?php } ?>
+  <tr class = "tr-th2">
+    <th>日期</th>
+    <?php foreach($this->group as $k=>$i) {
+        foreach($i as $v) {
+    ?>
+    <th title='<?php echo $v["V2"]; ?>' id="as_name_<?php echo md5($v['V1'].$v['V2'])?>" ondblclick="edit_as_name(this,<?php echo intval($v['ID'])?>);$(this).attr('ondblclick','');"><?php if($v['PHONE']){ ?><span style="color:red;"><?php echo $v['AS_NAME1']?></span><?php }else{?><?php echo $v['AS_NAME1']?><?php }?></th>
+    <?php }} ?>
+  </tr>
+</thead>

@@ -16,6 +16,7 @@ if (isset($_GET['s'])) {
 }
 define('APM_URI', $apm_uri);
 define('APM_HOST', 'www.dxslaw.com');
+define('APM_QUEUE_TYPE', 'db');
 define('APM_IPCS', '0x00000222');
 
 define('APM_DB_ALIAS', 'APM');

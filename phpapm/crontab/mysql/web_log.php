@@ -17,7 +17,7 @@ class web_log
         $qps_stats = 0;
         if (APM_LOG_PATH) {
             //web日志
-            if ($_GET['gz']) {
+            if (isset($_GET['gz'])) {
                 for ($i = strtotime(date('Y-m-d H:00:00', strtotime('-1 hours'))); $i < strtotime(date('Y-m-d H:00:00', strtotime('-0 hours'))); $i += 600) {
                     $gz_dir = $_GET['gz'] . '/' . date('Y-m-d', $i) . '/' . APM_HOST;
                     $log_file_name = date('Y_m_d_H_i', $i) . APM_HOST . '_access.log';
@@ -26,7 +26,7 @@ class web_log
                     echo "tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$log_file_name}\n";
                     exec("tar zxvf {$gz_dir}*{$i_linux}* -O >/home/webid/logs/{$log_file_name}");
                     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
-                    _status(1, APM_HOST . '(BUG错误)', '文件读写', APM_VIP . APM_PROJECT, "{$gz_dir}*{$i_linux}*@file:" . APM_URI . "/{$_GET['act']}", APM_VIP, $diff_time);
+                    _status(1, APM_HOST . '(BUG错误)', '文件读写', APM_HOSTNAME . APM_PROJECT, "{$gz_dir}*{$i_linux}*@file:" . APM_URI . "/{$_GET['act']}", APM_HOSTNAME, $diff_time);
                     $qps_stats = max($qps_stats, $this->_web_log("/home/webid/logs/{$log_file_name}"));
                 }
             } else {
@@ -34,7 +34,7 @@ class web_log
                 copy(APM_LOG_PATH . $log_file_name, "/home/webid/logs/{$log_file_name}");
                 $qps_stats = $this->_web_log("/home/webid/logs/{$log_file_name}");
             }
-            _status($qps_stats, APM_HOST . '(WEB日志分析)', 'QPS', 'QPS', null, APM_VIP, 0, NULL, strtotime('-1 hours'));
+            _status($qps_stats, APM_HOST . '(WEB日志分析)', 'QPS', 'QPS', null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
         }
 
         //php错误日志
@@ -42,13 +42,13 @@ class web_log
         foreach ($arr as $k => $v) {
             if (trim($v) !== '' || $v != 0) {
                 if (strpos($v, 'PHP Warning')) {
-                    _status(1, APM_HOST . '(BUG错误)', 'PHP错误', 'PHP错误日志', NULL, APM_VIP);
+                    _status(1, APM_HOST . '(BUG错误)', 'PHP错误', 'PHP错误日志', NULL, APM_HOSTNAME);
                 } else {
                     $v = substr($v, 22);
-                    _status(1, APM_HOST . '(BUG错误)', 'PHP错误', 'PHP错误日志', $v, APM_VIP);
+                    _status(1, APM_HOST . '(BUG错误)', 'PHP错误', 'PHP错误日志', $v, APM_HOSTNAME);
                 }
                 if (strpos($v, 'Fatal error'))
-                    _status(1, APM_HOST . '(BUG错误)', '致命错误', 'PHP错误日志', NULL, APM_VIP);
+                    _status(1, APM_HOST . '(BUG错误)', '致命错误', 'PHP错误日志', NULL, APM_HOSTNAME);
             }
         }
     }
@@ -79,15 +79,15 @@ class web_log
                     $error_ips_str .= "{$ip}({$count})\n";
                 }
             }
-            _status($count_arr[$status_code], APM_HOST . '(WEB日志分析)', $status_code, $status_code, $error_ips_str, APM_VIP, 0, NULL, strtotime('-1 hours'));
+            _status($count_arr[$status_code], APM_HOST . '(WEB日志分析)', $status_code, $status_code, $error_ips_str, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
         }
-        _status(($total - $count_sum), APM_HOST . '(WEB日志分析)', "其它", "其它", $error_ips_str, APM_VIP, 0, NULL, strtotime('-1 hours'));
+        _status(($total - $count_sum), APM_HOST . '(WEB日志分析)', "其它", "其它", $error_ips_str, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
 
         //ip 统计
         $cmd_ip_stats = "cat {$log_file} |  awk '($9~/20|30/){print}' | awk '{print $1}' | sort -n| uniq -c | sort -r";
         $ip_stats = array();
         exec($cmd_ip_stats, $ip_stats);
-        _status(count($ip_stats), APM_HOST . '(WEB日志分析)', '独立ip', '独立ip', null, APM_VIP, 0, NULL, strtotime('-1 hours'));
+        _status(count($ip_stats), APM_HOST . '(WEB日志分析)', '独立ip', '独立ip', null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
         for ($i = 0; $i < 10; $i++) {
             if (isset($ip_stats[$i])) {
                 list($count, $ip) = explode(" ", trim($ip_stats[$i]), 2);
@@ -95,7 +95,7 @@ class web_log
                 if ($count < 100) {
                     break;
                 }
-                _status($count, APM_HOST . '(WEB日志分析)', 'ip统计前十', $ip, null, APM_VIP, 0, NULL, strtotime('-1 hours'));
+                _status($count, APM_HOST . '(WEB日志分析)', 'ip统计前十', $ip, null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
             }
         }
         //QPS统计

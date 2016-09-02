@@ -64,7 +64,7 @@
               <label>高亮倍数</label><input style="width:20px" class="inpm" id="red_factor" value="<?php echo $_COOKIE['red_factor']?$_COOKIE['red_factor']:2 ?>">
               <label>基数</label><input style="width:40px" class="inpm" id="cmp_base" value="<?php echo $_COOKIE['cmp_base']?$_COOKIE['cmp_base']:10000 ?>">
               <button class='ibtn' onclick="PPS.setCookie('cmp_base',document.getElementById('cmp_base').value,3600*24);PPS.setCookie('red_factor',document.getElementById('red_factor').value,3600*24);window.location.reload(); ">提交</button>&nbsp;
-              <?php echo APM_VIP;?>
+              <?php echo APM_HOSTNAME;?>
               </span></div>
           <!--main-->
           <div class="bd">
@@ -105,7 +105,7 @@
               </div>
               <!--/mnav-->
               <div class="tBd" id="table_1">
-                <?php if($this->v1_config[$_REQUEST['type']]['SHOW_TEMPLATE']==1){?>
+                <?php if($this->v1_config[$_REQUEST['type']]['SHOW_TEMPLATE']==1) { ?>
                 <table id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
                   <thead>
                     <tr class="tr-th2">
@@ -163,66 +163,11 @@
                     <?php }?>
                   </tbody>
                 </table>
-                <?php }else{?>
-                <?php if($_REQUEST['start_date']){?>
+                <?php } else { ?>
+                <?php if($_REQUEST['start_date']) { ?>
                 <div id="tab_class_0">
-                  <table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
-                    <thead>
-                    <?php if ($is_group){?>
-                    <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-                        <td>汇总</td>
-                        <?php  foreach($this->group as $k=>$v){
-                        $num = $this->group_count[$k]['count'];
-                        ?>
-                        <td  title="<?php echo intval($num);?>" colspan="<?php echo count($v)?>">
-                            <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
-                        </td>
-                        <?php }?>
-                    </tr>
-                    <tr class = "tr-th2">
-                        <th>分组</th>
-                        <?php  foreach($this->group as $k=>$v){?>
-                        <?php
-                            $group_ids = '';
-                            foreach($v as $row){
-                                $group_ids.="_".$row['ID'];
-                            }?>
-                        <th class="b-r" colspan="<?php echo count($v)?>" id="v2_group_<?php echo md5($k)?>" ondblclick="edit_v2_group(this,'<?php echo $group_ids?>');$(this).attr('ondblclick','');"><?php echo $k?></th>
-                        <?php }?>
-                    </tr>
-                    <?php }?>
-                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1){?>
-                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-                        <td>汇总</td>
-                        <?php  foreach($this->host as $k=>$v){  $num=$this->all_start_date_count[$v['V2']]['total'];?>
-                        <td title="<?php echo intval($num);?>">
-                          <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
-                        </td>
-                        <?php }?>
-                      </tr>
-                      <?php }else{?>
-                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-                        <td>平均</td>
-                        <?php  foreach($this->host as $k=>$v){
-                        ?>
-
-                        <td><?php echo $this->all_start_date_count[$v['V2']]['total_avg']?></td>
-                        <?php }?>
-                      </tr>
-                      <?php }?>
-                      <tr class = "tr-th2">
-                        <th>日期</th>
-                        <?php  foreach($this->host as $k=>$v){  ?>
-                        <th title="<?php echo $v['V2']?>" <?php if($v['V2_CONFIG_OTHER']['API_ID']) echo "style='color:red'" ?>>
-                          <?php if($v['PHONE']){ ?>
-                          <span style="color:red;"><?php echo $v['AS_NAME1']?></span>
-                          <?php }else{?>
-                          <?php echo $v['AS_NAME1']?>
-                          <?php }?>
-                        </th>
-                        <?php }?>
-                      </tr>
-                    </thead>
+                  <table  id="assess-table_0" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <?php include "_thead.html"; ?>
                     <tbody>
                       <?php  for($i=strtotime($_REQUEST['start_date']);$i>=strtotime($_REQUEST['start_date']);$i-=3600*24){ $tmp_date=date("Y-m-d",$i); ?>
                       <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
@@ -237,103 +182,34 @@
                           天
                           <?php }?>
                           <br />
-                          <a href="javascript:void(0);" onclick="document.getElementById('tab_class_1').style.display='block';document.getElementById('tab_class_0').style.display='none';" class="blue">&gt;&gt;展开全部</a></td>
-                        <?php  foreach($this->host as $k=>$v){ $num=$this->all_start_date[$tmp_date][$v['V2']];?>
+                          <a href="javascript:void(0);" onclick="document.getElementById('tab_class_1').style.display='block';document.getElementById('tab_class_0').style.display='none';" class="blue">&gt;&gt;展开全部</a>
+                        </td>
+                        <?php foreach($this->group as $k=>$vv) { foreach($vv as $v) { $num=$this->all_start_date[$tmp_date][$v['V2']];?>
                         <td class="b-r" title="<?php echo $num?>">
-                          <?php if($num===null){?>
+                          <?php if($num===null) { ?>
                           <span style="color:#AAA">0</span>
-                          <?php }else{?>
+                          <?php } else { ?>
                           <span><a href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
                               <?php if($this->host[$v['V2']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
                                 if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
                               }
                                else{if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
                           </a></span>
-                          <?php }?>
+                          <?php } ?>
                           <?php if($v['PERCENT_COUNT_TYPE']>0){ if($v['PERCENT_COUNT_TYPE']==1)$all=$this->all_start_date[$tmp_date][$this->host[0]['V2']]; if($v['PERCENT_COUNT_TYPE']==2)$all=$this->all_start_date_all[$tmp_date]; ?>
                           (<?php printf('%.2f',$num/$all*100)?>%)
-                          <?php   }?>
+                          <?php } ?>
                         </td>
-                        <?php }?>
+                        <?php }} ?>
                       </tr>
-                      <?php }?>
+                      <?php } ?>
                   </table>
                 </div>
-                <?php }?>
+                <?php } ?>
                 <!----------------------------------->
                 <div id="tab_class_1" <?php if($_REQUEST['start_date']){?>style="display:none"<?php }?>>
-                  <table id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
-                    <thead>
-                      <tr class="tr-th2">
-                        <th>&nbsp;</th>
-                        <th colspan="<?php echo $cospan?>" style="text-align:right;">
-                            <span><a class="blue" href="?act=report_sort&v1=<?php echo rawurlencode($_REQUEST['type'])?>">按照名称排序</a>&nbsp;&nbsp;</span>
-                        </th>
-                      </tr>
-                      <!----------------------分组----------------------------->
-                      <?php if ($is_group){?>
-                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-                        <td>汇总</td>
-                        <?php  foreach($this->group as $k=>$v){
-                        $num = $this->group_count[$k]['count'];
-                           ?>
-                        <td  title="<?php echo intval($num);?>" colspan="<?php echo count($v)?>">
-                          <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
-                        </td>
-                        <?php }?>
-                      </tr>
-                      <tr class = "tr-th2">
-                        <th>分组</th>
-                        <?php  foreach($this->group as $k=>$v){?>
-                          <?php
-                            $group_ids = '';
-                            foreach($v as $row){
-                                $group_ids.="_".$row['ID'];
-                            }?>
-                        <th class="b-r" colspan="<?php echo count($v)?>" id="v2_group_<?php echo md5($k)?>" ondblclick="edit_v2_group(this,'<?php echo $group_ids?>');$(this).attr('ondblclick','');"><?php echo $k?></th>
-                        <?php }?>
-                      </tr>
-                      <?php }?>
-                      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1){?>
-                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-                        <td>汇总</td>
-                        <?php  foreach($this->group as $k=>$i){
-                         foreach($i as $v){
-                        $num=$this->all_start_date_count[$v['V2']]['total'];?>
-                        <td title="<?php echo intval($num);?>">
-                          <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
-                        </td>
-                        <?php }}?>
-                      </tr>
-                      <?php }else{?>
-                      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-                        <td>平均</td>
-                        <?php  foreach($this->group as $k=>$vv){
-						        foreach($vv as $v){
-						   ?>
-                        <td><?php echo $this->all_start_date_count[$v['V2']]['total_avg']?></td>
-                        <?php }}?>
-                      </tr>
-                      <?php }?>
-                      <tr class = "tr-th2">
-                        <th>日期</th>
-                        <?php  foreach($this->group as $k=>$i){
-                               foreach($i as $v){
-                        ?>
-                        <th  title='<?php echo $v["V2"]."\r\n";
-                        foreach($v["API_INFO"]["CONTRACT"] as $cid=>$contractor)
-                            echo $contractor["DETAIL_NAME"].":".$contractor["NOTE"]."\r\n";
-                        if($v["API_INFO"]["TEST_INFO"]){
-                            echo "成功:".$v["API_INFO"]["TEST_INFO"]["成功"]."\r\n";
-                            echo "失败:".$v["API_INFO"]["TEST_INFO"]["失败"]."\r\n";
-                            echo "超时:".$v["API_INFO"]["TEST_INFO"]["超时"]."\r\n";
-                            echo "未超时:".$v["API_INFO"]["TEST_INFO"]["未超时"]."\r\n";
-                        }
-                        ?>' id="as_name_<?php echo md5($v['V1'].$v['V2'])?>" <?php if( $v['V2_CONFIG_OTHER']['API_ID']) echo "style='color:red'"?> ondblclick="edit_as_name(this,<?php echo intval($v['ID'])?>);$(this).attr('ondblclick','');"
-                                ><?php if($v['PHONE']){ ?><span style="color:red;"><?php echo $v['AS_NAME1']?></span><?php }else{?><?php echo $v['AS_NAME1']?><?php }?></th>
-                        <?php }}?>
-                      </tr>
-                    </thead>
+                  <table id="assess-table_1" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <?php include "_thead.html"; ?>
                     <tbody>
                       <?php  for($i=strtotime($s2);$i>=strtotime($s1);$i-=3600*24){
                         $tmp_yestoday = date("Y-m-d", $i-3600*24);
@@ -367,26 +243,25 @@
                           <?php if($num===null){?>
                           <span style="color:#AAA">0</span>
                           <?php }else{?>
-                            <p  style="<?php
+                            <p style="<?php
                             $tips = $num;
                             $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
                             $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
                             if($yestoday_num>0 && $num>$cmp_base && $num>($red_factor*$yestoday_num*2)){
                                 echo 'border:2px solid red;';
-                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                                $tips = '今天:'.$num.' 昨天:'.$yestoday_num;
                             }
                             elseif($yestoday_num>0 && $num>$cmp_base && $num>($red_factor*$yestoday_num)){
                                 echo 'border:1px solid red;';
-                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                                $tips = '今天:'.$num.' 昨天:'.$yestoday_num;
                             }
-
                             elseif($yestoday_num>0 && $num>$cmp_base && $yestoday_num>($red_factor*$num*2)){
                                 echo 'border:2px solid green;';
-                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                                $tips = '今天:'.$num.' 昨天:'.$yestoday_num;
                             }
                             elseif($yestoday_num>0 && $num>$cmp_base && $yestoday_num>($red_factor*$num)){
                                 echo 'border:1px solid green;';
-                                $tips = '今天:'.$num.' 昨天：'.$yestoday_num;
+                                $tips = '今天:'.$num.' 昨天:'.$yestoday_num;
                             }
                           ?>"
                           >
@@ -435,7 +310,7 @@
                       <th>&nbsp;</th>
                       <th colspan='24'>24小时状态
                       </th>
-                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                         <th colspan='8'>监控项目</th>
                         <?php } else{?>
                         <th colspan='2'>监控项目</th>
@@ -453,14 +328,14 @@
                       <?php }?>
                       <td>&nbsp;</td>
                       <td>&nbsp;</td>
-                    <?php if(strstr($_GET['type'], '功能执行')){?>
+                      <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
-                    <?php }?>
+                      <?php } ?>
                       <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
                       <td>&nbsp;</td>
                       <?php }else{?>
@@ -494,14 +369,14 @@
                       <?php }?>
                       <th>最耗时</th>
                       <th>总耗时</th>
-                    <?php if(strstr($_GET['type'], '功能执行')){?>
+                      <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                       <th>最大内存</th>
                       <th>总内存</th>
                       <th>用户最大CPU</th>
                       <th>用户总CPU</th>
                       <th>系统最大CPU</th>
-                      <th>用户总CPU</th>
-                    <?php }?>
+                      <th>系统总CPU</th>
+                      <?php } ?>
                       <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
                       <th>平均</th>
                       <?php }else{?>
@@ -526,9 +401,9 @@
                                  $li = date('d H', $id-3600); $num_l=isset($v[$li]['FUN_COUNT'])?$v[$li]['FUN_COUNT']:0;//当天上一小时数据
                       ?>
                       <td class="b-r">
-                        <?php if($v[$ii]['FUN_COUNT']===null){?>
+                        <?php if($v[$ii]['FUN_COUNT']===null) { ?>
                         <span style="color:#AAA">0</span>
-                        <?php }else{?>
+                        <?php } else { ?>
                           <p style="<?php
                             $cmp_base = isset($_COOKIE['cmp_base'])?$_COOKIE['cmp_base']:1000;
                             $red_factor = isset($_COOKIE['red_factor'])?$_COOKIE['red_factor']:2;
@@ -539,33 +414,31 @@
                                     echo 'border:2px solid pink;';
                                 else
                                     echo 'border:2px solid red;';
-
-
-                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                                $tips = '当前:'.$num.' 昨天:'.$num_y.' 上一小时:'.$num_l;
                             }
                             elseif($cmp_num>0 && $num>$cmp_base && $num>($red_factor*$cmp_num)){
                                 if($cmp_num == $num_y && !($num>$cmp_base && $num>($red_factor*$num_l)))
                                     echo 'border:1px solid pink;';
                                 else
                                     echo 'border:1px solid red;';
-                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                                $tips = '当前:'.$num.' 昨天:'.$num_y.' 上一小时:'.$num_l;
                             }
                             elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num*2)){
                                 if($cmp_num == $num_y && !($num>$cmp_base && $num_l>($red_factor*$num*2)))
                                     echo 'border:2px solid grey;';
                                 else
                                     echo 'border:2px solid green;';
-                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                                $tips = '当前:'.$num.' 昨天:'.$num_y.' 上一小时:'.$num_l;
                             }
                             elseif($cmp_num>0 && $num>$cmp_base && $cmp_num>($red_factor*$num)){
                                 if($cmp_num == $num_y && !($num>$cmp_base && $num_l>($red_factor*$num)))
                                     echo 'border:1px solid grey;';
                                 else
                                     echo 'border:1px solid green;';
-                                $tips = '当前:'.$num.' 昨天：'.$num_y.' 上一小时:'.$num_l;
+                                $tips = '当前:'.$num.' 昨天:'.$num_y.' 上一小时:'.$num_l;
                             }
                           ?>">
-                        <span><a title="<?php echo $tips ?>" data-eventtype="click" data-prompt-position="tr" data-prompt-width=<?php  if(strstr($_GET['type'], '功能执行')) echo 800; else echo 660; ?> data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo date('H:00:00',$id)?>&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" >
+                        <span><a title="<?php echo $tips ?>" data-eventtype="click" data-prompt-position="tr" data-prompt-width="<?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { echo 800; } else { echo 660; } ?>" data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo date('H:00:00',$id)?>&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" >
                             <?php if($this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']=='capacity'){
                             if($num>1024*1024){ echo round($num/1024/1024,1).'T';}elseif($num>1024){ echo round($num/1024,1).'G'; }else{ echo round($num,1).'M';}
                             } else{ if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}}?>
@@ -602,7 +475,7 @@
                           <?php $num_t=$v['TOTAL_DIFF_TIME']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
                           <?php }?>
                           </p></td>
-                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                         <td class="b-r"><p>
                             <?php if($v['MEMORY_MAX']==0){?>
                             <span style="color:#AAA">0</span>
@@ -668,7 +541,7 @@
                       <th>&nbsp;</th>
                       <th colspan='24'>24小时状态
                       </th>
-                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                         <th colspan='8'>监控项目</th>
                         <?php } else{?>
                         <th colspan='2'>监控项目</th>
@@ -683,14 +556,14 @@
                       <?php }?>
                       <td>&nbsp;</td>
                       <td>&nbsp;</td>
-                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                      <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
-                        <?php }?>
+                      <?php } ?>
                       <td><?php echo array_sum($this->fun_count2)?></td>
                     </tr>
                     <tr class = "tr-th2">
@@ -701,14 +574,14 @@
                       <?php }?>
                       <th>最耗时</th>
                       <th>总耗时</th>
-                    <?php if(strstr($_GET['type'], '功能执行')){?>
+                      <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                       <th>最大内存</th>
                       <th>总内存</th>
                       <th>用户最大CPU</th>
                       <th>用户总CPU</th>
                       <th>系统最大CPU</th>
-                      <th>用户总CPU</th>
-                    <?php }?>
+                      <th>系统总CPU</th>
+                      <?php } ?>
                       <th>总量</th>
                     </tr>
                   </thead>
@@ -728,7 +601,7 @@
                         <?php if($v[$ii]['FUN_COUNT']==0){?>
                         <span style="color:#AAA">0</span>
                         <?php }else{?>
-                        <span><a data-eventtype="click" data-prompt-position="tr" data-prompt-width=<?php if(strstr($_GET['type'], '功能执行')) echo 800; else echo 660;?> data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo $ii?>:00:00&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" ><?php printf('%.2f',$v[$ii]['FUN_COUNT']/$fun_count2_sum*100)?>%</a></span>
+                        <span><a data-eventtype="click" data-prompt-position="tr" data-prompt-width="<?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { echo 800; } else { echo 660; } ?>" data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo $ii?>:00:00&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" ><?php printf('%.2f',$v[$ii]['FUN_COUNT']/$fun_count2_sum*100)?>%</a></span>
                         <?php }?>
                       </td>
                       <?php }?>
@@ -747,7 +620,7 @@
                           <?php $num_t=$v['TOTAL_DIFF_TIME']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60);else printf('%.4f小时',$num_t/3600); ?>
                           <?php }?>
                       </td>
-                        <?php if(strstr($_GET['type'], '功能执行')){?>
+                        <?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { ?>
                         <td class="b-r"><p>
                             <?php if($v['MEMORY_MAX']==0){?>
                             <span style="color:#AAA">0</span>

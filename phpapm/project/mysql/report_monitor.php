@@ -302,18 +302,19 @@ class report_monitor
                 while ($_row = apm_db_fetch_assoc($stmt)) {
                     $this->fun_count[$_row['V3']]['AS_NAME1'] = $_row['V3'];
                     $this->fun_count[$_row['V3']][$_row['CAL_DATE_F']] = $_row;
-                    $this->fun_count[$_row['V3']]['DIFF_TIME'] = max($this->fun_count[$_row['V3']]['DIFF_TIME'], abs($_row['DIFF_TIME']));
-                    $this->fun_count[$_row['V3']]['TOTAL_DIFF_TIME'] += abs($_row['TOTAL_DIFF_TIME']);
-                    $this->fun_count[$_row['V3']]['MEMORY_MAX'] = max($this->fun_count[$_row['V3']]['MEMORY_MAX'], abs($_row['MEMORY_MAX']));
-                    $this->fun_count[$_row['V3']]['MEMORY_TOTAL'] += abs($_row['MEMORY_TOTAL']);
-                    $this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'], abs($_row['CPU_USER_TIME_MAX']));
-                    $this->fun_count[$_row['V3']]['CPU_USER_TIME_TOTAL'] += abs($_row['CPU_USER_TIME_TOTAL']);
-                    $this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'], abs($_row['CPU_SYS_TIME_MAX']));
-                    $this->fun_count[$_row['V3']]['CPU_SYS_TIME_TOTAL'] += abs($_row['CPU_SYS_TIME_TOTAL']);
-                    if ($_row['CAL_DATE_F'] >= date("d H", strtotime($start_date))) {
+                    if ($_row['CAL_DATE'] >= $start_date . ' 00:00:00') {
                         $this->fun_count[$_row['V3']]['FUN_COUNT'] += $_row['FUN_COUNT'];
                         $this->fun_count[$_row['V3']]['FUN_COUNT_I'] += 1;
                         $this->fun_count[$_row['V3']]['FUN_COUNT_AVG'] = round($this->fun_count[$_row['V3']]['FUN_COUNT'] / $this->fun_count[$_row['V3']]['FUN_COUNT_I'], 2);
+                        $this->fun_count[$_row['V3']]['DIFF_TIME'] = max($this->fun_count[$_row['V3']]['DIFF_TIME'], abs($_row['DIFF_TIME']));
+                        $this->fun_count[$_row['V3']]['TOTAL_DIFF_TIME'] += abs($_row['TOTAL_DIFF_TIME']);
+                        $this->fun_count[$_row['V3']]['MEMORY_MAX'] = max($this->fun_count[$_row['V3']]['MEMORY_MAX'], abs($_row['MEMORY_MAX']));
+                        $this->fun_count[$_row['V3']]['MEMORY_TOTAL'] += abs($_row['MEMORY_TOTAL']);
+                        $this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'], abs($_row['CPU_USER_TIME_MAX']));
+                        $this->fun_count[$_row['V3']]['CPU_USER_TIME_TOTAL'] += abs($_row['CPU_USER_TIME_TOTAL']);
+                        $this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'], abs($_row['CPU_SYS_TIME_MAX']));
+                        $this->fun_count[$_row['V3']]['CPU_SYS_TIME_TOTAL'] += abs($_row['CPU_SYS_TIME_TOTAL']);
+
                         $this->fun_count2[$_row['CAL_DATE_F']] += $_row['FUN_COUNT'];
                         $this->fun_count3['FUN_COUNT_I']++;
                         $this->fun_count3['FUN_COUNT'] += $_row['FUN_COUNT'];

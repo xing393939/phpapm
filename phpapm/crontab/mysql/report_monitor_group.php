@@ -18,11 +18,6 @@ class report_monitor_group
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
-        //排查.BUG
-        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='排查.BUG' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(BUG错误)_PHP错误' or v2 like '%(BUG错误)_SQL错误')";
-        $stmt = apm_db_parse($conn_db, $sql);
-        $oci_error = apm_db_execute($stmt);
-
         //排查.机器
         $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='排查.机器' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(WEB日志分析)_QPS' or v2 like '%(WEB日志分析)_TCP连接')";
         $stmt = apm_db_parse($conn_db, $sql);
@@ -53,8 +48,8 @@ class report_monitor_group
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
-        //资源.接口网址
-        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='资源.接口网址' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(Api)_超时' or v2 like '%(Api)_一秒内')";
+        //资源.Api接口
+        $sql = "update ".APM_DB_PREFIX."monitor_config t set AS_NAME=V2, V2_GROUP='资源.Api接口' where V1 = '1.汇总' and V2_GROUP is null and (v2 like '%(Api)_超时' or v2 like '%(Api)_一秒内')";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
@@ -100,7 +95,7 @@ class report_monitor_group
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
-        $sql = "update  ".APM_DB_PREFIX."monitor_v1 t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.作废', GROUP_NAME='作废',as_name=null  where   v1 like '%(Memcahe连接错误)%' or v1 like '%(Memcache)NEW%' or v1 like '%(Memcache使用错误)%' or v1 like '%(Memcahe错误)%'  or v1 like '%(Memcahe连接)%' or v1 like '%(Memcache移动)' or v1 like '%(Memcahe连接效率)%' or v1 like '%(Memcahe整体耗时)%' or v1 like '%(安全BUG)%' or v1 like '%(Memcahe效率BUG)%' or v1 like '%(程序效率BUG)%' or v1 like '%(数据库被连接)%' or v1 like '%(接口效率)%' or  v1 like '%SQL效率BUG)%' or v1 like '%(数据库连接%'  or  v1 like '%(SQL统计)[项目]%' or v1 like '%(数据库表大小)%'   or v1 like '%(数据库表空间)%' or v1 like '%(队列服务)%' or  v1 like '%(登录日志%' or v1 like '%(包含文件)[项目]%' or v1 like '%(包含文件)%' or v1 like '%(问题SQL)%' or v1 like '%(服务器)%' or v1 like '%(接口测试)%' or v1 like '%文件系统读写%' or v1 like '%(功能执行)%' or v1 like '%(服务器进程)%'  or v1 like '%(代码%'  or v1 like '%(FTP效率BUG)%'   or v1 like '%(服务器进程)%' or v1 like '%(队列信息)' or v1 like '%(账户日志)%' or v1 like '%(函数分布)%' or v1 like '%(文件系统%' or v1 = '1.汇总' or v1 like '%(PHPAPM)%'";
+        $sql = "update ".APM_DB_PREFIX."monitor_v1 t set GROUP_NAME_1='数据指标', GROUP_NAME_2='3.其他', GROUP_NAME='其他分析', as_name=null where v1 = '1.汇总' or v1 like '%(PHPAPM)%'";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
@@ -112,11 +107,14 @@ class report_monitor_group
                      APM_DB_PREFIX . 'monitor_v1',
                      APM_DB_PREFIX . 'monitor_config'
                  ) as $table) {
-            $sql = "update  {$table} t set   hour_count_type=4 ,day_count_type=1   where v1 like '%(Memcache状态)%'  ";
+            $whereV2 = '';
+            if (strpos($table, 'monitor_config') !== false)
+                $whereV2 = " or v2='Mem内存剩余' or v2='运行天数'";
+            $sql = "update {$table} t set hour_count_type=4 ,day_count_type=1 where v1 like '%(Memcache状态)%' {$whereV2}";
             $stmt = apm_db_parse($conn_db, $sql);
             $oci_error = apm_db_execute($stmt);
 
-            $sql = "update  {$table} t set day_count_type=5,hour_count_type=4  where V1 like '%(项目满意分)%' or V1 like '%(项目文档满意分)%'";
+            $sql = "update {$table} t set day_count_type=5,hour_count_type=4 where V1 like '%(项目满意分)%' or V1 like '%(项目文档满意分)%'";
             $stmt = apm_db_parse($conn_db, $sql);
             $oci_error = apm_db_execute($stmt);
         }
@@ -139,42 +137,48 @@ class report_monitor_group
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='D.安全'  where  t.V2 = '扣:安全'  and v1 like '%(项目满意分)%'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='E.维护成本'  where  t.V2 = '扣分:包含文件' and v1 like '%(项目满意分)%'";
-        $stmt = apm_db_parse($conn_db, $sql);
-        apm_db_execute($stmt);
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='F.基础考核'  where  (t.V2 = 'Memcache回源率' or t.V2 = '扣分:单小时SQL上限' or t.v2='扣分:执行超时') and v1 like '%(项目满意分)%'";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='E.基础考核'  where  (t.V2 = 'Memcache回源率' or t.V2 = '扣分:单小时SQL上限' or t.v2='扣分:执行超时') and v1 like '%(项目满意分)%'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
 
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='G.运维考核'  where  (t.V2 = '扣分:5xx错误' or t.V2 = '扣分:CPU LOAD' or t.v2='扣分:机器重启') and v1 like '%(项目满意分)%'";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='F.运维考核'  where  (t.V2 = '扣分:5xx错误' or t.V2 = '扣分:CPU LOAD' or t.v2='扣分:机器重启') and v1 like '%(项目满意分)%'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
 
         //别名换算
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='扣:SQL上限' where v2='扣分:单小时SQL上限'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='扣:负载' where v2='扣分:CPU LOAD'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='扣:重启' where v2='扣分:机器重启'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='TCP' where v2='TCP连接数'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='扣:文件数' where v2='扣分:包含文件'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='错误' where v2='PHP+SQL错误率'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='扣:超时' where v2='扣分:执行超时'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='扣:sql' where v2='扣分:问题sql'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='天数' where v2='运行天数'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='ip前十' where v2='ip统计前十'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='已用磁盘比' where v2='磁盘' and v1 like '%(WEB日志分析)' ";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='内存' where v2='Mem内存剩余' and v1 like '%(WEB日志分析)' ";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         //所有v2 中有‘s到’的不计入统计；
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_CONFIG_OTHER=:V2_CONFIG_OTHER where v2 ='超时' or v2 = '一秒内' ";
         $stmt = apm_db_parse($conn_db, $sql);
@@ -182,16 +186,21 @@ class report_monitor_group
         apm_db_execute($stmt);
 
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='数据库' where (v2='SQL错误' or v2 ='问题SQL' or v2='数据库连接错误') and v1 like '%(BUG错误)'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='技术错误' where v1 like '%(BUG错误)' and (v2='PHP错误' or v2='脚本错误'  or v2='致命错误' or v2='Memcache错误' ) ";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
+        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='技术错误' where v1 like '%(BUG错误)' and (v2='PHP错误' or v2='Curl错误' or v2='Memcache错误' ) ";
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
 
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='验收责任' ,V2_GROUP='问题' where v2='验收责任未到位' and v1 like '%(BUG错误)'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='木马',V2_GROUP='问题'  where v2='上传木马入侵' and v1 like '%(BUG错误)'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='项目'  where v2 like '%[项目]'  and v1 like '%(BUG错误)'";
-        apm_db_execute(apm_db_parse($conn_db, $sql));
+        $stmt = apm_db_parse($conn_db, $sql);
+        apm_db_execute($stmt);
 
         //定时更新不计入统计的项目
         $sql = "select * from ".APM_DB_PREFIX."monitor_config where ( v1 like '%(WEB日志分析)' and (v2='文件' or v2 = 'QPS' or v2 = 'ip统计前十' or v2 = '独立ip') )
@@ -221,7 +230,7 @@ class report_monitor_group
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
 
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='功能执行'  where  (t.V2 = '其他功能' or t.v2='内网接口' or t.V2 = '定时') and v1 like '%(BUG错误)'";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='功能执行' where (t.V2 = '外网' or t.v2='内网' or t.V2 = '脚本') and v1 like '%(BUG错误)'";
         $stmt = apm_db_parse($conn_db, $sql);
         apm_db_execute($stmt);
 
