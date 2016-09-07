@@ -19,6 +19,14 @@ linux平台：<br />
 echo 8384000 > /proc/sys/kernel/msgmnb
 echo 41920 > /proc/sys/kernel/msgmax
 echo 30 > /proc/sys/kernel/msgmni
+/*
+msgmnb 设置单个队列的空间大小
+msgmax 设置队列单个消息的最大空间
+msgmni 设置队列数 */
+ipcs -lq 查看系统参数
+ipcs -uq 查看当前使用情况
+ipcs -q  查看队列详细情况
+*/
 ```
 3，创建crontab，如下：<br />
 ```javascript
@@ -42,11 +50,11 @@ apm_status_sql('MY_APP', $sql, $t1, mysql_error($conn_db));
 /* 其中第一第三行是新加的代码 */
 ```
 
-二，监控资源/api请求，示例如下：
+二，监控资源请求，示例如下：
 ```javascript
 $t1 = microtime(true);
 $bool = $this->memcacheObj->get($key);
-apm_status_api('memcache', '10.0.1.20(get)', $t1, $bool);
+apm_status_cache('memcache', '10.0.1.20(get)', $t1, $bool);
 /* 其中第一第三行是新加的代码 */
 ```
 

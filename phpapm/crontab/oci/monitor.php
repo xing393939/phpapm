@@ -88,7 +88,7 @@ class monitor
                 break;
         }
         //clear queue start
-        $sql_d = "TRUNCATE ".APM_DB_PREFIX."monitor_queue";
+        $sql_d = "delete from ".APM_DB_PREFIX."monitor_queue";
         $stmt_d = apm_db_parse($conn_db, $sql_d);
         apm_db_execute($stmt_d);
         //clear queue end

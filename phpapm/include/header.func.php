@@ -218,29 +218,97 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
     $diff_time = sprintf('%.5f', microtime(true) - $start_time);
 
     //pretty sql
-    $sql = preg_replace("/(=|>|<|values|VALUES)[\s\S]+$/", " \\1", $sql);
+    $reserved_all = array(
+        'ACCESSIBLE', 'ACTION', 'ADD', 'AFTER', 'AGAINST', 'AGGREGATE', 'ALGORITHM', 'ALL', 'ALTER', 'ANALYSE', 'ANALYZE', 'AND', 'AS', 'ASC',
+        'AUTOCOMMIT', 'AUTO_INCREMENT', 'AVG_ROW_LENGTH', 'BACKUP', 'BEGIN', 'BETWEEN', 'BINLOG', 'BOTH', 'BY', 'CASCADE', 'CASE', 'CHANGE', 'CHANGED',
+        'CHARSET', 'CHECK', 'CHECKSUM', 'COLLATE', 'COLLATION', 'COLUMN', 'COLUMNS', 'COMMENT', 'COMMIT', 'COMMITTED', 'COMPRESSED', 'CONCURRENT',
+        'CONSTRAINT', 'CONTAINS', 'CONVERT', 'CREATE', 'CROSS', 'CURRENT_TIMESTAMP', 'DATABASE', 'DATABASES', 'DAY', 'DAY_HOUR', 'DAY_MINUTE',
+        'DAY_SECOND', 'DEFINER', 'DELAYED', 'DELAY_KEY_WRITE', 'DELETE', 'DESC', 'DESCRIBE', 'DETERMINISTIC', 'DISTINCT', 'DISTINCTROW', 'DIV',
+        'DO', 'DROP', 'DUMPFILE', 'DUPLICATE', 'DYNAMIC', 'ELSE', 'ENCLOSED', 'END', 'ENGINE', 'ENGINES', 'ESCAPE', 'ESCAPED', 'EVENTS', 'EXECUTE',
+        'EXISTS', 'EXPLAIN', 'EXTENDED', 'FAST', 'FIELDS', 'FILE', 'FIRST', 'FIXED', 'FLUSH', 'FOR', 'FORCE', 'FOREIGN', 'FROM', 'FULL', 'FULLTEXT',
+        'FUNCTION', 'GEMINI', 'GEMINI_SPIN_RETRIES', 'GLOBAL', 'GRANT', 'GRANTS', 'GROUP', 'HAVING', 'HEAP', 'HIGH_PRIORITY', 'HOSTS', 'HOUR', 'HOUR_MINUTE',
+        'HOUR_SECOND', 'IDENTIFIED', 'IF', 'IGNORE', 'IN', 'INDEX', 'INDEXES', 'INFILE', 'INNER', 'INSERT', 'INSERT_ID', 'INSERT_METHOD', 'INTERVAL',
+        'INTO', 'INVOKER', 'IS', 'ISOLATION', 'JOIN', 'KEY', 'KEYS', 'KILL', 'LAST_INSERT_ID', 'LEADING', 'LEFT', 'LEVEL', 'LIKE', 'LIMIT', 'LINEAR',
+        'LINES', 'LOAD', 'LOCAL', 'LOCK', 'LOCKS', 'LOGS', 'LOW_PRIORITY', 'MARIA', 'MASTER', 'MASTER_CONNECT_RETRY', 'MASTER_HOST', 'MASTER_LOG_FILE',
+        'MASTER_LOG_POS', 'MASTER_PASSWORD', 'MASTER_PORT', 'MASTER_USER', 'MATCH', 'MAX_CONNECTIONS_PER_HOUR', 'MAX_QUERIES_PER_HOUR',
+        'MAX_ROWS', 'MAX_UPDATES_PER_HOUR', 'MAX_USER_CONNECTIONS', 'MEDIUM', 'MERGE', 'MINUTE', 'MINUTE_SECOND', 'MIN_ROWS', 'MODE', 'MODIFY',
+        'MONTH', 'MRG_MYISAM', 'MYISAM', 'NAMES', 'NATURAL', 'NOT', 'NULL', 'OFFSET', 'ON', 'OPEN', 'OPTIMIZE', 'OPTION', 'OPTIONALLY', 'OR',
+        'ORDER', 'OUTER', 'OUTFILE', 'PACK_KEYS', 'PAGE', 'PARTIAL', 'PARTITION', 'PARTITIONS', 'PASSWORD', 'PRIMARY', 'PRIVILEGES', 'PROCEDURE',
+        'PROCESS', 'PROCESSLIST', 'PURGE', 'QUICK', 'RAID0', 'RAID_CHUNKS', 'RAID_CHUNKSIZE', 'RAID_TYPE', 'RANGE', 'READ', 'READ_ONLY',
+        'READ_WRITE', 'REFERENCES', 'REGEXP', 'RELOAD', 'RENAME', 'REPAIR', 'REPEATABLE', 'REPLACE', 'REPLICATION', 'RESET', 'RESTORE', 'RESTRICT',
+        'RETURN', 'RETURNS', 'REVOKE', 'RIGHT', 'RLIKE', 'ROLLBACK', 'ROW', 'ROWS', 'ROW_FORMAT', 'SECOND', 'SECURITY', 'SELECT', 'SEPARATOR',
+        'SERIALIZABLE', 'SESSION', 'SET', 'SHARE', 'SHOW', 'SHUTDOWN', 'SLAVE', 'SONAME', 'SOUNDS', 'SQL', 'SQL_AUTO_IS_NULL', 'SQL_BIG_RESULT',
+        'SQL_BIG_SELECTS', 'SQL_BIG_TABLES', 'SQL_BUFFER_RESULT', 'SQL_CACHE', 'SQL_CALC_FOUND_ROWS', 'SQL_LOG_BIN', 'SQL_LOG_OFF',
+        'SQL_LOG_UPDATE', 'SQL_LOW_PRIORITY_UPDATES', 'SQL_MAX_JOIN_SIZE', 'SQL_NO_CACHE', 'SQL_QUOTE_SHOW_CREATE', 'SQL_SAFE_UPDATES',
+        'SQL_SELECT_LIMIT', 'SQL_SLAVE_SKIP_COUNTER', 'SQL_SMALL_RESULT', 'SQL_WARNINGS', 'START', 'STARTING', 'STATUS', 'STOP', 'STORAGE',
+        'STRAIGHT_JOIN', 'STRING', 'STRIPED', 'SUPER', 'TABLE', 'TABLES', 'TEMPORARY', 'TERMINATED', 'THEN', 'TO', 'TRAILING', 'TRANSACTIONAL',
+        'TRUNCATE', 'TYPE', 'TYPES', 'UNCOMMITTED', 'UNION', 'UNIQUE', 'UNLOCK', 'UPDATE', 'USAGE', 'USE', 'USING', 'VALUES', 'VARIABLES',
+        'VIEW', 'WHEN', 'WHERE', 'WITH', 'WORK', 'WRITE', 'XOR', 'YEAR_MONTH',
+    );
+
+    //去掉换行
+    $sql = str_replace("\n", " ", $sql);
+    //省略''和""里面的内容
+    $sql = preg_replace('/("|\').*[^\\\]\1/U', '?', $sql);
+
+    $sql_formatted = $prev_spilt = '';
+    $dot = '[\t\s\(\)]{1}';
+    $reserved_all = $dot . join("{$dot}|{$dot}", $reserved_all) . $dot;
+    $split_arr = preg_split("/({$reserved_all})/i", " $sql ", -1, PREG_SPLIT_DELIM_CAPTURE);
+    foreach ($split_arr as $split) {
+        $trimmed_split = trim($split);
+        if ($trimmed_split == "") {
+            continue;
+        }
+        $fieldNameOrTableName = array('SELECT', 'FROM', 'UPDATE', 'INTO', 'JOIN', 'TRUNCATE', 'TABLE', 'BY', 'AS', 'ON');
+        //如果是关键字，保持原样
+        if (preg_match("/({$reserved_all})/i", $split)) {
+            $sql_formatted .= $split;
+        //如果是id in (1,2,3)或者values (1,2,3)
+        } elseif (in_array($prev_spilt, array('IN', 'VALUES'))) {
+            $sql_formatted .= preg_replace('/[^,\(]+(,|\))/', '?\\1', $split);
+        //如果后面是表名或者字段名，保持原样
+        } elseif (in_array($prev_spilt, $fieldNameOrTableName)
+            || preg_match("/(^" . join("{$dot}|^", $fieldNameOrTableName) . "{$dot})/i", $split)
+        ) {
+            $sql_formatted .= $split;
+        //如果是limit 0, 10
+        } elseif (in_array($prev_spilt, array('LIMIT'))
+            || preg_match("/(^" . join("{$dot}|^", array('LIMIT')) . "{$dot})/i", $split, $matches)
+        ) {
+            $sql_formatted .= isset($matches[1]) ? $matches[1] . '?' : '?';
+        //如果是id > 1或者id < 2或者id = 3
+        } elseif (preg_match("/(=|>|<)/", $split)) {
+            $sql_formatted .= preg_replace("/([=><][\t\s=><]*)[^,\)]+/", " \\1 ?", $split);
+        //如果是一个字符串，maybe是字段名如 (( t1.`username`
+        } elseif (preg_match("/^[\(\s\t]*([\w_]+\.)?([\w_]+|`[\w_]+`)$/i", $trimmed_split)) {
+            $sql_formatted .= $split;
+        } else {
+            $sql_formatted .= '*';
+        }
+
+        $prev_spilt = strtoupper(trim($trimmed_split, "()"));
+    }
+    $sql_formatted = trim($sql_formatted);
 
     //检查in语法
-    $out = array();
-    preg_match('# in(\s+)?\(#is', $sql, $out);
-    if ($out) {
-        $sql = substr($sql, 0, stripos($sql, ' in')) . ' in....';
-        _status(1, APM_HOST . "(BUG错误)", '问题SQL', "IN语法", "{$db_alias}@" . APM_URI, "{$sql}");
+    if (in_array('IN', $split_arr)) {
+        _status(1, APM_HOST . "(BUG错误)", '问题SQL', "IN语法", "{$db_alias}@" . APM_URI, "{$sql_formatted}");
     }
 
     //curd分类
     $sql_type = NULL;
-    $v = _sql_table_txt($sql, $sql_type);
-    _status(1, APM_HOST . '(SQL统计)', "{$db_alias}{$sql_type}", strtolower($v) . "@" . APM_URI, $sql, APM_HOSTNAME, $diff_time);
+    $v = _sql_table_txt($sql_formatted, $sql_type);
+    _status(1, APM_HOST . '(SQL统计)', "{$db_alias}{$sql_type}", strtolower($v) . "@" . APM_URI, $sql_formatted, APM_HOSTNAME, $diff_time);
 
     //耗时分类
     if ($diff_time < 1) {
-        _status(1, APM_HOST . '(SQL统计)', '一秒内', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_HOSTNAME, $sql, $diff_time);
+        _status(1, APM_HOST . '(SQL统计)', '一秒内', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_HOSTNAME, $sql_formatted, $diff_time);
     } else {
-        _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_HOSTNAME, $sql, $diff_time);
+        _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_HOSTNAME, $sql_formatted, $diff_time);
     }
     if ($sql_error)
-        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($sql_error, true) . "|" . $sql, APM_HOSTNAME, $diff_time);
+        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($sql_error, true) . "|" . $sql_formatted, APM_HOSTNAME, $diff_time);
 }
 
 /*

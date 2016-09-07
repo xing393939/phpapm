@@ -13,7 +13,7 @@ class table
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         //清空表
         if (!empty($_GET['truncate'])) {
-            $sql = "truncate table " . APM_DB_PREFIX . $_GET['truncate'];
+            $sql = "delete from " . APM_DB_PREFIX . $_GET['truncate'];
             $stmt = apm_db_parse($conn_db, $sql);
             apm_db_execute($stmt);
             header("location: {$_SERVER['HTTP_REFERER']}");

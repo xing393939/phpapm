@@ -2,9 +2,6 @@
 
 log_date=/dev/shm/`date +%Y_%m_%d`
 
-#删除定时任务的执行日志
-rm -f ${log_date}_wget.log
-
 #无阻塞的跑
 function callact()
 {
