@@ -20,9 +20,10 @@ echo 8384000 > /proc/sys/kernel/msgmnb
 echo 41920 > /proc/sys/kernel/msgmax
 echo 30 > /proc/sys/kernel/msgmni
 /*
+备注：
 msgmnb 设置单个队列的空间大小
 msgmax 设置队列单个消息的最大空间
-msgmni 设置队列数 */
+msgmni 设置队列数
 ipcs -lq 查看系统参数
 ipcs -uq 查看当前使用情况
 ipcs -q  查看队列详细情况
