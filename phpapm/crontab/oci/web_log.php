@@ -36,7 +36,7 @@ class web_log
                 copy(APM_LOG_PATH . $logfilename, "/home/webid/logs/{$logfilename}");
                 $qps_stats = $this->_web_log("/home/webid/logs/{$logfilename}");
             }
-            _status($qps_stats, APM_HOST . '(WEB日志分析)', 'QPS', 'QPS', null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
+            _status($qps_stats, APM_HOST . '(PHPAPM)', 'QPS', 'QPS', null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
         }
 
         //js脚本错误记录.
@@ -102,15 +102,15 @@ class web_log
                     $error_ips_str .= "{$ip}({$count})\n";
                 }
             }
-            _status($count_arr[$status_code], APM_HOST . '(WEB日志分析)', $status_code, $status_code, $error_ips_str, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
+            _status($count_arr[$status_code], APM_HOST . '(PHPAPM)', $status_code, $status_code, $error_ips_str, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
         }
-        _status(($total - $count_sum), APM_HOST . '(WEB日志分析)', "其它", "其它", $error_ips_str, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
+        _status(($total - $count_sum), APM_HOST . '(PHPAPM)', "其它", "其它", $error_ips_str, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
 
         //ip 统计
         $cmd_ip_stats = "cat {$log_file} |  awk '($9~/20|30/){print}' | awk '{print $1}' | sort -n| uniq -c | sort -r";
         $ip_stats = array();
         exec($cmd_ip_stats, $ip_stats);
-        _status(count($ip_stats), APM_HOST . '(WEB日志分析)', '独立ip', '独立ip', null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
+        _status(count($ip_stats), APM_HOST . '(PHPAPM)', '独立ip', '独立ip', null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
         for ($i = 0; $i < 10; $i++) {
             if (isset($ip_stats[$i])) {
                 list($count, $ip) = explode(" ", trim($ip_stats[$i]), 2);
@@ -118,7 +118,7 @@ class web_log
                 if ($count < 100) {
                     break;
                 }
-                _status($count, APM_HOST . '(WEB日志分析)', 'ip统计前十', $ip, null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
+                _status($count, APM_HOST . '(PHPAPM)', 'ip统计前十', $ip, null, APM_HOSTNAME, 0, NULL, strtotime('-1 hours'));
             }
         }
         //QPS统计

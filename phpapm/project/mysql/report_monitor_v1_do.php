@@ -32,9 +32,9 @@ class report_monitor_v1_do
             $_row = apm_db_fetch_assoc($stmt);
 
             $sql = "update ".APM_DB_PREFIX."monitor_v1 set as_name=:as_name,count_type=:count_type,char_type=:char_type,
-        group_name=:group_name,group_name_1=:group_name_1,group_name_2=:group_name_2,start_clock=:start_clock,show_template=:show_template,show_all=1,
+        group_name=:group_name,group_name_1=:group_name_1,group_name_2=:group_name_2,start_clock=:start_clock,show_all=1,
         percent_count_type=:percent_count_type,day_count_type=:day_count_type,hour_count_type=:hour_count_type,
-        duibi_name=:duibi_name,is_duty=:is_duty,pinfen_rule_name=:pinfen_rule_name
+        duibi_name=:duibi_name
         where v1=:v1 ";
             $stmt = apm_db_parse($conn_db, $sql);
             apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
@@ -45,23 +45,12 @@ class report_monitor_v1_do
             apm_db_bind_by_name($stmt, ':group_name_1', $_POST['group_name_1']);
             apm_db_bind_by_name($stmt, ':group_name_2', $_POST['group_name_2']);
             apm_db_bind_by_name($stmt, ':start_clock', $_POST['start_clock']);
-            apm_db_bind_by_name($stmt, ':show_template', $_POST['show_template']);
             apm_db_bind_by_name($stmt, ':percent_count_type', $_POST['percent_count_type']);
             apm_db_bind_by_name($stmt, ':day_count_type', $_POST['day_count_type']);
             apm_db_bind_by_name($stmt, ':hour_count_type', $_POST['hour_count_type']);
             apm_db_bind_by_name($stmt, ':duibi_name', $_POST['duibi_name']);
-            apm_db_bind_by_name($stmt, ':is_duty', intval($_POST['is_duty']));
-            apm_db_bind_by_name($stmt, ':pinfen_rule_name', $_POST['pinfen_rule_name']);
             $oci_error = apm_db_execute($stmt);
             print_r($oci_error);
-            //排版统一
-            if ($_POST['show_template_checkbox'] == 1) {
-                $sql = "update ".APM_DB_PREFIX."monitor_v1 set show_template=:show_template  where group_name=:group_name ";
-                $stmt = apm_db_parse($conn_db, $sql);
-                apm_db_bind_by_name($stmt, ':show_template', $_POST['show_template']);
-                apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
-                $oci_error = apm_db_execute($stmt);
-            }
             foreach (array(
                          'percent_count_type',
                          'day_count_type',

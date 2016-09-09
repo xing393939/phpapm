@@ -111,7 +111,6 @@ class report_monitor
                         $this->all_start_date[$_row['CAL_DATE_F']]['汇总'] += $_row['FUN_COUNT'];
                 }
             }
-            $this->all_start_date[$_row['CAL_DATE_F']]['LOOKUP'] = $_row['LOOKUP'];
         }
         //显示对比数据
         if ($this->host[$_row['V2']]['V2_COMPARE'] == 1) {
@@ -347,7 +346,7 @@ class report_monitor
  * @since  2012-06-16 12:11:22
  * @throws 注意:无DB异常处理
  */
-function _p($pageID, $is_page = true, $pagefirst = null)
+function _p($pageID, $is_page = true, $pageFirst = null)
 {
     static $page_tp, $page_first;
     if ($is_page) {
@@ -357,7 +356,6 @@ function _p($pageID, $is_page = true, $pagefirst = null)
             return str_replace('{p}', $pageID, $page_tp);
     } else {
         $page_tp = $pageID;
-        $page_first = $pagefirst;
+        $page_first = $pageFirst;
     }
 }
-?>

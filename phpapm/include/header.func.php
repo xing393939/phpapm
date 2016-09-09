@@ -28,7 +28,7 @@ register_shutdown_function('apm_shutdown_function');
 function apm_shutdown_function()
 {
     if (connection_aborted())
-        _status(1, APM_HOST . "(WEB日志分析)", '被断开', APM_URI, APM_REQUEST_TYPE);
+        _status(1, APM_HOST . "(PHPAPM)", '被断开', APM_URI, APM_REQUEST_TYPE);
     $diff_time = sprintf('%.5f', microtime(true) - APM_START_TIME);
 
     //定时任务不记录执行效率
@@ -154,60 +154,6 @@ function _debugtime($diff_time = 0)
     return $diff_time_str;
 }
 
-/**
- * @desc   返回一条SQL语句对应查询的表名称
- * @author
- * @since  2013-05-29 15:55:46
- * @throws 注意:无DB异常处理
- */
-function _sql_table_txt($sql, &$sql_type)
-{
-    $sql_out = array();
-    $sql = strtr($sql, array(
-            "\n" => ' ',
-            "\r" => " "
-        )) . " ";
-    $sql_type = '(读)';
-    if (stripos($sql, 'select ') !== false) {
-        $sql_type = '(读)';
-    } else if (stripos($sql, 'insert ') !== false) {
-        $sql_type = '(写)';
-    } else if (stripos($sql, 'update ') !== false) {
-        $sql_type = '(改)';
-    } else if (stripos($sql, 'delete ') !== false || stripos($sql, 'truncate ') !== false)
-        $sql_type = '(删)';
-
-    $v = '';
-    preg_match_all('# from\s+([^ ]+) #iUs', $sql . " ", $sql_out);
-    foreach ($sql_out[1] as $v) {
-        if (strpos($v, '(') === false)
-            break;
-    }
-    if (!$v) {
-        $sql_out = array();
-        preg_match('#update\s+([^ ]+)\s(.*)set #iUs', $sql . " ", $sql_out);
-        $v = isset($sql_out[1]) ? $sql_out[1] : '';
-    }
-    if (!$v) {
-        $sql_out = array();
-        preg_match('#into\s+([^ ]+)[\s|\(]#iUs', $sql . " ", $sql_out);
-        $v = isset($sql_out[1]) ? $sql_out[1] : '';
-    }
-    if (!$v) {
-        $sql_out = array();
-        preg_match('#table\s+([^ ]+) #iUs', $sql . " ", $sql_out);
-        $v = isset($sql_out[1]) ? $sql_out[1] : '';
-    }
-    if (!$v) {
-        $sql_out = array();
-        preg_match('#begin\s+(.*)\(#iUS', $sql . " ", $sql_out);
-        $v = isset($sql_out[1]) ? "Procedure:" . $sql_out[1] : '';
-    }
-    //如果不是获取数据,一般需要验证合法性.(最好header.php都定义:$_SERVER['check_sql_safe']='YES')
-    //if (strpos($v, '(读)') === false) $_SERVER['check_sql_safe'] = trim($v);
-    return trim($v);
-}
-
 /*
 统计sql请求，需嵌入二行代码
 $t1 = microtime(true);
@@ -247,11 +193,16 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
     );
 
     //去掉换行
-    $sql = str_replace("\n", " ", $sql);
+    $sql = strtr($sql, array(
+        "\n" => ' ',
+        "\r" => " "
+    ));
     //省略''和""里面的内容
     $sql = preg_replace('/("|\').*[^\\\]\1/U', '?', $sql);
 
     $sql_formatted = $prev_spilt = '';
+    $sql_type = '';
+    $sql_type_table = array('SELECT' => '(读)', 'UPDATE' => '(改)', 'INSERT' => '(写)', 'DELETE' => '(删)', 'TRUNCATE' => '(删)');
     $dot = '[\t\s\(\)]{1}';
     $reserved_all = $dot . join("{$dot}|{$dot}", $reserved_all) . $dot;
     $split_arr = preg_split("/({$reserved_all})/i", " $sql ", -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -279,12 +230,16 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
             $sql_formatted .= isset($matches[1]) ? $matches[1] . '?' : '?';
         //如果是id > 1或者id < 2或者id = 3
         } elseif (preg_match("/(=|>|<)/", $split)) {
-            $sql_formatted .= preg_replace("/([=><][\t\s=><]*)[^,\)]+/", " \\1 ?", $split);
+            $sql_formatted .= preg_replace("/([=><][\t\s=><]*)[^,\(\)]+/", " \\1 ?", $split);
         //如果是一个字符串，maybe是字段名如 (( t1.`username`
-        } elseif (preg_match("/^[\(\s\t]*([\w_]+\.)?([\w_]+|`[\w_]+`)$/i", $trimmed_split)) {
+        } elseif (preg_match("/^[\t\s\(\)]*([a-z][\w]+\.)?[a-z]([\w]+|`[\w]+`)$/i", $trimmed_split)) {
             $sql_formatted .= $split;
         } else {
             $sql_formatted .= '*';
+        }
+        //确定增删查改类型
+        if (!$sql_type && isset($sql_type_table[$prev_spilt])) {
+            $sql_type = $sql_type_table[$prev_spilt];
         }
 
         $prev_spilt = strtoupper(trim($trimmed_split, "()"));
@@ -296,9 +251,35 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
         _status(1, APM_HOST . "(BUG错误)", '问题SQL', "IN语法", "{$db_alias}@" . APM_URI, "{$sql_formatted}");
     }
 
-    //curd分类
-    $sql_type = NULL;
-    $v = _sql_table_txt($sql_formatted, $sql_type);
+    //查到表名
+    $v = '';
+    $sql_out = array();
+    preg_match_all('# from\s+([^ ]+) #iUs', $sql_formatted . " ", $sql_out);
+    foreach ($sql_out[1] as $v) {
+        if (strpos($v, '(') === false)
+            break;
+    }
+    if (!$v) {
+        $sql_out = array();
+        preg_match('#update\s+([^ ]+)\s(.*)set #iUs', $sql_formatted . " ", $sql_out);
+        $v = isset($sql_out[1]) ? $sql_out[1] : '';
+    }
+    if (!$v) {
+        $sql_out = array();
+        preg_match('#into\s+([^ ]+)[\s|\(]#iUs', $sql_formatted . " ", $sql_out);
+        $v = isset($sql_out[1]) ? $sql_out[1] : '';
+    }
+    if (!$v) {
+        $sql_out = array();
+        preg_match('#table\s+([^ ]+) #iUs', $sql_formatted . " ", $sql_out);
+        $v = isset($sql_out[1]) ? $sql_out[1] : '';
+    }
+    if (!$v) {
+        $sql_out = array();
+        preg_match('#begin\s+(.*)\(#iUS', $sql_formatted . " ", $sql_out);
+        $v = isset($sql_out[1]) ? "Procedure:" . $sql_out[1] : '';
+    }
+
     _status(1, APM_HOST . '(SQL统计)', "{$db_alias}{$sql_type}", strtolower($v) . "@" . APM_URI, $sql_formatted, APM_HOSTNAME, $diff_time);
 
     //耗时分类
@@ -343,7 +324,7 @@ function apm_status_curl($ch_url, $start_time, $ch_info) {
     $path = isset($ch_arr['path']) ? $ch_arr['path'] : '未知path';
     _status(1, APM_HOST . "(Api)", $host, $path, APM_URI, APM_HOSTNAME, $diff_time);
 
-    if (isset($ch_info['http_code']) && $ch_info['http_code'] != 200) {
+    if (empty($ch_info['http_code']) || !preg_match('/2\d{2}/', $ch_info['http_code'])) {
         _status(1, APM_HOST . "(BUG错误)", 'Curl错误', $path, var_export($ch_info, true), APM_HOSTNAME, $diff_time);
     }
     if ($diff_time < 1) {

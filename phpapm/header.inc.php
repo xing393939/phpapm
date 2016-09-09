@@ -1,4 +1,8 @@
 <?php
+/**
+ * 1. 删除phpapm_monitor_v1的SHOW_TEMPLATE，日期横列显示
+ */
+
 define('APM_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 define('APM_HOSTNAME', php_uname('n'));
 

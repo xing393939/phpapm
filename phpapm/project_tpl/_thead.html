@@ -13,7 +13,7 @@
     $num = $this->group_count[$k]['count'];
     ?>
     <td title="<?php echo intval($num);?>" colspan="<?php echo count($v)?>">
-      <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+      <?php echo format_unit($num); ?>
     </td>
     <?php } ?>
   </tr>
@@ -38,7 +38,7 @@
     $num=$this->all_start_date_count[$v['V2']]['total'];
     ?>
     <td title="<?php echo intval($num);?>">
-      <?php if($num>10000*10000){ echo round($num/10000/10000,1).'亿';}elseif($num>10000){ echo round($num/10000,1).'万'; }else{ echo $num;}?>
+        <?php echo format_unit($num); ?>
     </td>
     <?php }} ?>
   </tr>

@@ -147,7 +147,7 @@ class monitor
                                     //memory_max=,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total
                                     $sql = "update ".APM_DB_PREFIX."monitor set
                                     fun_count=:fun_count,
-                                    oci_unique=".round(lcg_value() * 100000000).",
+                                    oci_unique=".mt_rand(1, 4294967295).",
                                     v6=:v6,
                                     total_diff_time=:total_diff_time,
 									memory_max=:memory_max,
@@ -160,7 +160,7 @@ class monitor
                                 else
                                     $sql = "update ".APM_DB_PREFIX."monitor set
                                     fun_count=fun_count+:fun_count,
-                                    oci_unique=".round(lcg_value() * 100000000).",
+                                    oci_unique=".mt_rand(1, 4294967295).",
                                     v6=GREATEST(ifnull(v6,0),:v6),
                                     total_diff_time=total_diff_time+:total_diff_time,
 								    memory_max=GREATEST(ifnull(memory_max,0),:memory_max),
@@ -360,7 +360,7 @@ class monitor
                                 ));
                                 $sql = "update ".APM_DB_PREFIX."monitor set
                                         fun_count=".($v['uptype'] == 'replace' ? ':fun_count' : 'fun_count+:fun_count').",
-                                        oci_unique=".round(lcg_value() * 100000000).",
+                                        oci_unique=".mt_rand(1, 4294967295).",
                                         v6=:v6,
                                         total_diff_time=:total_diff_time,
                                         memory_max=:memory_max,
@@ -500,7 +500,7 @@ class monitor
    			);
    		}
    		foreach ($ipcs_out as $v)
-   			_status($v['num'], APM_HOST . '(WEB日志分析)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_HOSTNAME);
+   			_status($v['num'], APM_HOST . '(PHPAPM)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_HOSTNAME);
    	}
 }
 

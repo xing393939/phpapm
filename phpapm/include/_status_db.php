@@ -12,22 +12,16 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
     else
         $START_TIME_DATE = date('Y-m-d H:i:s', $time);
 
-    $includes = array();
-    if ($v2 == $v3)
-        $v3 = APM_HOSTNAME;
-
     //累计_status
     static $_status_sql = '';
 
     if ($v3 == NULL)
         $v3 = APM_HOSTNAME;
-    if ($v5 == APM_HOSTNAME)
-        $v5 = NULL;
+
     list($_up_type) = explode('/', $up_type);
     settype($add_array, 'array');
     $array = array(
             'vhost' => APM_HOST,
-            'includes' => $includes,
             'num' => $num,
             #计算值
             'v1' => $v1,

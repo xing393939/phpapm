@@ -1,102 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>配置中心 - 监控后台</title>
-
-<link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
-<link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet">
-
-<script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
-<script type="text/javascript" src="project_res/commstyle/js/inspect2.js?v=20121111" ></script>
-<script>
-$.ajaxSetup({
-	ajaxSettings:{ contentType:"application/x-www-form-urlencoded;chartset=GB2312"}
-});
-</script>
-<style>
-.red{ color:#F00;}
-*{font-family:微软雅黑 !important}
-</style>
-<script>
-function edit_as_name(obj,id)
-{
-	var txt = $(obj).html();
-	if (txt.indexOf('<input')>-1)
-	{
-		return;
-	}
-	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_as_name_do(this,'+id+')" id="as_name_id_'+id+'" name="as_name" value="'+txt+'">');
-	$('#as_name_id_'+id)[0].select();
-}
-
-function edit_as_name_do(obj,id)
-{
-	$.post("?act=report_monitor_as_name&sign=<?php echo SIGN_KEY?>",{as_name : obj.value, id : id});
-	$(obj).parent().bind('click',function(data){edit_as_name($(this)[0],id)});
-	$(obj).parent().html(obj.value);
-}
-
-function edit_v2_group(obj,id)
-{
-	var txt = $(obj).html();
-	if (txt.indexOf('<input')>-1)
-	{
-		return;
-	}
-	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_v2_group_do(this,'+id+')" id="v2_group_id_'+id+'" name="v2_group" value="'+txt+'">');
-	$('#v2_group_id_'+id)[0].select();
-}
-function edit_v2_group_do(obj,id)
-{
-	$.post("?act=report_monitor_v2_group&sign=<?php echo SIGN_KEY?>",{v2_group : obj.value, id : id});
-	$(obj).parent().bind('click',function(data){edit_v2_group($(this)[0],id)});
-	$(obj).parent().html(obj.value);
-}
-
-function edit_v2_api(obj,id)
-{
-	var txt = $(obj).html();
-	if (txt.indexOf('<input')>-1)
-	{
-		return;
-	}
-	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_v2_api_do(this,'+id+')" id="v2_api_id_'+id+'" name="v2_api" value="'+txt+'">');
-	$('#v2_api_id_'+id)[0].select();
-}
-function edit_v2_api_do(obj,id)
-{
-	$.post("?act=report_monitor_config_other&sign=<?php echo SIGN_KEY?>&API_ID="+obj.value+"&id="+id,{v2_api : obj.value, id : id});
-	$(obj).parent().bind('click',function(data){edit_v2_api($(this)[0],id)});
-	$(obj).parent().html(obj.value);
-}
-
-
-function edit_compare_group(obj,id)
-{
-	var txt = $(obj).html();
-	if (txt.indexOf('<input')>-1)
-	{
-		return;
-	}
-	$(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_compare_group_do(this,'+id+')" id="compare_group_id_'+id+'" name="compare_group" value="'+txt+'">');
-	$('#compare_group_id_'+id)[0].select();
-}
-function edit_compare_group_do(obj,id)
-{
-	$.post("?act=report_monitor_compare_group&sign=<?php echo SIGN_KEY?>",{compare_group : obj.value, id : id});
-	$(obj).parent().bind('click',function(data){edit_compare_group($(this)[0],id)});
-	$(obj).parent().html(obj.value);
-}
-//反选
-function call()
-{
-	var arrChk=$("input[name='uncount[]']");
-	$(arrChk).each(function(idx, item){
-		$(item).attr("checked", !$(item).attr("checked"));
-	});
-}
-</script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>配置中心 - 监控后台</title>
+    <link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
+    <link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
+    <script type="text/javascript" src="project_res/commstyle/js/inspect2.js?v=20121111" ></script>
+    <script type="text/javascript" src="project_res/commstyle/js/simulateSelect.js"></script>
+    <script type="text/javascript" src="project_res/commstyle/js/common.js" ></script>
 </head>
 <body>
 <div id="wrapper">
@@ -163,27 +75,6 @@ function call()
         <font color="#FF0000">同名联动</font></td>
       <td style="text-align:left"><input name="group_name_2" type="text"  class="inpm" id="group_name_2" style="width:200px;" value="<?php echo $this->v1_config_act['GROUP_NAME_2']?>"/></td>
       </tr>
-
-
-    <tr>
-      <td style="text-align:left">排版:</td>
-      <td style="text-align:left"><select name="show_template" id="show_template">
-        <option value="0">默认(日期竖列)</option>
-        <option value="1" <?php if($this->v1_config_act['SHOW_TEMPLATE']==1){?>selected="selected"<?php }?> >定制(日期横列,只显示10天)</option>
-        </select>
-        <input name="show_template_checkbox" type="checkbox" id="show_template_checkbox" value="1" />
-        本分组内统一排版</td>
-      <td style="text-align:left"><span style="text-align:right">小时数据</span>:</td>
-      <td style="text-align:left"><select name="hour_count_type" id="hour_count_type">
-        <?php foreach($hour_array as $dk=>$dv){?>
-        <option value="<?php echo $dv?>" <?php if($this->v1_config_act['HOUR_COUNT_TYPE']==$dv){?>selected="selected"<?php }?>><?php echo $dk?></option>
-        <?php }?>
-        </select>&nbsp;</td>
-      <td style="text-align:left">分组名:<input name="show_group_3"  type="checkbox" id="show_group_3" value="1"  checked="checked" />
-        <font color="#FF0000">同名联动</font></td>
-      <td style="text-align:left"><input name="group_name" type="text"  class="inpm" id="group_name" style="width:200px;" value="<?php echo $this->v1_config_act['GROUP_NAME']?>"/>
-        </td>
-    </tr>
     <tr>
       <td style="text-align:left">默认显示图标:</td>
       <td style="text-align:left"><select name="char_type" id="char_type">
@@ -203,15 +94,6 @@ function call()
         <?php }?>
         </select>
         (编辑排版时候需要调整)</td>
-      <td style="text-align:left">&nbsp;</td>
-      <td style="text-align:left">&nbsp;</td>
-      <td style="text-align:left"><?php if($this->v1_config_act['PINFEN_RULE']){?>显示分数名:<?php }?></td>
-      <td style="text-align:left"><?php if($this->v1_config_act['PINFEN_RULE']){?><input name="pinfen_rule_name" type="text"  class="inpm" id="pinfen_rule_name"  value="<?php echo $this->v1_config_act['PINFEN_RULE_NAME']?>"/>
-        分<?php }?></td>
-      </tr>
-    <tr>
-      <td style="text-align:left">不参与验收</td>
-      <td style="text-align:left"><input name="is_duty" type="checkbox" id="is_duty" value="1" <?php if($this->v1_config_act['IS_DUTY']==1){?>checked="checked"<?php }?> /></td>
       <td style="text-align:left">&nbsp;</td>
       <td style="text-align:left">&nbsp;</td>
       <td style="text-align:left">&nbsp;</td>
@@ -344,90 +226,6 @@ function call()
                   </table></form>
 </div>
 
-<br />
-
-
-<!--mnav-->
-<div class="tHd">
-    <div class="m-nav">
-        <ul>
-            <li id="li_class_<?php echo $i?>" class="cur"><a href="" title="<?php echo $v['V1']?>"><span>评分体系</span></a></li>
-        </ul>
-    </div>
-</div>
-<!--/mnav-->
-<div class="tBd">
-<form action="project.php?act=report_pinfen" method="post" id="report_pinfen"><table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
-                    <thead>
-<tr class = "tr-th2" >
-  <th>&nbsp;&nbsp;评分体系名</th>
-  <th>扣分项名称</th>
-  <th>基数</th>
-  <th>前提</th>
-  <th>步长</th>
-  <th>每步长扣分</th>
-  <th>&nbsp;</th>
-</tr>
-<tr  >
-<?php $v1_info=unserialize($this->v1_config_act['PINFEN_RULE']); ?>
-  <td><input name="pinfen_name" type="text"  class="inpm" id="pinfen_name" value="<?php echo $v1_info['pinfen_name'];?>" /></td>
-  <td><input name="koufen_name" type="text"  class="inpm" id="koufen_name" value="<?php echo $v1_info['koufen_name'];?>" /></td>
-  <td><input name="base_num" type="text"  class="inpm" id="base_num" value="<?php echo $v1_info['base_num'];?>" /></td>
-  <td>小于
-    <input type="radio" name="just_rule" id="radio" value="<" <?php if($v1_info['just_rule']=='<'){ ?>checked="checked"<?php }?> />
-    大于
-    <input name="just_rule" type="radio" id="radio2" value=">" <?php if($v1_info['just_rule']=='>'){ ?>checked="checked"<?php }?> />
-    基数才扣分
-  </td><td><input name="pinfen_step" type="text"  class="inpm" id="pinfen_step" value="<?php echo $v1_info['pinfen_step'];?>" /></td>
-  <td><input name="rule_num" type="text"  class="inpm" id="rule_num" value="<?php echo $v1_info['rule_num'];?>" /></td>
-  <td><label>
-    <input name="v1" type="hidden" id="v1" value="<?php echo $this->v1_config_act['V1']?>" />
-    <input type="submit" name="button3" id="button3" value="保存" />
-  </label></td>
-</tr>
-                </thead>
-</table></form>
-</div><br />
-<div class="tBd">
-
-<table  id="assess-table" class="tabc assess-table"  border="0" cellpadding="0" cellspacing="0" width="100%">
-                    <thead>
-<tr class = "tr-th2" >
-  <th>V2</th>
-  <th>&nbsp;&nbsp;评分体系名</th>
-  <th>扣分项名称</th>
-  <th>基数</th>
-  <th>前提</th>
-  <th>步长</th>
-  <th>每步长扣分</th>
-  <th>&nbsp;</th>
-</tr>
-<?php foreach($this->all as $kk=>$vv){ ?>
-<form action="project.php?act=report_pinfen" method="post" id="report_pinfen">
-<tr  >
-  <td><?php echo $vv['V2']?>&nbsp;</td>
-<?php $v1_info=unserialize($vv['PINFEN_RULE']); ?>
-  <td><input name="pinfen_name" type="text"  class="inpm" id="pinfen_name" value="<?php echo $v1_info['pinfen_name'];?>" /></td>
-  <td><input name="koufen_name" type="text"  class="inpm" id="koufen_name" value="<?php echo $v1_info['koufen_name'];?>" /></td>
-  <td><input name="base_num" type="text"  class="inpm" id="base_num" value="<?php echo $v1_info['base_num'];?>" /></td>
-  <td>小于
-    <input type="radio" name="just_rule" id="radio" value="<" <?php if($v1_info['just_rule']=='<'){ ?>checked="checked"<?php }?> />
-    大于
-    <input name="just_rule" type="radio" id="radio3" value=">" <?php if($v1_info['just_rule']=='>'){ ?>checked="checked"<?php }?> />
-基数才扣分
-  </td><td><input name="pinfen_step" type="text"  class="inpm" id="pinfen_step" value="<?php echo $v1_info['pinfen_step'];?>" /></td>
-  <td><input name="rule_num" type="text"  class="inpm" id="rule_num" value="<?php echo $v1_info['rule_num'];?>" /></td>
-  <td><label>
-    <input name="v1" type="hidden" id="v1" value="<?php echo $this->v1_config_act['V1']?>" />
-    <input name="v2" type="hidden" id="v2" value="<?php echo $vv['V2']?>" />
-    <input type="submit" name="button3" id="button3" value="保存" />
-  </label></td>
-</tr>
-</form>
-<?php } ?>
-                </thead>
-</table>
-</div>
 <br />
 
 

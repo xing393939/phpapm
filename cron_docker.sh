@@ -7,9 +7,7 @@ while sleep 60
 do
     log_minute=`date +%M`
 
-    callact "/usr/local/php/bin/php crontab.php act=file_change"
     callact2 "/usr/local/php/bin/php crontab.php act=monitor mod=1"
-    callact2 "/usr/local/php/bin/php crontab.php act=sysload"
     callact2 "/usr/local/php/bin/php crontab.php act=monitor_config del=1 master=yes"
     log_date=/dev/shm/`date +%Y_%m_%d_%H_%M_%S`
     touch ${log_date}_wget.log
@@ -19,8 +17,6 @@ do
         callact2 "/usr/local/php/bin/php crontab.php act=web_log"
         callact2 "/usr/local/php/bin/php crontab.php act=report_monitor_group master=yes"
         callact2 "/usr/local/php/bin/php crontab.php act=report_monitor_order master=yes"
-        callact2 "/usr/local/php/bin/php crontab.php act=crontab_report_pinfen master=yes"
-        callact2 "/usr/local/php/bin/php crontab.php act=monitor_duty master=yes"
     fi
 done
 

@@ -48,3 +48,45 @@ if (file_exists($file)) {
 } else {
     exit("{$_GET['act']} file not found");
 }
+
+function format_unit($num, $unitType = 'number')
+{
+    $str = '<span style="color:#AAA">0</span>';
+    if ($num == 0) {
+        return $str;
+    }
+    if ($unitType == 'capacity') {
+        if ($num > 1024 * 1024) {
+            $str = round($num / 1024 / 1024, 1) . 'T';
+        } elseif ($num > 1024) {
+            $str = round($num / 1024, 1) . 'G';
+        } else {
+            $str = round($num, 1) . 'M';
+        }
+    } elseif ($unitType == 'memory') {
+        if ($num < 1024) {
+            $str = sprintf('%.4fM', $num);
+        } elseif ($num < 1024 * 1024) {
+            $str = sprintf('%.4fG', $num / 1024);
+        } else {
+            $str = sprintf('%.4fT', $num / (1024 * 1024));
+        }
+    } elseif ($unitType == 'time') {
+        if ($num < 60) {
+            $str = sprintf('%.4f秒', $num);
+        } elseif ($num < 3600) {
+            $str = sprintf('%.4f分', $num / 60);
+        } else {
+            $str = sprintf('%.4f小时', $num / 3600);
+        }
+    } else {
+        if ($num > 10000 * 10000) {
+            $str = round($num / 10000 / 10000, 1) . '亿';
+        } elseif ($num > 10000) {
+            $str = round($num / 10000, 1) . '万';
+        } else {
+            $str = $num;
+        }
+    }
+    return $str;
+}

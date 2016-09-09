@@ -41,7 +41,6 @@ CREATE TABLE `phpapm_monitor_config` (
   `PERCENT_COUNT_TYPE` varchar(10) NOT NULL DEFAULT '0' COMMENT '是否显示百分比',
   `V2_GROUP` varchar(100) DEFAULT NULL COMMENT 'v2分组名称',
   `V2_COMPARE` decimal(4,0) DEFAULT '0' COMMENT '0为不显示，1为显示',
-  `PINFEN_RULE` text COMMENT '评分规则',
   `V2_CONFIG_OTHER` varchar(200) DEFAULT NULL COMMENT '序列化存储V2的其他属性,{NO_COUNT:true/false#标识数据是否需要统计入总数}',
   `COMPARE_GROUP` varchar(100) DEFAULT NULL,
   `VIRTUAL_COLUMNS` decimal(2,0) DEFAULT NULL,
@@ -54,7 +53,6 @@ CREATE TABLE `phpapm_monitor_date` (
   `V1` varchar(100) NOT NULL,
   `V2` varchar(100) NOT NULL,
   `FUN_COUNT` int(11) unsigned DEFAULT '0',
-  `LOOKUP` datetime DEFAULT NULL COMMENT '验收过数据',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`CAL_DATE`,`V1`,`V2`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='日统计报表';
@@ -93,7 +91,6 @@ CREATE TABLE `phpapm_monitor_v1` (
   `CHAR_TYPE` decimal(10,0) DEFAULT NULL COMMENT '默认显示的图标类型',
   `GROUP_NAME` varchar(100) NOT NULL DEFAULT '默认' COMMENT '分组名称',
   `START_CLOCK` decimal(2,0) NOT NULL DEFAULT '0' COMMENT '日数据默认开始小时时间',
-  `SHOW_TEMPLATE` decimal(2,0) NOT NULL DEFAULT '0' COMMENT '采用的显示模板',
   `SHOW_ALL` decimal(2,0) NOT NULL DEFAULT '1' COMMENT '显示汇总',
   `DAY_COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '日数据的统计方式:',
   `HOUR_COUNT_TYPE` varchar(10) DEFAULT NULL COMMENT '小时数据的统计方式:',
@@ -103,9 +100,6 @@ CREATE TABLE `phpapm_monitor_v1` (
   `GROUP_NAME_2` varchar(100) NOT NULL DEFAULT '默认',
   `GROUP_NAME_1` varchar(100) NOT NULL DEFAULT '业务分析',
   `DUIBI_NAME` text COMMENT '对比分组名',
-  `IS_DUTY` decimal(2,0) NOT NULL DEFAULT '0' COMMENT '是否需要验收',
-  `PINFEN_RULE` text COMMENT '评分规则',
-  `PINFEN_RULE_NAME` varchar(40) DEFAULT NULL COMMENT '顶部菜单显示的评分标准名称',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COMMENT='配置V1的各项基本信息';

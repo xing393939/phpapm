@@ -67,15 +67,14 @@ class report_monitor_compare_group
                 $oci_error = apm_db_execute($stmt);
                 //插入v1表
                 $sql = "insert into ".APM_DB_PREFIX."monitor_v1
-                            (V1,COUNT_TYPE,CHAR_TYPE,START_CLOCK,SHOW_TEMPLATE,SHOW_ALL,ID,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,SHOW_AVG,IS_DUTY)
-                      values(:V1,:COUNT_TYPE,:CHAR_TYPE,:START_CLOCK,:SHOW_TEMPLATE,:SHOW_ALL,
-                           seq_".APM_DB_PREFIX."monitor.nextval,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:SHOW_AVG,1)";
+                            (V1,COUNT_TYPE,CHAR_TYPE,START_CLOCK,SHOW_ALL,ID,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,SHOW_AVG)
+                      values(:V1,:COUNT_TYPE,:CHAR_TYPE,:START_CLOCK,:SHOW_ALL,
+                           seq_".APM_DB_PREFIX."monitor.nextval,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:SHOW_AVG)";
                 $stmt = apm_db_parse($conn_db, $sql);
                 apm_db_bind_by_name($stmt, ':V1', $v);
                 apm_db_bind_by_name($stmt, ':COUNT_TYPE', $_row_v1['COUNT_TYPE']);
                 apm_db_bind_by_name($stmt, ':CHAR_TYPE', $_row_v1['CHAR_TYPE']);
                 apm_db_bind_by_name($stmt, ':START_CLOCK', $_row_v1['START_CLOCK']);
-                apm_db_bind_by_name($stmt, ':SHOW_TEMPLATE', $_row_v1['SHOW_TEMPLATE']);
                 apm_db_bind_by_name($stmt, ':SHOW_ALL', $_row_v1['SHOW_ALL']);
                 apm_db_bind_by_name($stmt, ':DAY_COUNT_TYPE', $_row_v1['DAY_COUNT_TYPE']);
                 apm_db_bind_by_name($stmt, ':HOUR_COUNT_TYPE', $_row_v1['HOUR_COUNT_TYPE']);

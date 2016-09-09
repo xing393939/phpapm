@@ -27,16 +27,13 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
     else
         $START_TIME_DATE = date('Y-m-d H:i:s',$time);
 
-    if ($v2 == $v3)
-        $v3 = APM_HOSTNAME;
     $IPCS = explode('|', APM_IPC_NAMES);
     $ipcs_key = $IPCS[rand(0, count($IPCS) - 1)];
     $seg = msg_get_queue($ipcs_key, 0600);
     if ($seg) {
         if ($v3 == NULL)
             $v3 = APM_HOSTNAME;
-        if ($v5 == APM_HOSTNAME)
-            $v5 = NULL;
+
         list($_up_type) = explode('/', $up_type);
         settype($add_array, 'array');
         $array = array(

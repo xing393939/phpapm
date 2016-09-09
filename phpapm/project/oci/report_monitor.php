@@ -115,7 +115,6 @@ class report_monitor
                         $this->all_start_date[$_row['CAL_DATE_F']]['汇总'] += $_row['FUN_COUNT'];
                 }
             }
-            $this->all_start_date[$_row['CAL_DATE_F']]['LOOKUP'] = $_row['LOOKUP'];
         }
         //显示对比数据
         if ($this->host[$_row['V2']]['V2_COMPARE'] == 1) {

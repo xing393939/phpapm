@@ -24,15 +24,31 @@
 			<td style="border-right:1px solid #BACCE1"><?php echo $k+1?></td>
             <td style="border-right:1px solid #BACCE1; text-align:left"><span title="<?php echo $v['V5']?>"><?php echo nl2br(htmlspecialchars($v['V4']))?></span></td>
             <td style="border-right:1px solid #BACCE1;text-align:left"><?php echo nl2br(htmlspecialchars($v['V5']))?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_f=$v['V6']; if($num_f<60) printf('%.4f秒',$num_f); elseif($num_f<3600) printf('%.4f分',$num_f/60);else printf('%.4f小时',$num_f/3600)?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_t=$v['TOTAL_DIFF_TIME']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60); else printf('%.4f小时',$num_t/3600); ?></td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['V6'], 'time'); ?>
+            </td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['TOTAL_DIFF_TIME'], 'time'); ?>
+            </td>
             <?php if (in_array($_GET['fun_host'], array('脚本', '外网', '内网'))) { ?>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_t=$v['MEMORY_MAX']; if($num_t<1024) printf('%.4fM',$num_t); elseif($num_t<1024*1024) printf('%.4fG',$num_t/60); else printf('%.4fT',$num_t/(1024*1024)); ?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_f=$v['MEMORY_TOTAL']; if($num_f<1024) printf('%.4fM',$num_f); elseif($num_f<1024*1024) printf('%.4fG',$num_f/60);else printf('%.4fT',$num_f/(1024*1024))?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_f=$v['CPU_USER_TIME_MAX']; if($num_f<60) printf('%.4f秒',$num_f); elseif($num_f<3600) printf('%.4f分',$num_f/60);else printf('%.4f小时',$num_f/3600)?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_t=$v['CPU_USER_TIME_TOTAL']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60); else printf('%.4f小时',$num_t/3600); ?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_f=$v['CPU_SYS_TIME_MAX']; if($num_f<60) printf('%.4f秒',$num_f); elseif($num_f<3600) printf('%.4f分',$num_f/60);else printf('%.4f小时',$num_f/3600)?></td>
-            <td style="border-right:1px solid #BACCE1;text-align:left"><?php $num_t=$v['CPU_SYS_TIME_TOTAL']; if($num_t<60) printf('%.4f秒',$num_t); elseif($num_t<3600) printf('%.4f分',$num_t/60); else printf('%.4f小时',$num_t/3600); ?></td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['MEMORY_MAX'], 'memory'); ?>
+            </td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['MEMORY_TOTAL'], 'memory'); ?>
+            </td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['CPU_USER_TIME_MAX'], 'time'); ?>
+            </td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['CPU_USER_TIME_TOTAL'], 'time'); ?>
+            </td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['CPU_SYS_TIME_MAX'], 'time'); ?>
+            </td>
+            <td style="border-right:1px solid #BACCE1;text-align:left">
+                <?php echo format_unit($v['CPU_SYS_TIME_TOTAL'], 'time'); ?>
+            </td>
             <?php } ?>
             <td><?php echo $v['FUN_COUNT']?></td>
 		</tr>

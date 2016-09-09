@@ -1,24 +1,3 @@
-<script type="text/javascript" src="project_res/commstyle/js/simulateSelect.js"></script>
-<script>
-    $(function () {
-        $(document).delegate('[data-type]', 'click', function () {
-            var _this = $(this), dataType = _this.attr('data-type');
-            ({
-                "simulate-select": function () {
-                    _this.simulateSelect({"adjustY": -1, "adjustLayerWidth": -2});
-                }
-            }[dataType] || function () {
-            })();
-            if (dataType !== 'simulate-select-hover') {
-                return false;
-            }
-        });
-        $(document).delegate('[data-type=simulate-select-hover]', 'mouseenter', function () {
-            $(this).simulateSelect({"adjustY": -1, "adjustLayerWidth": -2, "eventType": 'mouseover'});
-        })
-    })
-</script>
-
 <div class="clearfix" id="rating-header">
     <h1><a class="logo" href="./project.php">报告系统 beta</a></h1>
 
@@ -31,8 +10,40 @@
     <div class="rh-right clearfix" style="padding-right:20px">
         <?php
         if (!empty($_COOKIE['admin_user'])) {
-            include "_menu.html";
-        }
+            $top_config = current((array) $this->v1_config);
+            global $v1_config_group;
+            foreach ($v1_config_group as $k => $v) {
         ?>
+                <div class="xiala rating-menu" id="user-infor">
+                    <span data-type="simulate-select-hover"
+                        data-select-config="offsetParent=.xiala&dropLayer=.xiala-layer&select=cur&&minWidth=192&align=right&adjustX=2"
+                        class="xiala-span t-bx dquser <?php if($top_config['GROUP_NAME_1']==$k){?>cur<?php }?>">
+                        <em class="updata"><b class="nbi"></b></em><?php echo $k?>
+                        <i class="i-triangle"></i>
+                    </span>
+                    <!--xiala-layer-->
+                    <div class="xiala-layer">
+                        <div class="xl-bd">
+                            <?php foreach($v as $kk=>$vv){?>
+                            <div class="xlbd-bx ">
+                                <h2> <?php echo $kk?> <a class="h2r" href="#"></a></h2>
+                                <ul class="uls">
+                                    <?php foreach($vv as $kkk=>$vvv){ ?>
+                                    <li>
+                                        <a href="project.php?act=report_monitor&type=<?php echo rawurlencode($vvv)?>&group_name_2=<?php echo rawurlencode($kk)?>"
+                                           class="<?php if($top_config['GROUP_NAME']==$kkk && $top_config['GROUP_NAME_1']==$k && $top_config['GROUP_NAME_2']==$kk){?>red<?php }else{?>blue<?php }?>"><?php echo $kkk?></a>
+                                    </li>
+                                    <?php }?>
+                                </ul>
+                            </div>
+                            <?php }?>
+                            <b class="xl-h"></b>
+                            <b class="xl-f"></b>
+                        </div>
+                    </div>
+                    <!--/xiala-layer-->
+                </div>
+
+        <?php }} ?>
     </div>
 </div>

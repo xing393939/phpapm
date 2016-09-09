@@ -446,7 +446,7 @@ class monitor
    			);
    		}
    		foreach ($ipcs_out as $k => $v)
-   			_status($v['num'], APM_HOST . '(WEB日志分析)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_HOSTNAME);
+   			_status($v['num'], APM_HOST . '(PHPAPM)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_HOSTNAME);
    	}
 }
 ?>
