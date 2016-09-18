@@ -71,7 +71,7 @@ function apm_shutdown_function()
 set_exception_handler('apm_exception_handler');
 
 function apm_exception_handler($e) {
-    _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, "(file:{$e->file} | line:{$e->line}){$e->message}\n");
+    _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, var_export(array($e->getFile(), $e->getLine(), $e->getMessage()), true));
 }
 
 set_error_handler("apm_error_handler");

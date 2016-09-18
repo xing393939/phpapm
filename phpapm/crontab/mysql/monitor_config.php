@@ -73,7 +73,7 @@ class monitor_config
                     }
                     $sql = "update ".APM_DB_PREFIX."monitor_hour set
                             fun_count=:fun_count,
-                            oci_unique=".mt_rand(1, 4294967295).",
+                            oci_unique=".mt_rand(1, 2147483647).",
                             diff_time=:diff_time,
                             total_diff_time=:total_diff_time,
                             memory_max=:memory_max,
@@ -140,7 +140,7 @@ class monitor_config
                         foreach ($compare_group as $v) {
                             $sql = "update ".APM_DB_PREFIX."monitor_hour set
                                     fun_count=:fun_count,
-                                    oci_unique=".mt_rand(1, 4294967295).",
+                                    oci_unique=".mt_rand(1, 2147483647).",
                                     diff_time=:diff_time,
                                     total_diff_time=:total_diff_time,
                                     memory_max=:memory_max,
@@ -290,7 +290,7 @@ class monitor_config
             if (isset($_row_config['DAY_COUNT_TYPE']) && $_row_config['DAY_COUNT_TYPE'] == 6)
                 $_row['FUN_COUNT'] = $_row['FUN_COUNT_AVG'];
             $sql = "update ".APM_DB_PREFIX."monitor_date set
-                    fun_count=:fun_count,oci_unique=".mt_rand(1, 4294967295)."
+                    fun_count=:fun_count,oci_unique=".mt_rand(1, 2147483647)."
                     where v1=:v1 and v2=:v2 and cal_date=:cal_date";
             $stmt2 = apm_db_parse($conn_db, $sql);
             apm_db_bind_by_name($stmt2, ':v1', $_row['V1']);
@@ -320,7 +320,7 @@ class monitor_config
             if (count($compare_group) > 0) {
                 foreach ($compare_group as $v) {
                     $sql = "update ".APM_DB_PREFIX."monitor_date set
-                            fun_count=:fun_count,oci_unique=".mt_rand(1, 4294967295)."
+                            fun_count=:fun_count,oci_unique=".mt_rand(1, 2147483647)."
                             where v1=:v1 and v2=:v2 and cal_date=:cal_date";
                     $stmt2 = apm_db_parse($conn_db, $sql);
                     apm_db_bind_by_name($stmt2, ':v1', $v);

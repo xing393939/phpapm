@@ -27,9 +27,9 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
     else
         $START_TIME_DATE = date('Y-m-d H:i:s',$time);
 
-    $IPCS = explode('|', APM_IPC_NAMES);
-    $ipcs_key = $IPCS[rand(0, count($IPCS) - 1)];
-    $seg = msg_get_queue($ipcs_key, 0600);
+    $names = explode('|', APM_QUEUE_NAMES);
+    $key = $names[array_rand($names)];
+    $seg = msg_get_queue($key, 0600);
     if ($seg) {
         if ($v3 == NULL)
             $v3 = APM_HOSTNAME;
@@ -56,7 +56,7 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
             ) + $add_array;
         $bool = msg_send($seg, 1, $array, true, false);
         if (!$bool) {
-            error_log("队列错误:" . str_pad(dechex($ipcs_key), 8, '0', STR_PAD_LEFT));
+            error_log("队列错误:" . str_pad(dechex($key), 8, '0', STR_PAD_LEFT));
         }
     }
 }

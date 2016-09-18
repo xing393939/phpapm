@@ -11,7 +11,7 @@ class monitor_fix
     function _initialize()
     {
         $IPCS = array();
-        $_IPCS = explode('|', APM_IPC_NAMES);
+        $_IPCS = explode('|', APM_QUEUE_NAMES);
         foreach ($_IPCS as $k => $v)
             if ($k % $_GET['total'] == $_GET['mod'])
                 $IPCS[] = $v;

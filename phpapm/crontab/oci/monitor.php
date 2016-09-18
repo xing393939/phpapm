@@ -229,7 +229,7 @@ class monitor
         $tt1 = microtime(true);
         echo "<pre> 准备压缩数据:\n";
         $monitor_count = $monitor = array();
-        $IPCS = explode('|', APM_IPC_NAMES);
+        $IPCS = explode('|', APM_QUEUE_NAMES);
         shuffle($IPCS);
         $ic = 0;
         print_r($IPCS);
