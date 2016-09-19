@@ -9,13 +9,13 @@ do
 
     callact2 "/usr/local/php/bin/php crontab.php act=monitor_fix"
     callact2 "/usr/local/php/bin/php crontab.php act=monitor mod=1"
-    callact2 "/usr/local/php/bin/php crontab.php act=monitor_config del=1 master=yes"
+    callact2 "/usr/local/php/bin/php crontab.php act=monitor_config"
 
     if ((${log_minute} == 30))
     then
         callact2 "/usr/local/php/bin/php crontab.php act=web_log"
-        callact2 "/usr/local/php/bin/php crontab.php act=report_monitor_group master=yes"
-        callact2 "/usr/local/php/bin/php crontab.php act=report_monitor_order master=yes"
+        callact2 "/usr/local/php/bin/php crontab.php act=report_monitor_group"
+        callact2 "/usr/local/php/bin/php crontab.php act=report_monitor_order"
     fi
 done
 

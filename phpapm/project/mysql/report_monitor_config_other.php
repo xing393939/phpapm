@@ -10,7 +10,7 @@ class report_monitor_config_other
 {
     function _initialize()
     {
-        if (!isset($_GET['NO_COUNT']) && !isset($_GET['DATA_UNITS']) && !isset($_GET['API_ID'])) {
+        if (!isset($_GET['NO_COUNT']) && !isset($_GET['DATA_UNITS'])) {
             header("location:{$_SERVER['HTTP_REFERER']}");
             die();
         }
@@ -35,11 +35,6 @@ class report_monitor_config_other
                 unset($v2_config_other['DATA_UNITS']);
             }
         }
-        //修改对应api id
-        if (isset($_GET['API_ID'])) {
-            if (is_numeric($_GET['API_ID']))
-                $v2_config_other['API_ID'] = $_GET['API_ID'];
-        }
 
         $v2_config_other = serialize($v2_config_other);
         $sql = "update ".APM_DB_PREFIX."monitor_config set v2_config_other=:v2_config_other where id=:id ";
@@ -47,8 +42,6 @@ class report_monitor_config_other
         apm_db_bind_by_name($stmt, ':v2_config_other', $v2_config_other);
         apm_db_bind_by_name($stmt, ':id', $_GET['id']);
         $oci_error = apm_db_execute($stmt);
-        if (!$v2_config_other['API_ID'])
-            header("location:{$_SERVER['HTTP_REFERER']}");
         die();
     }
 }

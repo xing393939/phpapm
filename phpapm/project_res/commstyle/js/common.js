@@ -50,22 +50,6 @@ function edit_v2_group_do(obj, ids) {
     $(obj).parent().html(obj.value);
 }
 
-function edit_v2_api(obj, id) {
-    var txt = $(obj).html();
-    if (txt.indexOf('<input') > -1) {
-        return;
-    }
-    $(obj).html('<input class="inpm" onkeydown="if (event.keyCode==13) return false;" onblur="edit_v2_api_do(this,' + id + ')" id="v2_api_id_' + id + '" name="v2_api" value="' + txt + '">');
-    $('#v2_api_id_' + id)[0].select();
-}
-function edit_v2_api_do(obj, id) {
-    $.post("?act=report_monitor_config_other&API_ID=" + obj.value + "&id=" + id, {v2_api: obj.value, id: id});
-    $(obj).parent().bind('click', function (data) {
-        edit_v2_api($(this)[0], id)
-    });
-    $(obj).parent().html(obj.value);
-}
-
 function edit_compare_group(obj, id) {
     var txt = $(obj).html();
     if (txt.indexOf('<input') > -1) {

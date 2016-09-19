@@ -10,8 +10,7 @@ class monitor_fix
 {
     function _initialize()
     {
-        echo "<pre> 准备压缩数据:\n";
-        $tt1 = microtime(true);
+        echo "<pre>准备压缩数据:\n";
         $queue_data = array();
         if (APM_QUEUE_TYPE == 'db') {
             $conn_db = apm_db_logon(APM_DB_ALIAS);
@@ -32,6 +31,11 @@ class monitor_fix
             $ic = 0;
             foreach ($names as $key) {
                 $seg = msg_get_queue($key, 0600);
+
+                //记录队列状态
+                $statArr = msg_stat_queue($seg);
+                _status($statArr['msg_qnum'], APM_HOST . '(PHPAPM)', "队列", $key, var_export($statArr, true), APM_HOSTNAME);
+
                 $msgType = 1;
                 $msg_array = array();
                 //读取队列数据
@@ -66,55 +70,54 @@ class monitor_fix
 
         $monitor = array();
         foreach ($queue_data as $msg_array) {
-            //日志数据,不会被删除
-            if (empty($monitor[date('Y-m-d H', strtotime($msg_array['time']))])) {
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))] = array();
+            $time = date('Y-m-d H', strtotime($msg_array['time']));
+            if (empty($monitor[$time])) {
+                $monitor[$time] = array();
             }
-            if (empty($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']])) {
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']] = array();
+            if (empty($monitor[$time][$msg_array['v1']])) {
+                $monitor[$time][$msg_array['v1']] = array();
             }
-            if (empty($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']])) {
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']] = array();
+            if (empty($monitor[$time][$msg_array['v1']][$msg_array['v2']])) {
+                $monitor[$time][$msg_array['v1']][$msg_array['v2']] = array();
             }
-            if (empty($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']])) {
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']] = array();
+            if (empty($monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']])) {
+                $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']] = array();
             }
-            if (empty($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']])) {
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']] = array();
+            if (empty($monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']])) {
+                $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']] = array();
             }
-            if (empty($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']])) {
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']] = array(
-                    'uptype' => '', 'count' => 0, 'diff_time' => 0, 'total_diff_time' => 0, 'memory_max' => 0, 'memory_total' => 0, 'cpu_user_time_max' => 0, 'cpu_user_time_total' => 0, 'cpu_sys_time_max' => 0, 'cpu_sys_time_total' => 0,
+            if (empty($monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']])) {
+                $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']] = array(
+                    'uptype' => '',
+                    'count' => 0,
+                    'diff_time' => 0,
+                    'total_diff_time' => 0,
+                    'memory_max' => 0,
+                    'memory_total' => 0,
+                    'cpu_user_time_max' => 0,
+                    'cpu_user_time_total' => 0,
+                    'cpu_sys_time_max' => 0,
+                    'cpu_sys_time_total' => 0,
                 );
             }
-            $msg_array['memory'] = isset($msg_array['memory']) ? $msg_array['memory'] : 0;
-            $msg_array['user_cpu'] = isset($msg_array['user_cpu']) ? $msg_array['user_cpu'] : 0;
-            $msg_array['sys_cpu'] = isset($msg_array['sys_cpu']) ? $msg_array['sys_cpu'] : 0;
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['uptype'] = $msg_array['uptype'];
-            if ($msg_array['uptype'] == 'replace')
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['count'] = $msg_array['num'];
-            else
-                $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['count'] += $msg_array['num'];
-            //最大耗时
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['diff_time'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['diff_time'], abs($msg_array['diff_time']));
-            //总耗时
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['total_diff_time'] += abs($msg_array['diff_time']);
-
-            //内存单次最大消耗
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_max'], abs($msg_array['memory']));
-            //内存消耗.总
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['memory_total'] += abs($msg_array['memory']);
-
-            // 用户消耗CPU,单次最大
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_max'], abs($msg_array['user_cpu']));
-            //用户消耗CPU,总
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_user_time_total'] += abs($msg_array['user_cpu']);
-
-            //系统消耗CPU,单次最大
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_max'] = max($monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_max'], abs($msg_array['sys_cpu']));
-            //系统消耗CPU,总
-            $monitor[date('Y-m-d H', strtotime($msg_array['time']))][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']]['cpu_sys_time_total'] += abs($msg_array['sys_cpu']);
-
+            $oldArr = $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']];
+            $oldArr['uptype'] = $msg_array['uptype'];
+            if ($msg_array['uptype'] == 'replace') {
+                $oldArr['count'] = $msg_array['num'];
+            } else {
+                $oldArr['count'] += $msg_array['num'];
+            }
+            $oldArr['diff_time'] = max($oldArr['diff_time'], abs($msg_array['diff_time']));
+            $oldArr['total_diff_time'] += abs($msg_array['total_diff_time']);
+            if (!empty($msg_array['cpu_user_time_total'])) {
+                $oldArr['cpu_user_time_total'] += abs($msg_array['cpu_user_time_total']);
+                $oldArr['cpu_user_time_max'] = max($msg_array['cpu_user_time_max'], abs($oldArr['cpu_user_time_max']));
+                $oldArr['cpu_sys_time_total'] += abs($msg_array['cpu_sys_time_total']);
+                $oldArr['cpu_sys_time_max'] = max($msg_array['cpu_sys_time_max'], abs($oldArr['cpu_sys_time_max']));
+                $oldArr['memory_total'] += abs($msg_array['memory_total']);
+                $oldArr['memory_max'] = max($msg_array['memory_max'], abs($oldArr['memory_max']));
+            }
+            $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']] = $oldArr;
         }
 
         //压缩回去
@@ -126,7 +129,19 @@ class monitor_fix
                         foreach ($vkey as $key => $vhostip) {
                             foreach ($vhostip as $hostip => $v) {
                                 $cs++;
-                                _status($v['count'], $type, $host, $act, $key, $hostip, abs($v['diff_time']), $v['uptype'], strtotime($time . ":00:00"));
+                                $add_array = array('total_diff_time' => $v['total_diff_time']);
+                                if (!empty($v['cpu_user_time_total'])) {
+                                    $add_array = array(
+                                        'total_diff_time' => $v['total_diff_time'],
+                                        'memory_max' => $v['memory_max'],
+                                        'memory_total' => $v['memory_total'],
+                                        'cpu_user_time_max' => $v['cpu_user_time_max'],
+                                        'cpu_user_time_total' => $v['cpu_user_time_total'],
+                                        'cpu_sys_time_max' => $v['cpu_sys_time_max'],
+                                        'cpu_sys_time_total' => $v['cpu_sys_time_total'],
+                                    );
+                                }
+                                _status($v['count'], $type, $host, $act, $key, $hostip, abs($v['diff_time']), $v['uptype'], strtotime($time . ":00:00"), $add_array);
                             }
                         }
                     }

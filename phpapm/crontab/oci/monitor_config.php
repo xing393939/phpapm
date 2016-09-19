@@ -340,7 +340,7 @@ class monitor_config
         }
 
         //清除过期数据
-        if ($_GET['del'] && rand(1, 10) == 1) {
+        if (mt_rand(1, 10) == 1) {
             $sql = "delete from  ".APM_DB_PREFIX."monitor where cal_date<=sysdate-10 ";
             $stmt_list = apm_db_parse($conn_db, $sql);
             $oci_error = apm_db_execute($stmt_list);

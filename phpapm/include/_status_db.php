@@ -20,6 +20,9 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
 
     list($_up_type) = explode('/', $up_type);
     settype($add_array, 'array');
+    if (empty($add_array['total_diff_time'])) {
+        $add_array['total_diff_time'] = $diff_time;
+    }
     $array = array(
             'vhost' => APM_HOST,
             'num' => $num,
@@ -46,6 +49,7 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
         $_status_sql = rtrim($_status_sql, ',');
         $stmt = apm_db_parse($conn_db, "insert into ".APM_DB_PREFIX."monitor_queue (`queue`) values {$_status_sql}");
         apm_db_execute($stmt);
+        $_status_sql = '';
     }
 }
 ?>

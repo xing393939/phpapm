@@ -44,9 +44,9 @@ class report_monitor_compare_group
         foreach ($arr_add as $v) {
             if ($v != '') {
                 $sql = "insert into ".APM_DB_PREFIX."monitor_config
-                            (V1,V2,COUNT_TYPE,V3_LINK,V4_LINK,ORDERBY,PHONE,PHONE_ORDER,PHONE_ORDER_LESS,
+                            (V1,V2,COUNT_TYPE,V3_LINK,V4_LINK,ORDERBY,
                            ID,AS_NAME,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,V2_GROUP,VIRTUAL_COLUMNS) values(:V1,:V2,:COUNT_TYPE,:V3_LINK,
-                           :V4_LINK,:ORDERBY,:PHONE,:PHONE_ORDER,:PHONE_ORDER_LESS,
+                           :V4_LINK,:ORDERBY,
                            seq_".APM_DB_PREFIX."monitor.nextval,:AS_NAME,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:V2_GROUP,1)";
                 $stmt = apm_db_parse($conn_db, $sql);
                 $as_name = $_row['AS_NAME'] ? $_row['AS_NAME'] : $_row['V2'];
@@ -56,9 +56,6 @@ class report_monitor_compare_group
                 apm_db_bind_by_name($stmt, ':V3_LINK', $_row['V3_LINK']);
                 apm_db_bind_by_name($stmt, ':V4_LINK', $_row['V4_LINK']);
                 apm_db_bind_by_name($stmt, ':ORDERBY', $_row['ORDERBY']);
-                apm_db_bind_by_name($stmt, ':PHONE', $_row['PHONE']);
-                apm_db_bind_by_name($stmt, ':PHONE_ORDER', $_row['PHONE_ORDER']);
-                apm_db_bind_by_name($stmt, ':PHONE_ORDER_LESS', $_row['PHONE_ORDER_LESS']);
                 apm_db_bind_by_name($stmt, ':AS_NAME', $as_name);
                 apm_db_bind_by_name($stmt, ':DAY_COUNT_TYPE', $_row['DAY_COUNT_TYPE']);
                 apm_db_bind_by_name($stmt, ':HOUR_COUNT_TYPE', $_row['HOUR_COUNT_TYPE']);

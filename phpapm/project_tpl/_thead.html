@@ -57,7 +57,7 @@
     <?php foreach($this->group as $k=>$i) {
         foreach($i as $v) {
     ?>
-    <th title='<?php echo $v["V2"]; ?>' id="as_name_<?php echo md5($v['V1'].$v['V2'])?>" ondblclick="edit_as_name(this,<?php echo intval($v['ID'])?>);$(this).attr('ondblclick','');"><?php if($v['PHONE']){ ?><span style="color:red;"><?php echo $v['AS_NAME1']?></span><?php }else{?><?php echo $v['AS_NAME1']?><?php }?></th>
+    <th title='<?php echo $v["V2"]; ?>' id="as_name_<?php echo md5($v['V1'].$v['V2'])?>" ondblclick="edit_as_name(this,<?php echo intval($v['ID'])?>);$(this).attr('ondblclick','');"><?php echo $v['AS_NAME1']?></th>
     <?php }} ?>
   </tr>
 </thead>

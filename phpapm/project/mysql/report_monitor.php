@@ -155,10 +155,6 @@ class report_monitor
             $cospan++;
             if ($_row['V2_CONFIG_OTHER']) {
                 $_row['V2_CONFIG_OTHER'] = unserialize($_row['V2_CONFIG_OTHER']);
-                //获取接口的基本信息，测试统计信息，联系人信息
-                if ($_row['V2_CONFIG_OTHER']['API_ID']) {
-                    $_row['API_INFO'] = $this->_get_apiinfo($conn_db, $_row['V2_CONFIG_OTHER']['API_ID']);
-                }
             }
             $this->group[$_row['V2_GROUP']][] = $_row;
             //显示对比数据

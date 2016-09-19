@@ -49,12 +49,14 @@ function apm_shutdown_function()
 
     //内存消耗统计
     $add_array = array();
-    if (function_exists('getrusage')) {
+    if (function_exists('getrusage') && function_exists('memory_get_peak_usage')) {
         $data = getrusage();
-        $add_array['user_cpu'] = $data['ru_utime.tv_sec'] + $data['ru_utime.tv_usec'] / 1000000;
-        $add_array['sys_cpu'] = $data['ru_stime.tv_sec'] + $data['ru_stime.tv_usec'] / 1000000;
-        if (function_exists('memory_get_peak_usage'))
-            $add_array['memory'] = memory_get_peak_usage() / 1024 / 1024 / 1024;
+        $add_array['cpu_user_time_max'] = $data['ru_utime.tv_sec'] + $data['ru_utime.tv_usec'] / 1000000;
+        $add_array['cpu_user_time_total'] = $add_array['cpu_user_time_max'];
+        $add_array['cpu_sys_time_max'] = $data['ru_stime.tv_sec'] + $data['ru_stime.tv_usec'] / 1000000;
+        $add_array['cpu_sys_time_total'] = $add_array['cpu_sys_time_max'];
+        $add_array['memory_max'] = memory_get_peak_usage() / 1024 / 1024 / 1024;
+        $add_array['memory_total'] = $add_array['memory_max'];
     }
 
     //功能执行统计

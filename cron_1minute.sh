@@ -6,5 +6,5 @@ cd $project_pwd/phpapm
 callact2 "/usr/local/php/bin/php crontab.php act=monitor_fix"
 callact2 "/usr/local/php/bin/php crontab.php act=monitor mod=1"
 if [ 1 -eq $1 ] ; then
-    callact2 "/usr/local/php/bin/php crontab.php act=monitor_config del=1 master=yes"
+    callact2 "/usr/local/php/bin/php crontab.php act=monitor_config"
 fi

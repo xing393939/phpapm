@@ -160,7 +160,6 @@
                         <th colspan="3">数据统计方式</th>
                         <th colspan="2">替换连接</th>
                         <th>&nbsp;</th>
-                        <th>&nbsp;</th>
                       </tr>
                       <tr class = "tr-th2">
                         <th width="40"><a href="javascript:void(0)" onclick="call();" class="blue">反选</a></th>
@@ -175,7 +174,6 @@
                         <th>小时数据</th>
                         <th>V3</th>
                         <th>V4</th>
-                        <th>接口id</th>
                         <th  width="120">操作</th>
                       </tr>
                     </thead>
@@ -206,7 +204,6 @@
 
                       <td class="b-r"><?php echo $vv['V3_LINK']?></td>
                       <td class="b-r"><?php echo $vv['V4_LINK']?></td>
-                      <td class="b-r" id="v2_api_id_<?php echo md5($vv['V1'].$vv['V2'])?>"><?php echo $vv['V2_CONFIG_OTHER']['api_id'] ?></td>
                       <td class="b-r">
                           <?php if(!$vv['V2_CONFIG_OTHER']['NO_COUNT']){ ?>
                           <a href="?act=report_monitor_config_other&id=<?php echo intval($vv['ID']) ?>&NO_COUNT=true" onclick="return confirm('确定不参与统计?')" class="blue">不参与统计</a>

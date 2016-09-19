@@ -380,7 +380,7 @@ class monitor_config
         }
 
         //清除10天后的数据
-        if ($_GET['del'] && rand(1, 10) == 1) {
+        if (mt_rand(1, 10) == 1) {
             $sql = "delete from ".APM_DB_PREFIX."monitor where cal_date<=:cal_date";
             $stmt_list = apm_db_parse($conn_db, $sql);
             apm_db_bind_by_name($stmt_list, ':cal_date', date('Y-m-d: H:i:s', time() - 864000));
