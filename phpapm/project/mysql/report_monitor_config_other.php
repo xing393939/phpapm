@@ -10,7 +10,7 @@ class report_monitor_config_other
 {
     function _initialize()
     {
-        if (!isset($_GET['NO_COUNT']) && !isset($_GET['DATA_UNITS'])) {
+        if (!isset($_GET['NO_COUNT'])) {
             header("location:{$_SERVER['HTTP_REFERER']}");
             die();
         }
@@ -26,14 +26,6 @@ class report_monitor_config_other
         //修改是否参与
         if (isset($_GET['NO_COUNT'])) {
             $v2_config_other['NO_COUNT'] = ($_GET['NO_COUNT'] == 'true') ? true : false;
-        }
-        //修改数据单位
-        if (isset($_GET['DATA_UNITS'])) {
-            if ($_GET['DATA_UNITS'] == 'capacity') {
-                $v2_config_other['DATA_UNITS'] = 'capacity';
-            } elseif ($_GET['DATA_UNITS'] == 'digital') {
-                unset($v2_config_other['DATA_UNITS']);
-            }
         }
 
         $v2_config_other = serialize($v2_config_other);

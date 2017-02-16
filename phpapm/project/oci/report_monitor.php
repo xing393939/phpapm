@@ -69,13 +69,11 @@ class report_monitor
         apm_db_bind_by_name($stmt, ':v1', $_REQUEST['type']);
         apm_db_execute($stmt);
         $this->host = $_row = array();
-        $this->v1_config[$_REQUEST['type']]['SHOW_ALL'] = 1;
-        if ($this->v1_config[$_REQUEST['type']]['SHOW_ALL'])
-            $this->host[] = array(
-                'V1' => $_REQUEST['type'],
-                'V2' => '汇总',
-                'AS_NAME1' => '汇总'
-            );
+        $this->host[] = array(
+            'V1' => $_REQUEST['type'],
+            'V2' => '汇总',
+            'AS_NAME1' => '汇总'
+        );
         while ($_row = apm_db_fetch_assoc($stmt)) {
             $_row['V2_CONFIG_OTHER'] = unserialize($_row['V2_CONFIG_OTHER']);
             $this->host[$_row['V2']] = $_row;
@@ -104,33 +102,12 @@ class report_monitor
                 $this->all_start_date[$_row['CAL_DATE_F']][$_row['V2']] += $_row['FUN_COUNT'];
 
                 //统计汇总
-                if ($this->v1_config[$_REQUEST['type']]['SHOW_ALL'] && !$this->host[$_row['V2']]['V2_CONFIG_OTHER']['NO_COUNT']) {
+                if (!$this->host[$_row['V2']]['V2_CONFIG_OTHER']['NO_COUNT']) {
                     //查看当前数据是够需要统计
                     $this->all_start_date_count['汇总']['total'] += $_row['FUN_COUNT'];
                     $this->all_start_date_count['汇总']['total_i']++;
                     $this->all_start_date_count['汇总']['total_avg'] = round($this->all_start_date_count['汇总']['total'] / $this->all_start_date_count['汇总']['total_i'], 2);
-                    if ($this->v1_config[$_REQUEST['type']]['SHOW_AVG'] == 1)
-                        $this->all_start_date[$_row['CAL_DATE_F']]['汇总'] = round($this->all_start_date_all[$_row['CAL_DATE_F']] / (count($this->all_start_date_count) - 1), 2);
-                    else
-                        $this->all_start_date[$_row['CAL_DATE_F']]['汇总'] += $_row['FUN_COUNT'];
-                }
-            }
-        }
-        //显示对比数据
-        if ($this->host[$_row['V2']]['V2_COMPARE'] == 1) {
-            $name = $_row['V2'] . '增量';
-            $time = date('Y-m-d', strtotime($_row['CAL_DATE_F'] . " +1 day"));
-            $this->all_start_date[$_row['CAL_DATE_F']][$name] = $this->all_start_date[$_row['CAL_DATE_F']][$_row['V2']] - $this->all_start_date[$time][$_row['V2']];
-            $this->all_start_date_count[$name]['total'] += $this->all_start_date[$_row['CAL_DATE_F']][$name];
-        }
-        foreach ($this->all_start_date as $k => $v) {
-            foreach ($v as $i => $c) {
-                //显示对比数据
-                if ($this->host[$i]['V2_COMPARE'] == 1) {
-                    $name = $i . '增量';
-                    $time = date('Y-m-d', strtotime($k . " -1 day"));
-                    $this->all_start_date[$k][$name] = $this->all_start_date[$k][$i] - $this->all_start_date[$time][$i];
-                    $this->all_start_date_count[$name]['total'] += $this->all_start_date[$k][$name];
+                    $this->all_start_date[$_row['CAL_DATE_F']]['汇总'] += $_row['FUN_COUNT'];
                 }
             }
         }
@@ -142,12 +119,11 @@ class report_monitor
         apm_db_bind_by_name($stmt, ':v1', $_REQUEST['type']);
         apm_db_execute($stmt);
         $this->group = array();
-        if ($this->v1_config[$_REQUEST['type']]['SHOW_ALL'])
-            $this->group['汇总'][] = array(
-                'V1' => $_REQUEST['type'],
-                'V2' => '汇总',
-                'AS_NAME1' => '汇总'
-            );
+        $this->group['汇总'][] = array(
+            'V1' => $_REQUEST['type'],
+            'V2' => '汇总',
+            'AS_NAME1' => '汇总'
+        );
         $cospan = 1;
         while ($_row = apm_db_fetch_assoc($stmt)) {
             if ($_row['V2_GROUP'] == '') {
@@ -160,13 +136,7 @@ class report_monitor
                 $_row['V2_CONFIG_OTHER'] = unserialize($_row['V2_CONFIG_OTHER']);
             }
             $this->group[$_row['V2_GROUP']][] = $_row;
-            //显示对比数据
-            if ($_row['V2_COMPARE'] == 1) {
-                $_row['AS_NAME1'] = $_row['AS_NAME1'] . '增量';
-                $_row['V2'] = $_row['V2'] . '增量';
-                $this->group[$_row['V2_GROUP']][] = $_row;
-                $cospan++;
-            }
+
         }
         //获取分组总数
         if ($is_group) {
@@ -200,7 +170,7 @@ class report_monitor
                 else
                     $_row['CAL_DATE_F'] = date('Y-m-d', strtotime($_row['CAL_DATE_F']));
                 //汇总计算
-                if ($this->v1_config[$_REQUEST['type']]['SHOW_ALL'] == 1 && !$this->host[$_row['V2']]['V2_CONFIG_OTHER']['NO_COUNT']) {
+                if (!$this->host[$_row['V2']]['V2_CONFIG_OTHER']['NO_COUNT']) {
                     //判断项目是否需要汇总
                     $this->all_start_date_count['汇总'] += $_row['FUN_COUNT'];
                     $this->all_start_date[$_row['CAL_DATE_F']]['汇总'] += $_row['FUN_COUNT'];
@@ -212,7 +182,7 @@ class report_monitor
             }
         }
 
-        if ($start_date && $this->v1_config[$_REQUEST['type']]['SHOW_ALL'] && $_REQUEST['host'] == '汇总') {
+        if ($start_date && $_REQUEST['host'] == '汇总') {
             //当日数据
             $sql = "  select v2 as v3,sum(fun_count) fun_count,round(avg(fun_count),2) fun_count_avg,to_char(t.cal_date, 'dd hh24') as cal_date_f,
                 max(t.diff_time) diff_time, sum(t.total_diff_time) total_diff_time,max(t.memory_max) memory_max, sum(t.memory_total) memory_total,
@@ -233,8 +203,6 @@ class report_monitor
                         $this->fun_count[$_row['V3']]['AS_NAME1'] = $v['AS_NAME1'];
                         break;
                     }
-                if ($this->v1_config[$_REQUEST['type']]['SHOW_AVG'] == 1)
-                    $_row['FUN_COUNT'] = $_row['FUN_COUNT_AVG'];
                 $this->fun_count[$_row['V3']][$_row['CAL_DATE_F']] = $_row;
                 $this->fun_count[$_row['V3']]['DIFF_TIME'] = max($this->fun_count[$_row['V3']]['DIFF_TIME'], abs($_row['DIFF_TIME']));
                 $this->fun_count[$_row['V3']]['TOTAL_DIFF_TIME'] += abs($_row['TOTAL_DIFF_TIME']);
@@ -244,9 +212,7 @@ class report_monitor
                 $this->fun_count[$_row['V3']]['CPU_USER_TIME_TOTAL'] += abs($_row['CPU_USER_TIME_TOTAL']);
                 $this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'], abs($_row['CPU_SYS_TIME_MAX']));
                 $this->fun_count[$_row['V3']]['CPU_SYS_TIME_TOTAL'] += abs($_row['CPU_SYS_TIME_TOTAL']);
-                if ($this->v1_config[$_REQUEST['type']]['SHOW_AVG'] == 1) {
-                    $this->fun_count[$_row['V3']]['FUN_COUNT'] = $_row['FUN_COUNT_AVG'];
-                } elseif ($_row['CAL_DATE_F'] >= date("d H", strtotime($start_date))) {
+                if ($_row['CAL_DATE_F'] >= date("d H", strtotime($start_date))) {
                     $this->fun_count[$_row['V3']]['FUN_COUNT'] += $_row['FUN_COUNT'];
                 }
                 $this->fun_count[$_row['V3']]['FUN_COUNT_I'] += 1;

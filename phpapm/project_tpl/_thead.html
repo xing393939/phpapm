@@ -30,7 +30,6 @@
     <?php } ?>
   </tr>
   <?php } ?>
-  <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1) { ?>
   <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
     <td>汇总</td>
     <?php foreach($this->group as $k=>$i) {
@@ -42,16 +41,6 @@
     </td>
     <?php }} ?>
   </tr>
-  <?php }else{ ?>
-  <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-    <td>平均</td>
-    <?php foreach($this->group as $k=>$vv) {
-        foreach($vv as $v) {
-    ?>
-    <td><?php echo $this->all_start_date_count[$v['V2']]['total_avg']?></td>
-    <?php }} ?>
-  </tr>
-  <?php } ?>
   <tr class = "tr-th2">
     <th>日期</th>
     <?php foreach($this->group as $k=>$i) {

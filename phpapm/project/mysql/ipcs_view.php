@@ -27,7 +27,7 @@ class ipcs_view
         } elseif (APM_QUEUE_TYPE == 'redis') {
             $redis = new Redis();
             $redis_tns = parse_url(APM_QUEUE_TNS);
-            $redis->connect($redis_tns['host'], $redis_tns['port']);
+            $redis->connect($redis_tns['host'], $redis_tns['port'], 2);
 
             $names = explode('|', APM_QUEUE_NAMES);
             $redis->multi(Redis::PIPELINE);

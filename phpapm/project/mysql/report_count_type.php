@@ -28,10 +28,6 @@ class report_count_type
                 if ($_POST['hour_count_type_1'] <> 'NULL') {
                     $where[] = " hour_count_type=:hour_count_type ";
                 }
-
-                if ($_POST['v2_compare'] <> 'NULL') {
-                    $where[] = " v2_compare=:v2_compare";
-                }
                 if (!empty($where)) {
                     $where = join(',', $where);
                     $sql = "update ".APM_DB_PREFIX."monitor_config set {$where} where v1=:v1 and v2=:v2 ";
@@ -42,9 +38,6 @@ class report_count_type
                         apm_db_bind_by_name($stmt, ':day_count_type', $_POST['day_count_type_1']);
                     if ($_POST['hour_count_type_1'] <> 'NULL')
                         apm_db_bind_by_name($stmt, ':hour_count_type', $_POST['hour_count_type_1']);
-
-                    if ($_POST['v2_compare'] <> 'NULL')
-                        apm_db_bind_by_name($stmt, ':v2_compare', $_POST['v2_compare']);
 
                     apm_db_bind_by_name($stmt, ':v1', $v1);
                     apm_db_bind_by_name($stmt, ':v2', $v2);

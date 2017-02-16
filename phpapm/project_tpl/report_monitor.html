@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>[<?php echo APM_HOST?>]数据指标</title>
+<title>[<?php echo APM_HOST?>]报告系统</title>
 <link href="project_res/commstyle/css/inspect2.css" rel="stylesheet" type="text/css"/>
 <link href="project_res/commstyle/css/rating.source.css" type="text/css" rel="stylesheet">
 <script type="text/javascript" src="project_res/commstyle/js/jquery.js" ></script>
@@ -101,7 +101,7 @@ window.onload = function(){	var j = new JCalendar();j.bind('s1','bottom');j.bind
                           <span style="color:#AAA">0</span>
                           <?php } else { ?>
                           <span><a href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
-                              <?php echo format_unit($num, $this->host[$v['V2']]['V2_CONFIG_OTHER']['DATA_UNITS']); ?>
+                              <?php echo format_unit($num); ?>
                           </a></span>
                           <?php } ?>
                           <?php if($v['PERCENT_COUNT_TYPE']>0){ if($v['PERCENT_COUNT_TYPE']==1)$all=$this->all_start_date[$tmp_date][$this->host[0]['V2']]; if($v['PERCENT_COUNT_TYPE']==2)$all=$this->all_start_date_all[$tmp_date]; ?>
@@ -169,7 +169,7 @@ window.onload = function(){	var j = new JCalendar();j.bind('s1','bottom');j.bind
                             }
                           ?>">
                             <span><a title="<?php echo $tips;?>" href="?<?php echo http_build_query(array('v3'=>null,'start_date'=>$tmp_date,'host'=>$v['V2'])+$_REQUEST)?>" <?php if($_REQUEST['start_date']==$tmp_date && $_REQUEST['host']==$v['V2']){?>style='color:red'<?php }?> >
-                              <?php echo format_unit($num, $this->host[$v['V2']]['V2_CONFIG_OTHER']['DATA_UNITS']); ?>
+                              <?php echo format_unit($num); ?>
                             </a></span>
 
                             <?php if($v['PERCENT_COUNT_TYPE']>0) {

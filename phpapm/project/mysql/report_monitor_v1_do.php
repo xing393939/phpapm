@@ -12,18 +12,8 @@ class report_monitor_v1_do
     {
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         //删除v1
-        if ($_POST['delete_v1']) {
+        if (!empty($_POST['delete_v1'])) {
             $this->_report_monitor_delete($conn_db);
-        //删除v1、v2、v3的pv=1的
-        } elseif (!empty($_GET['v1']) && !empty($_GET['v2']) && !empty($_GET['start_date'])) {
-            $sql = "delete from ".APM_DB_PREFIX."monitor_hour where v1=:v1 and v2=:v2 and cal_date>=:cal_date1 and cal_date<:cal_date2 and fun_count<2";
-            $stmt = apm_db_parse($conn_db, $sql);
-            apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
-            apm_db_bind_by_name($stmt, ':v2', trim($_GET['v2']));
-            apm_db_bind_by_name($stmt, ':cal_date1', $_GET['start_date']);
-            apm_db_bind_by_name($stmt, ':cal_date2', date('Y-m-d', strtotime($_GET['start_date']) + 86400));
-            $oci_error = apm_db_execute($stmt);
-
         } else {
             $sql = "select * from ".APM_DB_PREFIX."monitor_v1 t where v1=:v1 ";
             $stmt = apm_db_parse($conn_db, $sql);
@@ -31,16 +21,13 @@ class report_monitor_v1_do
             $oci_error = apm_db_execute($stmt);
             $_row = apm_db_fetch_assoc($stmt);
 
-            $sql = "update ".APM_DB_PREFIX."monitor_v1 set as_name=:as_name,count_type=:count_type,char_type=:char_type,
-        group_name=:group_name,group_name_1=:group_name_1,group_name_2=:group_name_2,start_clock=:start_clock,show_all=1,
-        percent_count_type=:percent_count_type,day_count_type=:day_count_type,hour_count_type=:hour_count_type,
-        duibi_name=:duibi_name
+            $sql = "update ".APM_DB_PREFIX."monitor_v1 set as_name=:as_name,
+        group_name=:group_name,group_name_1=:group_name_1,group_name_2=:group_name_2,start_clock=:start_clock,
+        percent_count_type=:percent_count_type,day_count_type=:day_count_type,hour_count_type=:hour_count_type
         where v1=:v1 ";
             $stmt = apm_db_parse($conn_db, $sql);
             apm_db_bind_by_name($stmt, ':v1', $_GET['v1']);
             apm_db_bind_by_name($stmt, ':as_name', $_POST['as_name']);
-            apm_db_bind_by_name($stmt, ':count_type', $_POST['count_type']);
-            apm_db_bind_by_name($stmt, ':char_type', $_POST['char_type']);
             apm_db_bind_by_name($stmt, ':group_name', $_POST['group_name']);
             apm_db_bind_by_name($stmt, ':group_name_1', $_POST['group_name_1']);
             apm_db_bind_by_name($stmt, ':group_name_2', $_POST['group_name_2']);
@@ -48,7 +35,6 @@ class report_monitor_v1_do
             apm_db_bind_by_name($stmt, ':percent_count_type', $_POST['percent_count_type']);
             apm_db_bind_by_name($stmt, ':day_count_type', $_POST['day_count_type']);
             apm_db_bind_by_name($stmt, ':hour_count_type', $_POST['hour_count_type']);
-            apm_db_bind_by_name($stmt, ':duibi_name', $_POST['duibi_name']);
             $oci_error = apm_db_execute($stmt);
             print_r($oci_error);
             foreach (array(

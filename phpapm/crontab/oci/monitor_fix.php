@@ -50,7 +50,7 @@ class monitor_fix
                     }
                 }
             }
-            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(PHPAPM)', '队列', '压缩比例', $ipcs, APM_HOSTNAME, 0, 'replace');
+            _status((($ic - $cs) / $ic) * 100, APM_HOST . '(监控消耗)', '队列', '压缩比例', $ipcs, APM_HOSTNAME, 0, 'replace');
             unset($monitor);
         }
     }

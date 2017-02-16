@@ -44,7 +44,7 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
     $_status_sql .= "('" . addslashes(serialize($array)) . "'),";
 
     //入队列
-    if ($v1 == APM_HOST . "(BUG错误)" && in_array($v2, array('脚本', '内网', '外网'))) {
+    if ($v1 == APM_HOST . "(基本统计)" && in_array($v2, array('脚本', '内网', '外网'))) {
         $conn_db = apm_db_logon(APM_DB_ALIAS);
         $_status_sql = rtrim($_status_sql, ',');
         $stmt = apm_db_parse($conn_db, "insert into ".APM_DB_PREFIX."monitor_queue (`queue`) values {$_status_sql}");

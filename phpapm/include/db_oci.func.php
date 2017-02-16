@@ -16,7 +16,7 @@ function apm_db_logon($DB)
     $DB = $DBS[time() % count($DBS)];
     $dbconfiginterface = $dbconfig[$DB];
     if (!$dbconfiginterface) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_HOSTNAME);
+        _status(1, APM_HOST . '(基本统计)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_HOSTNAME);
         return null;
     }
     $tt1 = microtime(true);
@@ -24,7 +24,7 @@ function apm_db_logon($DB)
     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
     if (!is_resource($conn_db)) {
         $err = apm_db_error();
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . $err['message'], APM_URI, APM_HOSTNAME, $diff_time);
+        _status(1, APM_HOST . '(基本统计)', "SQL错误", $DB . '@' . $err['message'], APM_URI, APM_HOSTNAME, $diff_time);
         return null;
     }
     $_SERVER['last_oci_link'][$conn_db] = $DB;
@@ -98,7 +98,7 @@ function apm_db_execute($stmt, $mode = OCI_COMMIT_ON_SUCCESS)
     if (!is_resource($stmt)) {
         $debug_backtrace = debug_backtrace();
         array_walk($debug_backtrace, create_function('&$v,$k', 'unset($v["function"],$v["args"]);'));
-        _status(1, APM_HOST . "(BUG错误)", "SQL错误", APM_URI, "非资源\$stmt | " . var_export($_SERVER['last_oci_bindname'], true) . "|" . var_export($_GET, true) . "|" . $last_oci_sql . "|" . var_export($debug_backtrace, true));
+        _status(1, APM_HOST . "(基本统计)", "SQL错误", APM_URI, "非资源\$stmt | " . var_export($_SERVER['last_oci_bindname'], true) . "|" . var_export($_GET, true) . "|" . $last_oci_sql . "|" . var_export($debug_backtrace, true));
     }
     $t1 = microtime(true);
     ociexecute($stmt, $mode);

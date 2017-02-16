@@ -28,24 +28,24 @@ register_shutdown_function('apm_shutdown_function');
 function apm_shutdown_function()
 {
     if (connection_aborted())
-        _status(1, APM_HOST . "(PHPAPM)", '被断开', APM_URI, APM_REQUEST_TYPE);
+        _status(1, APM_HOST . "(基本统计)", '被断开', APM_URI, APM_REQUEST_TYPE);
     $diff_time = sprintf('%.5f', microtime(true) - APM_START_TIME);
 
     //定时任务不记录执行效率
     if (APM_REQUEST_TYPE != 'CLI') {
         if ($diff_time < 1) {
-            _status(1, APM_HOST . '(BUG错误)', '一秒内', _debugtime($diff_time), APM_URI, APM_REQUEST_TYPE . ":" . APM_HOSTNAME, $diff_time);
+            _status(1, APM_HOST . '(基本统计)', '一秒内', _debugtime($diff_time), APM_URI, APM_REQUEST_TYPE . ":" . APM_HOSTNAME, $diff_time);
         } else {
-            _status(1, APM_HOST . '(BUG错误)', '超时', _debugtime($diff_time), APM_URI, APM_REQUEST_TYPE . ":" . APM_HOSTNAME, $diff_time);
+            _status(1, APM_HOST . '(基本统计)', '超时', _debugtime($diff_time), APM_URI, APM_REQUEST_TYPE . ":" . APM_HOSTNAME, $diff_time);
         }
     }
 
     //获取最后一个php错误
     $e = error_get_last();
     if (strpos($e['message'], 'Call to undefined') !== false)
-        return _status(1, APM_HOST . "(BUG错误)", 'PHP错误', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_HOSTNAME, $diff_time);
+        return _status(1, APM_HOST . "(基本统计)", 'PHP错误', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_HOSTNAME, $diff_time);
     else if ($e['type'] == E_ERROR)
-        return _status(1, APM_HOST . "(BUG错误)", 'PHP错误', APM_URI, var_export($e, true), APM_HOSTNAME, $diff_time);
+        return _status(1, APM_HOST . "(基本统计)", 'PHP错误', APM_URI, var_export($e, true), APM_HOSTNAME, $diff_time);
 
     //内存消耗统计
     $add_array = array();
@@ -62,18 +62,18 @@ function apm_shutdown_function()
     //功能执行统计
     if (APM_REQUEST_TYPE == 'CLI') {
         $array_str = preg_replace('/[^\x00-\x7f]+/', '', var_export($_SERVER, true));
-        _status(1, APM_HOST . "(BUG错误)", "脚本", APM_URI, APM_REQUEST_TYPE . "|" . $array_str, APM_HOSTNAME, $diff_time, NULL, NULL, $add_array);
+        _status(1, APM_HOST . "(基本统计)", "脚本", APM_URI, APM_REQUEST_TYPE . "|" . $array_str, APM_HOSTNAME, $diff_time, NULL, NULL, $add_array);
     } else if (APM_REQUEST_TYPE == 'PUBLIC') {
-        _status(1, APM_HOST . "(BUG错误)", "外网", APM_URI, APM_REQUEST_TYPE, APM_HOSTNAME, $diff_time, NULL, NULL, $add_array);
+        _status(1, APM_HOST . "(基本统计)", "外网", APM_URI, APM_REQUEST_TYPE, APM_HOSTNAME, $diff_time, NULL, NULL, $add_array);
     } else {
-        _status(1, APM_HOST . "(BUG错误)", "内网", APM_URI, APM_REQUEST_TYPE, APM_HOSTNAME, $diff_time, NULL, NULL, $add_array);
+        _status(1, APM_HOST . "(基本统计)", "内网", APM_URI, APM_REQUEST_TYPE, APM_HOSTNAME, $diff_time, NULL, NULL, $add_array);
     }
 }
 
 set_exception_handler('apm_exception_handler');
 
 function apm_exception_handler($e) {
-    _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, var_export(array($e->getFile(), $e->getLine(), $e->getMessage()), true));
+    _status(1, APM_HOST . '(基本统计)', "PHP错误", APM_URI, var_export(array($e->getFile(), $e->getLine(), $e->getMessage()), true));
 }
 
 set_error_handler("apm_error_handler");
@@ -88,9 +88,7 @@ function apm_error_handler($no, $msg, $file, $line)
 {
     switch ($no) {
         case E_NOTICE:
-        case E_USER_ERROR:
         case E_USER_NOTICE:
-        case E_STRICT:
             return;
     }
     if ($msg == 'Division by zero')
@@ -112,14 +110,13 @@ function apm_error_handler($no, $msg, $file, $line)
 
     $debug_backtrace_str = var_export(debug_backtrace(), true);
     if (strpos($msg, 'oci') === 0 || strpos($msg, 'mysql_') === 0) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", APM_URI, "(file:{$file} | line:{$line}){$msg}");
+        _status(1, APM_HOST . '(基本统计)', "SQL错误", APM_URI, "(file:{$file} | line:{$line}){$msg}");
     } elseif (strpos($msg, 'Memcache') === 0) {
-        _status(1, APM_HOST . '(BUG错误)', "Memcache错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
+        _status(1, APM_HOST . '(基本统计)', "Memcache错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
     } elseif (strpos($msg, 'msg_send') !== false) {
-        _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n");
+        _status(1, APM_HOST . '(基本统计)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n");
     } else {
-        $array_str = preg_replace('/[^\x00-\x7f]+/', '', var_export($_SERVER, true));
-         _status(1, APM_HOST . '(BUG错误)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n|" . $array_str . "\n{$debug_backtrace_str}");
+         _status(1, APM_HOST . '(基本统计)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}" . "\n{$debug_backtrace_str}");
     }
 }
 
@@ -204,7 +201,14 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
 
     $sql_formatted = $prev_spilt = '';
     $sql_type = '';
-    $sql_type_table = array('SELECT' => '(读)', 'UPDATE' => '(改)', 'INSERT' => '(写)', 'DELETE' => '(删)', 'TRUNCATE' => '(删)');
+    $sql_type_table = array(
+        'SELECT' => '(读)',
+        'SHOW' => '(读)',
+        'UPDATE' => '(改)',
+        'INSERT' => '(写)',
+        'DELETE' => '(删)',
+        'TRUNCATE' => '(删)'
+    );
     $dot = '[\t\s\(\)]{1}';
     $reserved_all = $dot . join("{$dot}|{$dot}", $reserved_all) . $dot;
     $split_arr = preg_split("/({$reserved_all})/i", " $sql ", -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -250,7 +254,7 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
 
     //检查in语法
     if (in_array('IN', $split_arr)) {
-        _status(1, APM_HOST . "(BUG错误)", '问题SQL', "IN语法", "{$db_alias}@" . APM_URI, "{$sql_formatted}");
+        _status(1, APM_HOST . "(基本统计)", '问题SQL', "IN语法", "{$db_alias}@" . APM_URI, "{$sql_formatted}");
     }
 
     //查到表名
@@ -291,7 +295,7 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
         _status(1, APM_HOST . '(SQL统计)', '超时', _debugtime($diff_time), "{$db_alias}." . strtolower($v) . "@" . APM_URI . APM_HOSTNAME, $sql_formatted, $diff_time);
     }
     if ($sql_error)
-        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($sql_error, true) . "|" . $sql_formatted, APM_HOSTNAME, $diff_time);
+        _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export($sql_error, true) . "|" . $sql_formatted, APM_HOSTNAME, $diff_time);
 }
 
 /*
@@ -327,7 +331,7 @@ function apm_status_curl($ch_url, $start_time, $ch_info) {
     _status(1, APM_HOST . "(Api)", $host, $path, APM_URI, APM_HOSTNAME, $diff_time);
 
     if (empty($ch_info['http_code']) || !preg_match('/2\d{2}/', $ch_info['http_code'])) {
-        _status(1, APM_HOST . "(BUG错误)", 'Curl错误', $path, var_export($ch_info, true), APM_HOSTNAME, $diff_time);
+        _status(1, APM_HOST . "(基本统计)", 'Curl错误', $path, var_export($ch_info, true), APM_HOSTNAME, $diff_time);
     }
     if ($diff_time < 1) {
         _status(1, APM_HOST . "(Api)", '一秒内', $path, APM_URI, APM_HOSTNAME, $diff_time);

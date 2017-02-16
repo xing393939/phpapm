@@ -44,7 +44,7 @@ class monitor
         } elseif (APM_QUEUE_TYPE == 'redis') {
             $redis = new Redis();
             $redis_tns = parse_url(APM_QUEUE_TNS);
-            $redis->connect($redis_tns['host'], $redis_tns['port']);
+            $redis->connect($redis_tns['host'], $redis_tns['port'], 2);
 
             $length = 10 * 10000;
             $names = explode('|', APM_QUEUE_NAMES);
@@ -194,7 +194,7 @@ class monitor
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error)
-                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
+                                    _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export(array(
                                             'cal_date' => $time,
                                             'v1' => $type,
                                             'v2' => $host,
@@ -212,7 +212,7 @@ class monitor
                                             'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                         ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                 else
-                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
+                                    _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
                                 $_row_count = apm_db_row_count($stmt);
                                 if (!$_row_count) {
                                     $xxi++;
@@ -239,7 +239,7 @@ class monitor
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
                                     if ($oci_error)
-                                        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
+                                        _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export(array(
                                                 'cal_date' => $time,
                                                 'time' => date('Y-m-d H:i:s'),
                                                 'md5' => md5($time . $type . $host . $act . $key . $hostip),
@@ -258,7 +258,7 @@ class monitor
                                                 'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                             ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                     else
-                                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
+                                        _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
                                 }
                             }
                         }

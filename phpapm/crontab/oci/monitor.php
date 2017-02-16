@@ -141,7 +141,7 @@ class monitor
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error)
-                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
+                                    _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export(array(
                                             'cal_date' => $time,
                                             'v1' => $type,
                                             'v2' => $host,
@@ -159,7 +159,7 @@ class monitor
                                             'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                         ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                 else
-                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
+                                    _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
                                 $_row_count = apm_db_row_count($stmt);
                                 if (!$_row_count) {
                                     $xxi++;
@@ -186,7 +186,7 @@ class monitor
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
                                     if ($oci_error)
-                                        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
+                                        _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export(array(
                                                 'cal_date' => $time,
                                                 'time' => date('Y-m-d H:i:s'),
                                                 'md5' => md5($time . $type . $host . $act . $key . $hostip),
@@ -205,7 +205,7 @@ class monitor
                                                 'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                             ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                     else
-                                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
+                                        _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
                                 }
                             }
                         }
@@ -337,7 +337,7 @@ class monitor
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error)
-                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
+                                    _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export(array(
                                             'cal_date' => $time,
                                             'v1' => $type,
                                             'v2' => $host,
@@ -355,7 +355,7 @@ class monitor
                                             'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                         ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                 else
-                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
+                                    _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
                                 $_row_count = apm_db_row_count($stmt);
                                 if (!$_row_count) {
                                     $xxi++;
@@ -382,7 +382,7 @@ class monitor
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
                                     if ($oci_error)
-                                        _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export(array(
+                                        _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export(array(
                                                 'cal_date' => $time,
                                                 'time' => date('Y-m-d H:i:s'),
                                                 'md5' => md5($time . $type . $host . $act . $key . $hostip),
@@ -401,7 +401,7 @@ class monitor
                                                 'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                             ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                     else
-                                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
+                                        _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
                                 }
                             }
                         }
@@ -446,7 +446,7 @@ class monitor
    			);
    		}
    		foreach ($ipcs_out as $k => $v)
-   			_status($v['num'], APM_HOST . '(PHPAPM)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_HOSTNAME);
+   			_status($v['num'], APM_HOST . '(监控消耗)', "队列", $v['name'], date('Y-m-d H:i:s'), APM_HOSTNAME);
    	}
 }
 ?>

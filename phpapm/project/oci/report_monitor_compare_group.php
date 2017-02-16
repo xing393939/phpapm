@@ -44,17 +44,14 @@ class report_monitor_compare_group
         foreach ($arr_add as $v) {
             if ($v != '') {
                 $sql = "insert into ".APM_DB_PREFIX."monitor_config
-                            (V1,V2,COUNT_TYPE,V3_LINK,V4_LINK,ORDERBY,
-                           ID,AS_NAME,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,V2_GROUP,VIRTUAL_COLUMNS) values(:V1,:V2,:COUNT_TYPE,:V3_LINK,
-                           :V4_LINK,:ORDERBY,
+                           (V1,V2,ORDERBY,
+                           ID,AS_NAME,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,V2_GROUP,VIRTUAL_COLUMNS) values
+                           (:V1,:V2,:ORDERBY,
                            seq_".APM_DB_PREFIX."monitor.nextval,:AS_NAME,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:V2_GROUP,1)";
                 $stmt = apm_db_parse($conn_db, $sql);
                 $as_name = $_row['AS_NAME'] ? $_row['AS_NAME'] : $_row['V2'];
                 apm_db_bind_by_name($stmt, ':V1', $v);
                 apm_db_bind_by_name($stmt, ':V2', $_row['V1'] . '_' . $_row['V2']);
-                apm_db_bind_by_name($stmt, ':COUNT_TYPE', $_row['id']);
-                apm_db_bind_by_name($stmt, ':V3_LINK', $_row['V3_LINK']);
-                apm_db_bind_by_name($stmt, ':V4_LINK', $_row['V4_LINK']);
                 apm_db_bind_by_name($stmt, ':ORDERBY', $_row['ORDERBY']);
                 apm_db_bind_by_name($stmt, ':AS_NAME', $as_name);
                 apm_db_bind_by_name($stmt, ':DAY_COUNT_TYPE', $_row['DAY_COUNT_TYPE']);
@@ -64,19 +61,15 @@ class report_monitor_compare_group
                 $oci_error = apm_db_execute($stmt);
                 //插入v1表
                 $sql = "insert into ".APM_DB_PREFIX."monitor_v1
-                            (V1,COUNT_TYPE,CHAR_TYPE,START_CLOCK,SHOW_ALL,ID,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE,SHOW_AVG)
-                      values(:V1,:COUNT_TYPE,:CHAR_TYPE,:START_CLOCK,:SHOW_ALL,
-                           seq_".APM_DB_PREFIX."monitor.nextval,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE,:SHOW_AVG)";
+                            (V1,START_CLOCK,ID,DAY_COUNT_TYPE,HOUR_COUNT_TYPE,PERCENT_COUNT_TYPE)
+                      values(:V1,:START_CLOCK,
+                           seq_".APM_DB_PREFIX."monitor.nextval,:DAY_COUNT_TYPE,:HOUR_COUNT_TYPE,:PERCENT_COUNT_TYPE)";
                 $stmt = apm_db_parse($conn_db, $sql);
                 apm_db_bind_by_name($stmt, ':V1', $v);
-                apm_db_bind_by_name($stmt, ':COUNT_TYPE', $_row_v1['COUNT_TYPE']);
-                apm_db_bind_by_name($stmt, ':CHAR_TYPE', $_row_v1['CHAR_TYPE']);
                 apm_db_bind_by_name($stmt, ':START_CLOCK', $_row_v1['START_CLOCK']);
-                apm_db_bind_by_name($stmt, ':SHOW_ALL', $_row_v1['SHOW_ALL']);
                 apm_db_bind_by_name($stmt, ':DAY_COUNT_TYPE', $_row_v1['DAY_COUNT_TYPE']);
                 apm_db_bind_by_name($stmt, ':HOUR_COUNT_TYPE', $_row_v1['HOUR_COUNT_TYPE']);
                 apm_db_bind_by_name($stmt, ':PERCENT_COUNT_TYPE', $_row_v1['PERCENT_COUNT_TYPE']);
-                apm_db_bind_by_name($stmt, ':SHOW_AVG', $_row_v1['SHOW_AVG']);
                 $oci_error = apm_db_execute($stmt);
                 var_dump($oci_error);
             }

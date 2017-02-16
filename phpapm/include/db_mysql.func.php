@@ -5,6 +5,14 @@
  * @since  2012-06-20 18:30:44
  * @throws 注意:无DB异常处理
  */
+
+if (!defined('MYSQL_OPT_READ_TIMEOUT')) {
+    define('MYSQL_OPT_READ_TIMEOUT', 11);
+}
+if (!defined('MYSQL_OPT_WRITE_TIMEOUT')) {
+    define('MYSQL_OPT_WRITE_TIMEOUT', 12);
+}
+
 function apm_db_logon($DB)
 {
     if (!$DB)
@@ -14,16 +22,20 @@ function apm_db_logon($DB)
     $dbConfig = $apm_db_config->dbconfig;
     $DBS = explode('|', $DB);
     $DB = $DBS[time() % count($DBS)];
-    $dbConfigInterface = $dbConfig[$DB];
-    if (!$dbConfigInterface) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_HOSTNAME);
+    if (empty($dbConfig[$DB])) {
+        _status(1, APM_HOST . '(基本统计)', "SQL错误", "未定义数据库:" . $DB, APM_URI, APM_HOSTNAME);
         return null;
     }
+    $dbInfo = $dbConfig[$DB];
     $tt1 = microtime(true);
-    $conn_db = mysqli_connect($dbConfigInterface['TNS'], $dbConfigInterface['user_name'], $dbConfigInterface['password'], $dbConfigInterface['db']);
+    $conn_db = mysqli_init();
+    mysqli_options($conn_db, MYSQLI_OPT_CONNECT_TIMEOUT, 3);
+    mysqli_options($conn_db, MYSQL_OPT_READ_TIMEOUT, 3);
+    mysqli_options($conn_db, MYSQL_OPT_WRITE_TIMEOUT, 1);
+    mysqli_real_connect($conn_db, $dbInfo['TNS'], $dbInfo['user_name'], $dbInfo['password'], $dbInfo['db']);
     $diff_time = sprintf('%.5f', microtime(true) - $tt1);
     if (mysqli_connect_errno($conn_db)) {
-        _status(1, APM_HOST . '(BUG错误)', "SQL错误", $DB . '@' . mysqli_connect_error(), APM_URI, APM_HOSTNAME, $diff_time);
+        _status(1, APM_HOST . '(基本统计)', "SQL错误", $DB . '@' . mysqli_connect_error(), APM_URI, APM_HOSTNAME, $diff_time);
         return null;
     }
     //凡是使用Mysql的一律是utf-8

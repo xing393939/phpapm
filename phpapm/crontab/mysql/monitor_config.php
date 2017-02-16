@@ -99,7 +99,7 @@ class monitor_config
                     apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                     $oci_error = apm_db_execute($stmt);
                     print_r($oci_error);
-                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
+                    _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
                     $ocirowcount = apm_db_row_count($stmt);
                     if ($ocirowcount < 1) {
                         $sql = "insert into ".APM_DB_PREFIX."monitor_hour
@@ -128,9 +128,9 @@ class monitor_config
                         $oci_error = apm_db_execute($stmt);
                         print_r($oci_error);
                         if ($oci_error) {
-                            _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
+                            _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
                         } else {
-                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_HOSTNAME);
+                            _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'hour', APM_HOSTNAME);
                         }
                     }
 
@@ -166,7 +166,7 @@ class monitor_config
                             apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                             $oci_error = apm_db_execute($stmt);
                             print_r($oci_error);
-                            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
+                            _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
                             $ocirowcount = apm_db_row_count($stmt);
                             if ($ocirowcount < 1) {
                                 $sql = "insert into ".APM_DB_PREFIX."monitor_hour
@@ -195,9 +195,9 @@ class monitor_config
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error) {
-                                    _status(1, APM_HOST . "(BUG错误)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
+                                    _status(1, APM_HOST . "(基本统计)", 'SQL错误', APM_URI, var_export($oci_error, true) . "|" . var_export($_row, true));
                                 } else {
-                                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'hour', APM_HOSTNAME);
+                                    _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'hour', APM_HOSTNAME);
                                 }
                             }
                         }
@@ -234,7 +234,7 @@ class monitor_config
                 apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
                 $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
-                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'v1_config', APM_HOSTNAME);
+                _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'v1_config', APM_HOSTNAME);
             }
 
             $_row_config = array();
@@ -299,7 +299,7 @@ class monitor_config
             apm_db_bind_by_name($stmt2, ':fun_count', $_row['FUN_COUNT']);
             $oci_error = apm_db_execute($stmt2);
             print_r($oci_error);
-            _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_HOSTNAME);
+            _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_HOSTNAME);
             $_row_count = apm_db_row_count($stmt2);
             if (!$_row_count) {
                 $sql = "insert into ".APM_DB_PREFIX."monitor_date (cal_date,v1,v2,fun_count) values
@@ -311,7 +311,7 @@ class monitor_config
                 apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                 $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
-                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_HOSTNAME);
+                _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'date', APM_HOSTNAME);
             }
             $compare_group = array();
             if (isset($_row_config['COMPARE_GROUP'])) {
@@ -329,7 +329,7 @@ class monitor_config
                     apm_db_bind_by_name($stmt2, ':fun_count', $_row['FUN_COUNT']);
                     $oci_error = apm_db_execute($stmt2);
                     print_r($oci_error);
-                    _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_HOSTNAME);
+                    _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'monitor_date(update)', APM_HOSTNAME);
                     $_row_count = apm_db_row_count($stmt2);
                     if (!$_row_count) {
                         $sql = "insert into ".APM_DB_PREFIX."monitor_date (cal_date,v1,v2,fun_count) values
@@ -341,7 +341,7 @@ class monitor_config
                         apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                         $oci_error = apm_db_execute($stmt);
                         print_r($oci_error);
-                        _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'date', APM_HOSTNAME);
+                        _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'date', APM_HOSTNAME);
                     }
                 }
             }
@@ -375,7 +375,7 @@ class monitor_config
                     apm_db_bind_by_name($stmt, ':orderby', max(1, $_row2['C'] + 1));
                 $oci_error = apm_db_execute($stmt);
                 print_r($oci_error);
-                _status(1, APM_HOST . "(PHPAPM)", "统计消耗", $_row['V1'], 'config', APM_HOSTNAME);
+                _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'config', APM_HOSTNAME);
             }
         }
 

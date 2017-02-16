@@ -34,7 +34,7 @@ class monitor_fix
 
                 //记录队列状态
                 $statArr = msg_stat_queue($seg);
-                _status($statArr['msg_qnum'], APM_HOST . '(PHPAPM)', "队列", $key, var_export($statArr, true), APM_HOSTNAME);
+                _status($statArr['msg_qnum'], APM_HOST . '(监控消耗)', "队列", $key, var_export($statArr, true), APM_HOSTNAME);
 
                 $msgType = 1;
                 $msg_array = array();
@@ -48,7 +48,7 @@ class monitor_fix
         } elseif (APM_QUEUE_TYPE == 'redis') {
             $redis = new Redis();
             $redis_tns = parse_url(APM_QUEUE_TNS);
-            $redis->connect($redis_tns['host'], $redis_tns['port']);
+            $redis->connect($redis_tns['host'], $redis_tns['port'], 2);
 
             $length = 10 * 10000;
             $names = explode('|', APM_QUEUE_NAMES);
@@ -150,7 +150,7 @@ class monitor_fix
         }
         $ic = count($queue_data);
         echo "队列：从{$ic}个压缩到{$cs}<br />\n";
-        _status((($ic - $cs) / $ic) * 100, APM_HOST . '(PHPAPM)', '队列', '压缩比例', APM_QUEUE_NAMES, APM_HOSTNAME, 0, 'replace');
+        _status((($ic - $cs) / $ic) * 100, APM_HOST . '(监控消耗)', '队列', '压缩比例', APM_QUEUE_NAMES, APM_HOSTNAME, 0, 'replace');
         unset($monitor);
     }
 }

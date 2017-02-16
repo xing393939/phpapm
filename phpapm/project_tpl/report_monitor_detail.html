@@ -24,7 +24,6 @@
           <?php }?>
         <th colspan='3'><a href="javascript:void(0)" onclick="$('#nums_1').hide();$('#nums_2').show();" class="blue">百分比模式</a></th>
       </tr>
-      <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']<>1){?>
       <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
         <td>汇总</td>
         <td><?php echo count($this->fun_count)?>个&nbsp;</td>
@@ -43,31 +42,11 @@
           <td>&nbsp;</td>
           <td>&nbsp;</td>
         <?php } ?>
-        <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
-        <td>&nbsp;</td>
-        <?php }else{?>
         <td>
             <?php $num=array_sum($this->fun_count2)?>
             <?php echo format_unit($num); ?>
         </td>
-        <?php }?>
       </tr>
-      <?php }else{?>
-      <tr class = "tr-th2" style="color:#0C0; font-weight:bold;">
-        <td>平均</td>
-        <td><?php echo count($this->fun_count)?>个&nbsp;</td>
-        <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1." +24 hour");$id+=3600){ ?>
-        <td><?php echo round($this->fun_count2[date("d H",$id)]/count($this->fun_count),2)?></td>
-        <?php }?>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
-        <td><?php echo round($this->fun_count3['FUN_COUNT_AVG'],2)?>&nbsp;</td>
-        <?php }else{?>
-        <td></td>
-        <?php }?>
-      </tr>
-      <?php }?>
       <tr class = "tr-th2">
         <th>序号</th>
         <th>被监控对象</th>
@@ -84,23 +63,15 @@
         <th>系统最大CPU</th>
         <th>系统总CPU</th>
         <?php } ?>
-        <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){?>
-        <th>平均</th>
-        <?php }else{?>
         <th>总量</th>
-        <?php }?>
       </tr>
     </thead>
     <tbody>
-      <?php $i=0;if($this->fun_count) foreach($this->fun_count as $k=>$v){ if($this->v_config['V3_LINK'])$v['url']=str_replace(array('V1','V2','V3','CAL_DATE'),array($_REQUEST['type'],$_REQUEST['host'],$k,$start_date),$this->v_config['V3_LINK']);?>
+      <?php $i=0;if($this->fun_count) foreach($this->fun_count as $k=>$v) { ?>
       <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
         <td class="b-r"><?php echo $i+1+$this->pageObj->limit_1;?></td>
         <td class="b-r" style="text-align:left; width:130px;">
-          <?php if(!$v['url']){?>
           <?php echo htmlspecialchars($v['AS_NAME1'])?>
-          <?php }else{?>
-          <a href="<?php echo $v['url']?>" target="_blank" class="blue"><?php echo htmlspecialchars($v['AS_NAME1'])?></a>
-          <?php }?>
         </td>
         <?php  for($id=strtotime($start_date1);$id<strtotime($start_date1." +24 hour");$id+=3600){
                    $ii=date('d H',$id); $num=$v[$ii]['FUN_COUNT'];
@@ -146,7 +117,7 @@
               }
             ?>">
           <span><a title="<?php echo $tips ?>" data-eventtype="click" data-prompt-position="tr" data-prompt-width="<?php if (in_array($_GET['host'], array('脚本', '外网', '内网'))) { echo 800; } else { echo 660; } ?>" data-prompt="?act=report_monitor_more&cal_date=<?php echo $start_date?> <?php echo date('H:00:00',$id)?>&fun_act=<?php echo rawurlencode($k)?>&fun_host=<?php echo rawurlencode($_REQUEST['host'])?>&fun_type=<?php echo rawurlencode($_REQUEST['type'])?>" class="blue" style="cursor:pointer;" >
-              <?php echo format_unit($num, $this->host[$_GET['host']]['V2_CONFIG_OTHER']['DATA_UNITS']); ?>
+              <?php echo format_unit($num); ?>
           </a></span></p>
           <?php }?>
         </td>
@@ -193,9 +164,6 @@
           </p></td>
           <?php } ?>
 
-          <?php if($this->v1_config[$_REQUEST['type']]['SHOW_AVG']==1){ ?>
-        <td class="b-r"><?php echo $v['FUN_COUNT_AVG']?>&nbsp;</td>
-        <?php }else{?>
         <td class="b-r">
           <?php $num=$v['FUN_COUNT'];if($num==0) { ?>
           <span style="color:#AAA">0</span>
@@ -203,7 +171,6 @@
           <?php echo format_unit($num);?>
           <?php } ?>
         </td>
-        <?php }?>
       </tr>
       <?php $i++;}?>
     </tbody>
@@ -260,15 +227,11 @@
       </tr>
     </thead>
     <tbody>
-      <?php $i=0;if($this->fun_count) foreach($this->fun_count as $k=>$v){ if($this->v_config['V3_LINK'])$v['url']=str_replace(array('V1','V2','V3','CAL_DATE'),array($_REQUEST['type'],$_REQUEST['host'],$k,$start_date),$this->v_config['V3_LINK']);?>
+      <?php $i=0;if($this->fun_count) foreach($this->fun_count as $k=>$v) { ?>
       <tr class="tr-td-bd <?php if($i%2==0){echo 'odd';}else{echo 'even';}?>">
         <td class="b-r"><?php echo $i+1+$this->pageObj->limit_1;?></td>
         <td class="b-r" style="text-align:left; width:130px;">
-            <?php if(!$v['url']){?>
             <?php echo htmlspecialchars($v['AS_NAME1'])?>
-            <?php }else{?>
-            <a href="<?php echo $v['url']?>" target="_blank" class="blue"><?php echo htmlspecialchars($v['AS_NAME1'])?></a>
-            <?php }?>
         </td>
         <?php  for($id=strtotime($start_date1);$id < strtotime($start_date1.' +24 hour');$id+=3600){ $ii=date('d H',$id);?>
         <td class="b-r">
@@ -316,12 +279,11 @@
       <?php $i++;}?>
     </tbody>
   </table>
-  <?php  if($this->pageObj->total>1 && count($this->fun_count)>=300){?>
+  <?php  if($this->pageObj->currentPage>1 || count($this->fun_count)>=300){?>
   <!--分页-->
   <br />
   <div class="page fr">
-    <span><a href="?act=report_monitor_v1_do&v1=<?php echo $_GET['type']; ?>&v2=<?php echo $_GET['host']; ?>&start_date=<?php echo $_GET['start_date']; ?>">删除pv=1的v3记录</a></span>
-    <span>第<?php echo $this->pageObj->currentPage?>/<?php echo $this->pageObj->pages?>页：</span>
+    <span>第<?php echo $this->pageObj->currentPage?>页：</span>
     <?php _p("?".http_build_query(array('pageID'=>NULL)+$_GET)."&pageID={p}",false,"?".http_build_query(array('pageID'=>NULL)+$_GET)); ?>
     <?php if($this->pageObj->currentPage>1){?>
     <a href="<?php echo _p(1)?>" title='第1页' >|&lt;</a> <a href="<?php echo _p($this->pageObj->currentPage-1)?>" title='第<?php echo $this->pageObj->currentPage-1?>页' >&lt;&lt;</a>
