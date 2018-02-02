@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_date` (
   `CAL_DATE` date NOT NULL,
   `V1` varchar(100) NOT NULL,
   `V2` varchar(100) NOT NULL,
-  `FUN_COUNT` int(11) unsigned DEFAULT '0',
+  `FUN_COUNT` bigint(20) unsigned DEFAULT '0',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`CAL_DATE`,`V1`,`V2`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='日统计报表';
