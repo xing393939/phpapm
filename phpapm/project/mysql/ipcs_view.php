@@ -28,6 +28,7 @@ class ipcs_view
             $redis = new Redis();
             $redis_tns = parse_url(APM_QUEUE_TNS);
             $redis->connect($redis_tns['host'], $redis_tns['port'], 2);
+            if (!empty($redis_tns['query'])) $redis->auth($redis_tns['query']);
 
             $names = explode('|', APM_QUEUE_NAMES);
             $redis->multi(Redis::PIPELINE);

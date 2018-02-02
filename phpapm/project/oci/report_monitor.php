@@ -185,8 +185,7 @@ class report_monitor
         if ($start_date && $_REQUEST['host'] == '汇总') {
             //当日数据
             $sql = "  select v2 as v3,sum(fun_count) fun_count,round(avg(fun_count),2) fun_count_avg,to_char(t.cal_date, 'dd hh24') as cal_date_f,
-                max(t.diff_time) diff_time, sum(t.total_diff_time) total_diff_time,max(t.memory_max) memory_max, sum(t.memory_total) memory_total,
-                max(t.cpu_user_time_max) cpu_user_time_max, sum(t.cpu_user_time_total) cpu_user_time_total,max(t.cpu_sys_time_max) cpu_sys_time_max, sum(t.cpu_sys_time_total) cpu_sys_time_total
+                max(t.diff_time) diff_time, sum(t.total_diff_time) total_diff_time
                 from  ".APM_DB_PREFIX."monitor_hour t where cal_date>=to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')-1 and cal_date<to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss')+1
                 and v1=:v1  and v2<>'汇总'
                 group by v1,v2,to_char(t.cal_date, 'dd hh24')  ";
@@ -206,12 +205,6 @@ class report_monitor
                 $this->fun_count[$_row['V3']][$_row['CAL_DATE_F']] = $_row;
                 $this->fun_count[$_row['V3']]['DIFF_TIME'] = max($this->fun_count[$_row['V3']]['DIFF_TIME'], abs($_row['DIFF_TIME']));
                 $this->fun_count[$_row['V3']]['TOTAL_DIFF_TIME'] += abs($_row['TOTAL_DIFF_TIME']);
-                $this->fun_count[$_row['V3']]['MEMORY_MAX'] = max($this->fun_count[$_row['V3']]['MEMORY_MAX'], abs($_row['MEMORY_MAX']));
-                $this->fun_count[$_row['V3']]['MEMORY_TOTAL'] += abs($_row['MEMORY_TOTAL']);
-                $this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'], abs($_row['CPU_USER_TIME_MAX']));
-                $this->fun_count[$_row['V3']]['CPU_USER_TIME_TOTAL'] += abs($_row['CPU_USER_TIME_TOTAL']);
-                $this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'], abs($_row['CPU_SYS_TIME_MAX']));
-                $this->fun_count[$_row['V3']]['CPU_SYS_TIME_TOTAL'] += abs($_row['CPU_SYS_TIME_TOTAL']);
                 if ($_row['CAL_DATE_F'] >= date("d H", strtotime($start_date))) {
                     $this->fun_count[$_row['V3']]['FUN_COUNT'] += $_row['FUN_COUNT'];
                 }
@@ -263,12 +256,6 @@ class report_monitor
                     $this->fun_count[$_row['V3']][$_row['CAL_DATE_F']] = $_row;
                     $this->fun_count[$_row['V3']]['DIFF_TIME'] = max($this->fun_count[$_row['V3']]['DIFF_TIME'], abs($_row['DIFF_TIME']));
                     $this->fun_count[$_row['V3']]['TOTAL_DIFF_TIME'] += abs($_row['TOTAL_DIFF_TIME']);
-                    $this->fun_count[$_row['V3']]['MEMORY_MAX'] = max($this->fun_count[$_row['V3']]['MEMORY_MAX'], abs($_row['MEMORY_MAX']));
-                    $this->fun_count[$_row['V3']]['MEMORY_TOTAL'] += abs($_row['MEMORY_TOTAL']);
-                    $this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_USER_TIME_MAX'], abs($_row['CPU_USER_TIME_MAX']));
-                    $this->fun_count[$_row['V3']]['CPU_USER_TIME_TOTAL'] += abs($_row['CPU_USER_TIME_TOTAL']);
-                    $this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'] = max($this->fun_count[$_row['V3']]['CPU_SYS_TIME_MAX'], abs($_row['CPU_SYS_TIME_MAX']));
-                    $this->fun_count[$_row['V3']]['CPU_SYS_TIME_TOTAL'] += abs($_row['CPU_SYS_TIME_TOTAL']);
                     if ($_row['CAL_DATE_F'] >= date("d H", strtotime($start_date))) {
                         $this->fun_count[$_row['V3']]['FUN_COUNT'] += $_row['FUN_COUNT'];
                         $this->fun_count[$_row['V3']]['FUN_COUNT_I'] += 1;

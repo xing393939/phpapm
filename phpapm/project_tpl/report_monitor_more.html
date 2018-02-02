@@ -7,14 +7,6 @@
             <th>位置</th>
             <th>最耗时</th>
             <th>总耗时</th>
-            <?php if (in_array($_GET['fun_host'], array('脚本', '外网', '内网'))) { ?>
-            <th>最大内存</th>
-            <th>总内存</th>
-            <th>用户最大CPU</th>
-            <th>用户总CPU</th>
-            <th>系统最大CPU</th>
-            <th>系统总CPU</th>
-            <?php } ?>
             <th>总量</th>
 		</tr>
 	</thead>
@@ -30,26 +22,6 @@
             <td style="border-right:1px solid #BACCE1;text-align:left">
                 <?php echo format_unit($v['TOTAL_DIFF_TIME'], 'time'); ?>
             </td>
-            <?php if (in_array($_GET['fun_host'], array('脚本', '外网', '内网'))) { ?>
-            <td style="border-right:1px solid #BACCE1;text-align:left">
-                <?php echo format_unit($v['MEMORY_MAX'], 'memory'); ?>
-            </td>
-            <td style="border-right:1px solid #BACCE1;text-align:left">
-                <?php echo format_unit($v['MEMORY_TOTAL'], 'memory'); ?>
-            </td>
-            <td style="border-right:1px solid #BACCE1;text-align:left">
-                <?php echo format_unit($v['CPU_USER_TIME_MAX'], 'time'); ?>
-            </td>
-            <td style="border-right:1px solid #BACCE1;text-align:left">
-                <?php echo format_unit($v['CPU_USER_TIME_TOTAL'], 'time'); ?>
-            </td>
-            <td style="border-right:1px solid #BACCE1;text-align:left">
-                <?php echo format_unit($v['CPU_SYS_TIME_MAX'], 'time'); ?>
-            </td>
-            <td style="border-right:1px solid #BACCE1;text-align:left">
-                <?php echo format_unit($v['CPU_SYS_TIME_TOTAL'], 'time'); ?>
-            </td>
-            <?php } ?>
             <td><?php echo $v['FUN_COUNT']?></td>
 		</tr>
     <?php } ?>

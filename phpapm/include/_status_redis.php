@@ -20,6 +20,7 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
         $redis = new Redis();
         $redis_tns = parse_url(APM_QUEUE_TNS);
         $redis->connect($redis_tns['host'], $redis_tns['port'], 2);
+        if (!empty($redis_tns['query'])) $redis->auth($redis_tns['query']);
     }
     if ($v3 == NULL)
         $v3 = APM_HOSTNAME;
@@ -48,7 +49,7 @@ function _status($num, $v1, $v2, $v3 = APM_HOSTNAME, $v4 = null, $v5 = APM_HOSTN
             'uptype' => $_up_type
         ) + $add_array;
     try {
-        $redis->lpush("phpapm:{$key}", serialize($array));
+        $redis->lpush("phpapm:{$key}", json_encode($array));
     } catch (RedisException $e) {
         error_log("队列错误:{$key}", 8, '0', STR_PAD_LEFT);
     }

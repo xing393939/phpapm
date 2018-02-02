@@ -18,7 +18,7 @@ class report_monitor_group
         $conn_db = apm_db_logon(APM_DB_ALIAS);
 
         //监控消耗
-        $sql = "update ".APM_DB_PREFIX."monitor_config t set COMPARE_GROUP='监控消耗' where v1 like '%(基本统计)%' and (v2 = 'PHP错误' or v2 = 'SQL错误' or v2 = '一秒内' or v2 = '超时')";
+        $sql = "update ".APM_DB_PREFIX."monitor_config t set COMPARE_GROUP='监控消耗' where v1 like '%(基本统计)%' and (v2 = '报错' or v2 = 'SQL错误' or v2 = '一秒内' or v2 = '超时')";
         $stmt = apm_db_parse($conn_db, $sql);
         $oci_error = apm_db_execute($stmt);
 
@@ -124,7 +124,7 @@ class report_monitor_group
 
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='数据库' where (v2='SQL错误' or v2 ='问题SQL' or v2='数据库连接错误') and v1 like '%(基本统计)'";
         apm_db_execute(apm_db_parse($conn_db, $sql));
-        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='技术错误' where v1 like '%(基本统计)' and (v2='PHP错误' or v2='Curl错误' or v2='Memcache错误' ) ";
+        $sql = "update  ".APM_DB_PREFIX."monitor_config t set V2_GROUP='技术错误' where v1 like '%(基本统计)' and (v2='报错' or v2='Curl错误' or v2='Memcache错误' ) ";
         apm_db_execute(apm_db_parse($conn_db, $sql));
 
         $sql = "update  ".APM_DB_PREFIX."monitor_config t set AS_NAME='验收责任' ,V2_GROUP='问题' where v2='验收责任未到位' and v1 like '%(基本统计)'";

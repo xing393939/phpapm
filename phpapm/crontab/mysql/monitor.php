@@ -45,6 +45,7 @@ class monitor
             $redis = new Redis();
             $redis_tns = parse_url(APM_QUEUE_TNS);
             $redis->connect($redis_tns['host'], $redis_tns['port'], 2);
+            if (!empty($redis_tns['query'])) $redis->auth($redis_tns['query']);
 
             $length = 10 * 10000;
             $names = explode('|', APM_QUEUE_NAMES);
@@ -59,7 +60,7 @@ class monitor
                 if (!is_array($arData))
                     continue;
                 foreach ($arData as $row) {
-                    $queue_data[] = unserialize($row);
+                    $queue_data[] = json_decode($row, 1);
                 }
             }
         }
@@ -98,12 +99,6 @@ class monitor
                     'count' => 0,
                     'diff_time' => 0,
                     'total_diff_time' => 0,
-                    'memory_max' => 0,
-                    'memory_total' => 0,
-                    'cpu_user_time_max' => 0,
-                    'cpu_user_time_total' => 0,
-                    'cpu_sys_time_max' => 0,
-                    'cpu_sys_time_total' => 0,
                 );
             }
             $oldArr = $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']];
@@ -115,14 +110,6 @@ class monitor
             }
             $oldArr['diff_time'] = max($oldArr['diff_time'], abs($msg_array['diff_time']));
             $oldArr['total_diff_time'] += abs($msg_array['total_diff_time']);
-            if (!empty($msg_array['cpu_user_time_total'])) {
-                $oldArr['cpu_user_time_total'] += abs($msg_array['cpu_user_time_total']);
-                $oldArr['cpu_user_time_max'] = max($msg_array['cpu_user_time_max'], abs($oldArr['cpu_user_time_max']));
-                $oldArr['cpu_sys_time_total'] += abs($msg_array['cpu_sys_time_total']);
-                $oldArr['cpu_sys_time_max'] = max($msg_array['cpu_sys_time_max'], abs($oldArr['cpu_sys_time_max']));
-                $oldArr['memory_total'] += abs($msg_array['memory_total']);
-                $oldArr['memory_max'] = max($msg_array['memory_max'], abs($oldArr['memory_max']));
-            }
             $monitor[$time][$msg_array['v1']][$msg_array['v2']][$msg_array['v3']][$msg_array['v4']][$msg_array['v5']] = $oldArr;
         }
 
@@ -154,43 +141,24 @@ class monitor
                                     "\r" => null
                                 ));
                                 if ($v['uptype'] == 'replace')
-                                    //memory_max=,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total
                                     $sql = "update ".APM_DB_PREFIX."monitor set
                                     fun_count=:fun_count,
                                     oci_unique=".mt_rand(1, 2147483647).",
                                     v6=:v6,
-                                    total_diff_time=:total_diff_time,
-									memory_max=:memory_max,
-									memory_total=:memory_total,
-									cpu_user_time_max=:cpu_user_time_max,
-									cpu_user_time_total=:cpu_user_time_total,
-									cpu_sys_time_max=:cpu_sys_time_max,
-									cpu_sys_time_total=:cpu_sys_time_total
+                                    total_diff_time=:total_diff_time
 									where md5=:md5";
                                 else
                                     $sql = "update ".APM_DB_PREFIX."monitor set
                                     fun_count=fun_count+:fun_count,
                                     oci_unique=".mt_rand(1, 2147483647).",
                                     v6=GREATEST(ifnull(v6,0),:v6),
-                                    total_diff_time=total_diff_time+:total_diff_time,
-								    memory_max=GREATEST(ifnull(memory_max,0),:memory_max),
-								    memory_total=memory_total+:memory_total,
-								    cpu_user_time_max=GREATEST(ifnull(cpu_user_time_max,0),:cpu_user_time_max),
-								    cpu_user_time_total=cpu_user_time_total+:cpu_user_time_total,
-								    cpu_sys_time_max=GREATEST(ifnull(cpu_sys_time_max,0),:cpu_sys_time_max),
-								    cpu_sys_time_total=cpu_sys_time_total+:cpu_sys_time_total
+                                    total_diff_time=total_diff_time+:total_diff_time
 								    where md5=:md5";
                                 $stmt = apm_db_parse($conn_db, $sql);
                                 apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                 apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
                                 apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
-                                apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
-                                apm_db_bind_by_name($stmt, ':memory_max', $v['memory_max']);
-                                apm_db_bind_by_name($stmt, ':memory_total', $v['memory_total']);
-                                apm_db_bind_by_name($stmt, ':cpu_user_time_max', $v['cpu_user_time_max']);
-                                apm_db_bind_by_name($stmt, ':cpu_user_time_total', $v['cpu_user_time_total']);
-                                apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $v['cpu_sys_time_max']);
-                                apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $v['cpu_sys_time_total']);
+                                apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time'], true);
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error)
@@ -204,12 +172,6 @@ class monitor
                                             'fun_count' => $v['count'],
                                             'v6' => abs($v['diff_time']),
                                             'total_diff_time' => $v['total_diff_time'],
-                                            'memory_max' => $v['memory_max'],
-                                            'memory_total' => $v['memory_total'],
-                                            'cpu_user_time_max' => $v['cpu_user_time_max'],
-                                            'cpu_user_time_total' => $v['cpu_user_time_total'],
-                                            'cpu_sys_time_max' => $v['cpu_sys_time_max'],
-                                            'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                         ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                 else
                                     _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor(update)', APM_HOSTNAME);
@@ -217,8 +179,8 @@ class monitor
                                 if (!$_row_count) {
                                     $xxi++;
                                     echo "{$xxi}:[$time . $type . $host . $act . $key . $hostip]\n";
-                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total,md5)
-                                    values(NULL,:v1,:v2,:v3,:v4,:v5,:fun_count,:cal_date,:v6,:total_diff_time,:memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total,:md5)";
+                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,md5)
+                                    values(NULL,:v1,:v2,:v3,:v4,:v5,:fun_count,:cal_date,:v6,:total_diff_time,:md5)";
                                     $stmt = apm_db_parse($conn_db, $sql);
                                     apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                     apm_db_bind_by_name($stmt, ':cal_date', $time);
@@ -230,12 +192,6 @@ class monitor
                                     apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
                                     apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
                                     apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
-                                    apm_db_bind_by_name($stmt, ':memory_max', $v['memory_max']);
-                                    apm_db_bind_by_name($stmt, ':memory_total', $v['memory_total']);
-                                    apm_db_bind_by_name($stmt, ':cpu_user_time_max', $v['cpu_user_time_max']);
-                                    apm_db_bind_by_name($stmt, ':cpu_user_time_total', $v['cpu_user_time_total']);
-                                    apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $v['cpu_sys_time_max']);
-                                    apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $v['cpu_sys_time_total']);
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
                                     if ($oci_error)
@@ -250,12 +206,6 @@ class monitor
                                                 'v5' => $hostip,
                                                 'fun_count' => $v['count'],
                                                 'v6' => abs($v['diff_time']),
-                                                'memory_max' => $v['memory_max'],
-                                                'memory_total' => $v['memory_total'],
-                                                'cpu_user_time_max' => $v['cpu_user_time_max'],
-                                                'cpu_user_time_total' => $v['cpu_user_time_total'],
-                                                'cpu_sys_time_max' => $v['cpu_sys_time_max'],
-                                                'cpu_sys_time_total' => $v['cpu_sys_time_total']
                                             ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                     else
                                         _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor', APM_HOSTNAME);

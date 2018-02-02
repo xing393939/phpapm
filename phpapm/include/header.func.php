@@ -40,25 +40,14 @@ function apm_shutdown_function()
         }
     }
 
-    //获取最后一个php错误
+    //获取最后一个报错
     $e = error_get_last();
     if (strpos($e['message'], 'Call to undefined') !== false)
-        return _status(1, APM_HOST . "(基本统计)", 'PHP错误', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_HOSTNAME, $diff_time);
+        return _status(1, APM_HOST . "(基本统计)", '报错', "未定义函数", APM_URI, var_export($e, true) . "|" . var_export($_REQUEST, true) . "|" . APM_HOSTNAME, $diff_time);
     else if ($e['type'] == E_ERROR)
-        return _status(1, APM_HOST . "(基本统计)", 'PHP错误', APM_URI, var_export($e, true), APM_HOSTNAME, $diff_time);
+        return _status(1, APM_HOST . "(基本统计)", '报错', APM_URI, var_export($e, true), APM_HOSTNAME, $diff_time);
 
-    //内存消耗统计
     $add_array = array();
-    if (function_exists('getrusage') && function_exists('memory_get_peak_usage')) {
-        $data = getrusage();
-        $add_array['cpu_user_time_max'] = $data['ru_utime.tv_sec'] + $data['ru_utime.tv_usec'] / 1000000;
-        $add_array['cpu_user_time_total'] = $add_array['cpu_user_time_max'];
-        $add_array['cpu_sys_time_max'] = $data['ru_stime.tv_sec'] + $data['ru_stime.tv_usec'] / 1000000;
-        $add_array['cpu_sys_time_total'] = $add_array['cpu_sys_time_max'];
-        $add_array['memory_max'] = memory_get_peak_usage() / 1024 / 1024 / 1024;
-        $add_array['memory_total'] = $add_array['memory_max'];
-    }
-
     //功能执行统计
     if (APM_REQUEST_TYPE == 'CLI') {
         $array_str = preg_replace('/[^\x00-\x7f]+/', '', var_export($_SERVER, true));
@@ -73,7 +62,7 @@ function apm_shutdown_function()
 set_exception_handler('apm_exception_handler');
 
 function apm_exception_handler($e) {
-    _status(1, APM_HOST . '(基本统计)', "PHP错误", APM_URI, var_export(array($e->getFile(), $e->getLine(), $e->getMessage()), true));
+    _status(1, APM_HOST . '(基本统计)', "报错", APM_URI, var_export(array($e->getFile(), $e->getLine(), $e->getMessage()), true));
 }
 
 set_error_handler("apm_error_handler");
@@ -114,9 +103,9 @@ function apm_error_handler($no, $msg, $file, $line)
     } elseif (strpos($msg, 'Memcache') === 0) {
         _status(1, APM_HOST . '(基本统计)', "Memcache错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n{$debug_backtrace_str}");
     } elseif (strpos($msg, 'msg_send') !== false) {
-        _status(1, APM_HOST . '(基本统计)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}\n");
+        _status(1, APM_HOST . '(基本统计)', "报错", APM_URI, "(file:{$file} | line:{$line}){$msg}\n");
     } else {
-         _status(1, APM_HOST . '(基本统计)', "PHP错误", APM_URI, "(file:{$file} | line:{$line}){$msg}" . "\n{$debug_backtrace_str}");
+        _status(1, APM_HOST . '(基本统计)', "报错", APM_URI, "(file:{$file} | line:{$line}){$msg}" . "\n{$debug_backtrace_str}");
     }
 }
 
@@ -188,7 +177,7 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
         'SQL_SELECT_LIMIT', 'SQL_SLAVE_SKIP_COUNTER', 'SQL_SMALL_RESULT', 'SQL_WARNINGS', 'START', 'STARTING', 'STATUS', 'STOP', 'STORAGE',
         'STRAIGHT_JOIN', 'STRING', 'STRIPED', 'SUPER', 'TABLE', 'TABLES', 'TEMPORARY', 'TERMINATED', 'THEN', 'TO', 'TRAILING', 'TRANSACTIONAL',
         'TRUNCATE', 'TYPE', 'TYPES', 'UNCOMMITTED', 'UNION', 'UNIQUE', 'UNLOCK', 'UPDATE', 'USAGE', 'USE', 'USING', 'VALUES', 'VARIABLES',
-        'VIEW', 'WHEN', 'WHERE', 'WITH', 'WORK', 'WRITE', 'XOR', 'YEAR_MONTH',
+        'VIEW', 'WHEN', 'WHERE', 'WITH', 'WORK', 'WRITE', 'XOR', 'YEAR_MONTH', 'GREATEST', 'LEAST',
     );
 
     //去掉换行
@@ -197,10 +186,9 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
         "\r" => " "
     ));
     //省略''和""里面的内容
-    $sql = preg_replace('/("|\').*[^\\\]\1/U', '?', $sql);
+    $sql = preg_replace('/("|\')(|.*[^\\\])\1/U', '?', $sql);
 
-    $sql_formatted = $prev_spilt = '';
-    $sql_type = '';
+    $sql_formatted = $sql_type = $prev_spilt = '';
     $sql_type_table = array(
         'SELECT' => '(读)',
         'SHOW' => '(读)',
@@ -250,7 +238,7 @@ function apm_status_sql($db_alias, $sql, $start_time, $sql_error) {
 
         $prev_spilt = strtoupper(trim($trimmed_split, "()"));
     }
-    $sql_formatted = trim($sql_formatted);
+    $sql_formatted = preg_replace("/[\t\s]+/", " ", trim($sql_formatted));
 
     //检查in语法
     if (in_array('IN', $split_arr)) {

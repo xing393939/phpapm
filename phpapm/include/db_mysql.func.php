@@ -69,17 +69,17 @@ function apm_db_parse(& $conn_db, $sql)
  * @since  2012-11-25 17:33:09
  * @throws 注意:无DB异常处理
  */
-function apm_db_bind_by_name($stmt, $key, $value, $int = false)
+function apm_db_bind_by_name($stmt, $key, $value, $numeral = false)
 {
     $key = $key == ':DES' ? ':des' : $key;
     settype($_SERVER['last_mysql_bindname'], 'Array');
-    if (!$int)
+    if (!$numeral)
         $_SERVER['last_mysql_bindname'] += array(
             $key => $value === null ? 'null' : "'" . mysqli_real_escape_string($stmt['$conn_db'], $value) . "'"
         );
     else
         $_SERVER['last_mysql_bindname'] += array(
-            $key => $value === null ? '0' : intval($value)
+            $key => $value === null ? 0 : $value
         );
 }
 

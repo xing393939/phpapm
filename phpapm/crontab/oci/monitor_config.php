@@ -40,10 +40,9 @@ class monitor_config
         for ($it = $hourtime; $it <= $endtime; $it += 3600) {
             $hour = date('Y-m-d H:00:00', $it);
             echo "hour:{$hour}\n";
-            //每小时数据汇总memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total
+            //每小时数据汇总
             $sql = "select to_char(t.cal_date, 'yyyy-mm-dd hh24') cal_date, t.v1, decode(t.v2,null,'null',v2) v2,
-                    decode(t.v3,null,'null',v3) v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(nvl(v6,0))) DIFF_TIME, sum(abs(t.total_diff_time)) total_diff_time,
-                    max(memory_max) memory_max, sum(memory_total) memory_total, max(cpu_user_time_max) cpu_user_time_max,sum(cpu_user_time_total) cpu_user_time_total, max(cpu_sys_time_max) cpu_sys_time_max, sum(cpu_sys_time_total) cpu_sys_time_total
+                    decode(t.v3,null,'null',v3) v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(nvl(v6,0))) DIFF_TIME, sum(abs(t.total_diff_time)) total_diff_time
                     from ".APM_DB_PREFIX."monitor t
                     where cal_date >= to_date(:hour,'yyyy-mm-dd hh24:mi:ss') and cal_date <to_date(:hour,'yyyy-mm-dd hh24:mi:ss')+1/24
                     {$addwhere}
@@ -66,9 +65,8 @@ class monitor_config
                     if ($_row2['HOUR_COUNT_TYPE'] == 4) {
                         $_row['FUN_COUNT'] = $_row['FUN_COUNT_AVG'];
                     }
-                    $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count,diff_time=:diff_time, total_diff_time=:total_diff_time,
-                memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total
-                where v1=:v1 and v2=:v2 and v3=:v3  and  cal_date=to_date(:cal_date,'yyyy-mm-dd hh24') ";
+                    $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count,diff_time=:diff_time, total_diff_time=:total_diff_time
+                            where v1=:v1 and v2=:v2 and v3=:v3  and  cal_date=to_date(:cal_date,'yyyy-mm-dd hh24')";
                     $stmt = apm_db_parse($conn_db, $sql);
                     apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
                     apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
@@ -77,19 +75,13 @@ class monitor_config
                     apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                     apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
                     apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
-                    apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
-                    apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
-                    apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
-                    apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
-                    apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
-                    apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                     $oci_error = apm_db_execute($stmt);
                     print_r($oci_error);
                     _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
                     $ocirowcount = apm_db_row_count($stmt);
                     if ($ocirowcount < 1) {
-                        $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time, total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
-                    values (to_date(:cal_date,'yyyy-mm-dd hh24'),:v1,:v2,:v3,:fun_count,:diff_time, :total_diff_time, :memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total) ";
+                        $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time,total_diff_time)
+                                values (to_date(:cal_date,'yyyy-mm-dd hh24'),:v1,:v2,:v3,:fun_count,:diff_time,:total_diff_time)";
                         $stmt = apm_db_parse($conn_db, $sql);
                         apm_db_bind_by_name($stmt, ':v1', $_row['V1']);
                         apm_db_bind_by_name($stmt, ':v2', $_row['V2']);
@@ -98,12 +90,6 @@ class monitor_config
                         apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                         apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
                         apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
-                        apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
-                        apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
-                        apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
-                        apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
-                        apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
-                        apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                         $oci_error = apm_db_execute($stmt);
                         print_r($oci_error);
                         if ($oci_error) {
@@ -117,9 +103,8 @@ class monitor_config
                     $compare_group = array_filter(explode('|', '|' . $_row2['COMPARE_GROUP']));
                     if (count($compare_group) > 0) {
                         foreach ($compare_group as $v) {
-                            $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count,diff_time=:diff_time,total_diff_time=:total_diff_time,
-                                        memory_max=:memory_max, memory_total=:memory_total, cpu_user_time_max=:cpu_user_time_max, cpu_user_time_total=:cpu_user_time_total, cpu_sys_time_max=:cpu_sys_time_max, cpu_sys_time_total=:cpu_sys_time_total
-                                        where v1=:v1 and v2=:v2 and v3=:v3  and  cal_date=to_date(:cal_date,'yyyy-mm-dd hh24') ";
+                            $sql = "update ".APM_DB_PREFIX."monitor_hour set fun_count=:fun_count,diff_time=:diff_time,total_diff_time=:total_diff_time
+                                    where v1=:v1 and v2=:v2 and v3=:v3  and  cal_date=to_date(:cal_date,'yyyy-mm-dd hh24') ";
                             $stmt = apm_db_parse($conn_db, $sql);
                             apm_db_bind_by_name($stmt, ':v1', $v);
                             apm_db_bind_by_name($stmt, ':v2', $_row['V1'] . '_' . $_row['V2']);
@@ -128,19 +113,13 @@ class monitor_config
                             apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                             apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
                             apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
-                            apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
-                            apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
-                            apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
-                            apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
-                            apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
-                            apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                             $oci_error = apm_db_execute($stmt);
                             print_r($oci_error);
                             _status(1, APM_HOST . "(监控消耗)", "统计消耗", $_row['V1'], 'monitor_hour(update)', APM_HOSTNAME);
                             $ocirowcount = apm_db_row_count($stmt);
                             if ($ocirowcount < 1) {
-                                $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time,total_diff_time,memory_max,memory_total, cpu_user_time_max,cpu_user_time_total,cpu_sys_time_max,cpu_sys_time_total)
-                                            values (to_date(:cal_date,'yyyy-mm-dd hh24'),:v1,:v2,:v3,:fun_count,:diff_time,:total_diff_time, :memory_max,:memory_total, :cpu_user_time_max,:cpu_user_time_total,:cpu_sys_time_max,:cpu_sys_time_total) ";
+                                $sql = "insert into ".APM_DB_PREFIX."monitor_hour (cal_date,v1,v2,v3,fun_count,diff_time,total_diff_time)
+                                        values (to_date(:cal_date,'yyyy-mm-dd hh24'),:v1,:v2,:v3,:fun_count,:diff_time,:total_diff_time) ";
                                 $stmt = apm_db_parse($conn_db, $sql);
                                 apm_db_bind_by_name($stmt, ':v1', $v);
                                 apm_db_bind_by_name($stmt, ':v2', $_row['V1'] . '_' . $_row['V2']);
@@ -149,12 +128,6 @@ class monitor_config
                                 apm_db_bind_by_name($stmt, ':fun_count', $_row['FUN_COUNT']);
                                 apm_db_bind_by_name($stmt, ':diff_time', abs($_row['DIFF_TIME']));
                                 apm_db_bind_by_name($stmt, ':total_diff_time', abs($_row['TOTAL_DIFF_TIME']));
-                                apm_db_bind_by_name($stmt, ':memory_max', $_row['MEMORY_MAX']);
-                                apm_db_bind_by_name($stmt, ':memory_total', $_row['MEMORY_TOTAL']);
-                                apm_db_bind_by_name($stmt, ':cpu_user_time_max', $_row['CPU_USER_TIME_MAX']);
-                                apm_db_bind_by_name($stmt, ':cpu_user_time_total', $_row['CPU_USER_TIME_TOTAL']);
-                                apm_db_bind_by_name($stmt, ':cpu_sys_time_max', $_row['CPU_SYS_TIME_MAX']);
-                                apm_db_bind_by_name($stmt, ':cpu_sys_time_total', $_row['CPU_SYS_TIME_TOTAL']);
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
                                 if ($oci_error) {
