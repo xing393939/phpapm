@@ -41,7 +41,7 @@ class monitor_config
             echo "按小时汇总：{$hour1}~{$hour2}\n";
             //每小时数据汇总
             $sql = "select DATE_FORMAT(t.cal_date, '%Y-%m-%d %H') cal_date, t.v1, v2,
-                    v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(ifnull(v6,0))) DIFF_TIME,
+                    v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(ifnull(diff_time,0))) DIFF_TIME,
                     sum(abs(t.total_diff_time)) total_diff_time
                     from ".APM_DB_PREFIX."monitor t
                     where cal_date >= :hour1 and cal_date < :hour2

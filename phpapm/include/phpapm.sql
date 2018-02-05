@@ -5,7 +5,6 @@
 --
 
 CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
-  `ID` bigint(15) unsigned NOT NULL AUTO_INCREMENT,
   `V1` varchar(100) DEFAULT NULL,
   `V2` varchar(100) DEFAULT NULL,
   `V3` varchar(200) DEFAULT NULL,
@@ -13,15 +12,13 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
   `V5` varchar(200) DEFAULT NULL,
   `FUN_COUNT` int(11) unsigned DEFAULT '0',
   `CAL_DATE` datetime DEFAULT NULL,
-  `V6` decimal(12,6) DEFAULT NULL COMMENT '最大耗时',
-  `MD5` char(32) DEFAULT NULL COMMENT '唯一标志',
-  `ADD_TIME` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `MD5` char(32) NOT NULL DEFAULT '' COMMENT '唯一标志',
+  `DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '最大耗时',
   `TOTAL_DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '花费总耗时',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `MD5` (`MD5`),
+  PRIMARY KEY (`MD5`),
   KEY `CAL_DATE` (`CAL_DATE`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='所有监控' AUTO_INCREMENT=6808758 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='所有监控';
 
 -- --------------------------------------------------------
 
@@ -74,7 +71,6 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor_hour` (
   `V3` varchar(200) NOT NULL DEFAULT '',
   `FUN_COUNT` int(11) unsigned DEFAULT '0',
   `DIFF_TIME` decimal(12,6) DEFAULT NULL,
-  `ADD_TIME` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `TOTAL_DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '花费总耗时',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
   PRIMARY KEY (`CAL_DATE`,`V1`,`V2`,`V3`),

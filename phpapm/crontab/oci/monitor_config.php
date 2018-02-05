@@ -42,7 +42,7 @@ class monitor_config
             echo "hour:{$hour}\n";
             //每小时数据汇总
             $sql = "select to_char(t.cal_date, 'yyyy-mm-dd hh24') cal_date, t.v1, decode(t.v2,null,'null',v2) v2,
-                    decode(t.v3,null,'null',v3) v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(nvl(v6,0))) DIFF_TIME, sum(abs(t.total_diff_time)) total_diff_time
+                    decode(t.v3,null,'null',v3) v3, sum(fun_count) fun_count,avg(fun_count) fun_count_avg,max(abs(nvl(diff_time,0))) DIFF_TIME, sum(abs(t.total_diff_time)) total_diff_time
                     from ".APM_DB_PREFIX."monitor t
                     where cal_date >= to_date(:hour,'yyyy-mm-dd hh24:mi:ss') and cal_date <to_date(:hour,'yyyy-mm-dd hh24:mi:ss')+1/24
                     {$addwhere}

@@ -106,15 +106,15 @@ class monitor
                                     "\r" => null
                                 ));
                                 if ($v['uptype'] == 'replace')
-                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count,v6=:v6, total_diff_time=:total_diff_time
+                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count,diff_time=:diff_time, total_diff_time=:total_diff_time
 									where md5=:md5 ";
                                 else
-                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=fun_count+:fun_count,v6=:v6, total_diff_time=:total_diff_time
+                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=fun_count+:fun_count,diff_time=:diff_time, total_diff_time=:total_diff_time
 								    where md5=:md5 ";
                                 $stmt = apm_db_parse($conn_db, $sql);
                                 apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                 apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
-                                apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
+                                apm_db_bind_by_name($stmt, ':diff_time', abs($v['diff_time']));
                                 apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
@@ -127,7 +127,7 @@ class monitor
                                             'v4' => $key,
                                             'v5' => $hostip,
                                             'fun_count' => $v['count'],
-                                            'v6' => abs($v['diff_time']),
+                                            'diff_time' => abs($v['diff_time']),
                                             'total_diff_time' => $v['total_diff_time'],
                                         ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                 else
@@ -136,8 +136,8 @@ class monitor
                                 if (!$_row_count) {
                                     $xxi++;
                                     echo "{$xxi}:[$time . $type . $host . $act . $key . $hostip]\n";
-                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,md5)
-                                    values(seq_".APM_DB_PREFIX."monitor.nextval,:v1,:v2,:v3,:v4,:v5,:fun_count,to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'),:v6,:total_diff_time,:md5)";
+                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,diff_time,total_diff_time,md5)
+                                    values(seq_".APM_DB_PREFIX."monitor.nextval,:v1,:v2,:v3,:v4,:v5,:fun_count,to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'),:diff_time,:total_diff_time,:md5)";
                                     $stmt = apm_db_parse($conn_db, $sql);
                                     apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                     apm_db_bind_by_name($stmt, ':cal_date', $time);
@@ -147,7 +147,7 @@ class monitor
                                     apm_db_bind_by_name($stmt, ':v4', $key);
                                     apm_db_bind_by_name($stmt, ':v5', $hostip);
                                     apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
-                                    apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
+                                    apm_db_bind_by_name($stmt, ':diff_time', abs($v['diff_time']));
                                     apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
@@ -162,7 +162,7 @@ class monitor
                                                 'v4' => $key,
                                                 'v5' => $hostip,
                                                 'fun_count' => $v['count'],
-                                                'v6' => abs($v['diff_time']),
+                                                'diff_time' => abs($v['diff_time']),
                                             ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                     else
                                         _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
@@ -262,15 +262,15 @@ class monitor
                                     "\r" => null
                                 ));
                                 if ($v['uptype'] == 'replace')
-                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count,v6=:v6, total_diff_time=:total_diff_time
+                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=:fun_count,diff_time=:diff_time, total_diff_time=:total_diff_time
 									where md5=:md5 ";
                                 else
-                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=fun_count+:fun_count,v6=:v6, total_diff_time=:total_diff_time
+                                    $sql = "update ".APM_DB_PREFIX."monitor set fun_count=fun_count+:fun_count,diff_time=:diff_time, total_diff_time=:total_diff_time
 								    where md5=:md5 ";
                                 $stmt = apm_db_parse($conn_db, $sql);
                                 apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                 apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
-                                apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
+                                apm_db_bind_by_name($stmt, ':diff_time', abs($v['diff_time']));
                                 apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
                                 $oci_error = apm_db_execute($stmt);
                                 print_r($oci_error);
@@ -283,7 +283,7 @@ class monitor
                                             'v4' => $key,
                                             'v5' => $hostip,
                                             'fun_count' => $v['count'],
-                                            'v6' => abs($v['diff_time']),
+                                            'diff_time' => abs($v['diff_time']),
                                             'total_diff_time' => $v['total_diff_time'],
                                         ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                 else
@@ -292,8 +292,8 @@ class monitor
                                 if (!$_row_count) {
                                     $xxi++;
                                     echo "{$xxi}:[$time . $type . $host . $act . $key . $hostip]\n";
-                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,v6,total_diff_time,md5)
-                                    values(seq_".APM_DB_PREFIX."monitor.nextval,:v1,:v2,:v3,:v4,:v5,:fun_count,to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'),:v6,:total_diff_time,:md5)";
+                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,diff_time,total_diff_time,md5)
+                                    values(seq_".APM_DB_PREFIX."monitor.nextval,:v1,:v2,:v3,:v4,:v5,:fun_count,to_date(:cal_date,'yyyy-mm-dd hh24:mi:ss'),:diff_time,:total_diff_time,:md5)";
                                     $stmt = apm_db_parse($conn_db, $sql);
                                     apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                     apm_db_bind_by_name($stmt, ':cal_date', $time);
@@ -303,7 +303,7 @@ class monitor
                                     apm_db_bind_by_name($stmt, ':v4', $key);
                                     apm_db_bind_by_name($stmt, ':v5', $hostip);
                                     apm_db_bind_by_name($stmt, ':fun_count', $v['count']);
-                                    apm_db_bind_by_name($stmt, ':v6', abs($v['diff_time']));
+                                    apm_db_bind_by_name($stmt, ':diff_time', abs($v['diff_time']));
                                     apm_db_bind_by_name($stmt, ':total_diff_time', $v['total_diff_time']);
                                     $oci_error = apm_db_execute($stmt);
                                     print_r($oci_error);
@@ -318,7 +318,7 @@ class monitor
                                                 'v4' => $key,
                                                 'v5' => $hostip,
                                                 'fun_count' => $v['count'],
-                                                'v6' => abs($v['diff_time']),
+                                                'diff_time' => abs($v['diff_time']),
                                             ), true) . "|" . var_export($oci_error, true), APM_HOSTNAME);
                                     else
                                         _status(1, APM_HOST . "(监控消耗)", "统计消耗", $type, 'monitor', APM_HOSTNAME);
