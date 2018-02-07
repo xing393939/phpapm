@@ -5,6 +5,7 @@
 --
 
 CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
+  `ID` bigint(15) unsigned NOT NULL AUTO_INCREMENT,
   `V1` varchar(100) DEFAULT NULL,
   `V2` varchar(100) DEFAULT NULL,
   `V3` varchar(200) DEFAULT NULL,
@@ -16,7 +17,8 @@ CREATE TABLE IF NOT EXISTS `phpapm_monitor` (
   `DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '最大耗时',
   `TOTAL_DIFF_TIME` decimal(12,6) DEFAULT NULL COMMENT '花费总耗时',
   `OCI_UNIQUE` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '模拟ocirowcount',
-  PRIMARY KEY (`MD5`),
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `MD5` (`MD5`),
   KEY `CAL_DATE` (`CAL_DATE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='所有监控';
 

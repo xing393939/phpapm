@@ -179,8 +179,8 @@ class monitor
                                 if (!$_row_count) {
                                     $xxi++;
                                     echo "{$xxi}:[$time . $type . $host . $act . $key . $hostip]\n";
-                                    $sql = "insert into ".APM_DB_PREFIX."monitor (v1,v2,v3,v4,v5,fun_count,cal_date,diff_time,total_diff_time,md5)
-                                    values(:v1,:v2,:v3,:v4,:v5,:fun_count,:cal_date,:diff_time,:total_diff_time,:md5)";
+                                    $sql = "insert into ".APM_DB_PREFIX."monitor (id,v1,v2,v3,v4,v5,fun_count,cal_date,diff_time,total_diff_time,md5)
+                                    values(NULL,:v1,:v2,:v3,:v4,:v5,:fun_count,:cal_date,:diff_time,:total_diff_time,:md5)";
                                     $stmt = apm_db_parse($conn_db, $sql);
                                     apm_db_bind_by_name($stmt, ':md5', md5($time . $type . $host . $act . $key . $hostip));
                                     apm_db_bind_by_name($stmt, ':cal_date', $time);
