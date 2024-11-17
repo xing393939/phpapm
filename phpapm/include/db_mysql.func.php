@@ -1,9 +1,9 @@
 <?php
 /**
  * @desc   连接数据库
- * @author
- * @since  2012-06-20 18:30:44
  * @throws 注意:无DB异常处理
+ * @since  2012-06-20 18:30:44
+ * @author
  */
 
 if (!defined('MYSQL_OPT_READ_TIMEOUT')) {
@@ -47,16 +47,15 @@ function apm_db_logon($DB)
 
 /**
  * @desc   绑定查询语句
- * @author
- * @since  2012-04-02 09:51:16
  * @param string $db_conn 数据库连接
  * @param string $sql SQL语句
  * @return resource $stmt
  * @throws 无DB异常处理
+ * @author
+ * @since  2012-04-02 09:51:16
  */
-function apm_db_parse(& $conn_db, $sql)
+function apm_db_parse(&$conn_db, $sql)
 {
-    $_SERVER['last_mysql_conn'] = $conn_db;
     return array(
         '$conn_db' => $conn_db,
         '$sql' => $sql
@@ -65,9 +64,9 @@ function apm_db_parse(& $conn_db, $sql)
 
 /**
  * @desc   WHAT?
- * @author
- * @since  2012-11-25 17:33:09
  * @throws 注意:无DB异常处理
+ * @since  2012-11-25 17:33:09
+ * @author
  */
 function apm_db_bind_by_name($stmt, $key, $value, $numeral = false)
 {
@@ -85,13 +84,13 @@ function apm_db_bind_by_name($stmt, $key, $value, $numeral = false)
 
 /**
  * @desc   执行SQL查询语句
- * @author
- * @since  2012-04-02 09:53:56
  * @param resource $stmt 数据库句柄资源
  * @return resource $error 错误信息
  * @throws 无DB异常处理
+ * @since  2012-04-02 09:53:56
+ * @author
  */
-function apm_db_execute(& $stmt, $mode = 32)
+function apm_db_execute(&$stmt, $mode = 32)
 {
     $conn_db = $stmt['$conn_db'];
     settype($_SERVER['last_mysql_bindname'], 'Array');
@@ -112,9 +111,9 @@ function apm_db_execute(& $stmt, $mode = 32)
 
 /**
  * @desc   关闭数据库连接
- * @author
- * @since  2012-06-20 18:30:44
  * @throws 注意:无DB异常处理
+ * @since  2012-06-20 18:30:44
+ * @author
  */
 function apm_db_logoff(&$conn_db)
 {
@@ -131,7 +130,8 @@ function apm_db_error($stmt = null)
 
 function apm_db_row_count($stmt = null)
 {
-    return mysqli_affected_rows($_SERVER['last_mysql_conn']);
+    $conn_db = $stmt['$conn_db'];
+    return mysqli_affected_rows($conn_db);
 }
 
 function apm_db_fetch_assoc($stmt = false)

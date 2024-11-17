@@ -310,7 +310,7 @@ $t1 = microtime(true);
 ... your api query ...
 apm_status_api('http://ip.cn/query', $t1, $ch_info);
 */
-function apm_status_curl($ch_url, $start_time, $ch_info) {
+function apm_status_api($ch_url, $start_time, $ch_info) {
     $diff_time = sprintf('%.5f', microtime(true) - $start_time);
 
     $ch_arr = parse_url($ch_url);
