@@ -49,7 +49,7 @@ function apm_db_logon($DB)
  * @desc   绑定查询语句
  * @param string $db_conn 数据库连接
  * @param string $sql SQL语句
- * @return resource $stmt
+ * @return $stmt
  * @throws 无DB异常处理
  * @author
  * @since  2012-04-02 09:51:16
@@ -85,7 +85,7 @@ function apm_db_bind_by_name($stmt, $key, $value, $numeral = false)
 /**
  * @desc   执行SQL查询语句
  * @param resource $stmt 数据库句柄资源
- * @return resource $error 错误信息
+ * @return $error 错误信息
  * @throws 无DB异常处理
  * @since  2012-04-02 09:53:56
  * @author
