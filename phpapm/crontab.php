@@ -31,7 +31,7 @@ if (file_exists($file)) {
     if (class_exists($_GET['act'])) {
         $a = new $_GET['act']();
         if (method_exists($a, $_GET['act_method'])) {
-            $a->$_GET['act_method']();
+            $a->{$_GET['act_method']}();
         } else {
             exit("{$_GET['act_method']} method not found");
         }
